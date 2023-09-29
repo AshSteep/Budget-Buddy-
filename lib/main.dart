@@ -42,7 +42,7 @@ class HomePage extends StatelessWidget {
                   "Budget Buddy",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.grey[700],
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),

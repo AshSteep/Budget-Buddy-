@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,13 +31,15 @@ class LoginPage extends StatelessWidget {
         ),
         systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
+      body: Form(
+        key: _formKey,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
@@ -36,15 +47,16 @@ class LoginPage extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           "Login",
-                          style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "Login to your account",
-                          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                          style: TextStyle(
+                              fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
                     ),
@@ -52,15 +64,47 @@ class LoginPage extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 60),
                       child: Column(
                         children: <Widget>[
-                          inputFile(label: "Email"),
-                          inputFile(label: "Password", obscureText: true)
+                          TextFormField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              labelText: "Email",
+                            ),
+                            validator: (value) {
+                              final email = _emailController.text;
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!isEmailValid(email)) {
+                                return 'Please enter a valid email (lowercase ending with .com)';
+                              }
+                              return null;
+                            },
+                          ),
+                          TextFormField(
+                            controller: _passwordController,
+                            decoration: InputDecoration(
+                              labelText: "Password",
+                            ),
+                            obscureText: true,
+                            validator: (value) {
+                              final password = _passwordController.text;
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              if (!isPasswordValid(password)) {
+                                return 'Please enter a valid password (at least 6 characters, one uppercase, one lowercase, one number, and one special character)';
+                              }
+                              return null;
+                            },
+                          ),
                         ],
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 60),
                       child: Container(
-                        padding: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 0),
+                        padding: EdgeInsets.only(
+                            top: 0, left: 0, right: 0, bottom: 0),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
                             border: Border(
@@ -72,7 +116,13 @@ class LoginPage extends StatelessWidget {
                         child: MaterialButton(
                           minWidth: double.infinity,
                           height: 60,
-                          onPressed: () {},
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              // Form is valid, handle login logic here
+                              // For example, you can navigate to another page
+                              // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                            }
+                          },
                           color: Colors.blue,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -112,40 +162,23 @@ class LoginPage extends StatelessWidget {
                       ),
                     )
                   ],
-                ))
-          ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-// we will be creating a widget for text field
-Widget inputFile({label, obscureText = false}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      Text(
-        label,
-        style: TextStyle(
-            fontSize: 15, fontWeight: FontWeight.w400, color: Colors.black87),
-      ),
-      SizedBox(
-        height: 5,
-      ),
-      TextField(
-        obscureText: obscureText,
-        decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
-            ),
-            border:
-            OutlineInputBorder(borderSide: BorderSide(color: Colors.grey))),
-      ),
-      SizedBox(
-        height: 10,
-      )
-    ],
-  );
+  bool isEmailValid(String email) {
+    final emailRegex = RegExp(r'^[a-z]+@[a-z]+\.[a-z]+\.com$');
+    return emailRegex.hasMatch(email);
+  }
+
+  bool isPasswordValid(String password) {
+    final passwordRegex =
+    RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
+    return passwordRegex.hasMatch(password);
+  }
 }
