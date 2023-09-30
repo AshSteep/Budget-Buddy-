@@ -33,6 +33,8 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Form(
         key: _formKey,
+        autovalidateMode:
+            AutovalidateMode.always, // Enable automatic validation
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: double.infinity,
@@ -55,8 +57,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Text(
                           "Login to your account",
-                          style: TextStyle(
-                              fontSize: 15, color: Colors.grey[700]),
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
                     ),
@@ -75,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                                 return 'Please enter your email';
                               }
                               if (!isEmailValid(email)) {
-                                return 'Please enter a valid email (lowercase ending with .com)';
+                                return 'Please enter a valid email (lowercase, includes "@", and ends with ".com")';
                               }
                               return null;
                             },
@@ -178,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isPasswordValid(String password) {
     final passwordRegex =
-    RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
+        RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
     return passwordRegex.hasMatch(password);
   }
 }
