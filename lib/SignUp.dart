@@ -200,7 +200,7 @@ class _SignupState extends State<Signup> {
   }
 
   bool isEmailValid(String email) {
-    final emailRegex = RegExp(r'^[a-z]+@[a-z]+\.[a-z]+\.com$');
+    final emailRegex = RegExp(r'^[a-z]+@[a-z]+\.com$');
     return emailRegex.hasMatch(email);
   }
 

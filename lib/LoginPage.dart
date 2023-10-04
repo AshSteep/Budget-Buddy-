@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                                 return 'Please enter your email';
                               }
                               if (!isEmailValid(email)) {
-                                return 'Please enter a valid email (lowercase, includes "@", and ends with ".com")';
+                                return 'Invalid Mail Id include @ and make sure it ends with .com';
                               }
                               return null;
                             },
@@ -174,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   bool isEmailValid(String email) {
-    final emailRegex = RegExp(r'^[a-z]+@[a-z]+\.[a-z]+\.com$');
+    final emailRegex = RegExp(r'^[a-z]+@[a-z]+\.com$');
     return emailRegex.hasMatch(email);
   }
 

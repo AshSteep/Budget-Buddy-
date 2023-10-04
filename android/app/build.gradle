@@ -23,6 +23,10 @@ if (flutterVersionName == null) {
 }
 
 android {
+    defaultConfig {
+        // ...
+        multiDexEnabled true
+    }
     namespace "com.example.base_app"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
@@ -54,4 +58,8 @@ android {
 
 flutter {
     source '../..'
+}
+dependencies {
+    // ...
+    implementation 'androidx.multidex:multidex:2.0.1'
 }
