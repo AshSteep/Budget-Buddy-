@@ -1,4 +1,5 @@
 import 'package:base_app/HomeScreen.dart';
+import 'package:base_app/SignUp.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -171,13 +172,20 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text("Don't have an account?"),
-                        Text(
-                          " Sign up",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
+                        GestureDetector(
+                          onTap: () {
+                            // Add your onPressed function here to navigate to the sign-up page or perform any other action.
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => Signup()));
+                          },
+                          child: Text(
+                            " Sign up",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                              decoration: TextDecoration.underline, // Add underline to make it look like a link
+                            ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                     Container(

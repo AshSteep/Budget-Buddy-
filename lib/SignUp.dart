@@ -1,8 +1,11 @@
+import 'package:base_app/LoginPage.dart';
 import 'package:base_app/model/normal_user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'HomeScreen.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -28,7 +31,7 @@ class _SignupState extends State<Signup> {
 
       if (firebaseUser != null) {
         // Create a UserModal object
-        UserModal usermodel = UserModal(username: _usernameController.text);
+        UserModel usermodel = UserModel(username: _usernameController.text);
 
         // Convert UserModal to a Map
         Map<String, dynamic> userMap = usermodel.toJson();
@@ -192,14 +195,25 @@ class _SignupState extends State<Signup> {
                   child: MaterialButton(
                     minWidth: double.infinity,
                     height: 60,
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         // Form is valid, handle signup logic here
-                        // For example, you can create the account
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-                        createUser();
+                        try {
+                          // Call your createUser function
+                          await createUser();
+
+                          // If createUser() is successful, navigate to the HomeScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomeScreen()),
+                          );
+                        } catch (e) {
+                          // Handle any errors during sign-up
+                          print('Error during sign-up: $e');
+                        }
                       }
-                    },
+                    }
+                    ,
                     color: Colors.blue,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -219,15 +233,23 @@ class _SignupState extends State<Signup> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text("Already have an account?"),
-                    Text(
-                      " Login",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18,
+                    GestureDetector(
+                      onTap: () {
+                        // Navigate to the login page when "Login" is tapped
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
+                      },
+                      child: Text(
+                        " Login",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 )
+
               ],
             ),
           ),

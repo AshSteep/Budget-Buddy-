@@ -1,3 +1,4 @@
+import 'package:base_app/main.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -8,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Simple Home Screen',
+      title: 'Home',
       home: HomeScreen(),
     );
   }
@@ -19,14 +20,14 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Screen'),
+        title: Text('BUDGET BUDDY'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Welcome to Your App!',
+              'Hello ! \n Welcome to Budget Buddy.',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -35,9 +36,14 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Add functionality for this button
+                // Navigate to the login page
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                );
               },
-              child: Text('Click Me'),
+              child: Text('Log Out'),
             ),
           ],
         ),
