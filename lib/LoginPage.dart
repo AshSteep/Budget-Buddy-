@@ -94,7 +94,9 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust vertical padding as needed
+                            padding: const EdgeInsets.symmetric(
+                                vertical:
+                                    8.0), // Adjust vertical padding as needed
                             child: TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
@@ -113,7 +115,9 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust vertical padding as needed
+                            padding: const EdgeInsets.symmetric(
+                                vertical:
+                                    8.0), // Adjust vertical padding as needed
                             child: TextFormField(
                               controller: _passwordController,
                               decoration: InputDecoration(
@@ -135,10 +139,10 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                     ),
-
-                    SizedBox(height: 20),
+                    SizedBox(height: 0),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 60),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 60, vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -154,8 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                               );
                             },
                             child: Text(
-                              'Forgot Password'
-                              " Sign up",
+                              'Forgot Password',
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
@@ -239,11 +242,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
               ),
-              ElevatedButton(onPressed: (){
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => AdminPage()),
-                );
-              }, child: Text("admin")),
             ],
           ),
         ),

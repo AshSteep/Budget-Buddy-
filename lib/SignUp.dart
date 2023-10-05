@@ -51,7 +51,6 @@ class _SignupState extends State<Signup> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,15 +204,15 @@ class _SignupState extends State<Signup> {
                           // If createUser() is successful, navigate to the HomeScreen
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => HomeScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()),
                           );
                         } catch (e) {
                           // Handle any errors during sign-up
                           print('Error during sign-up: $e');
                         }
                       }
-                    }
-                    ,
+                    },
                     color: Colors.blue,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -236,7 +235,8 @@ class _SignupState extends State<Signup> {
                     GestureDetector(
                       onTap: () {
                         // Navigate to the login page when "Login" is tapped
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => LoginPage()));
                       },
                       child: Text(
                         " Login",
@@ -249,7 +249,6 @@ class _SignupState extends State<Signup> {
                     ),
                   ],
                 )
-
               ],
             ),
           ),
@@ -270,7 +269,8 @@ class _SignupState extends State<Signup> {
   }
 
   bool isPasswordValid(String password) {
-    final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
+    final passwordRegex =
+        RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
     return passwordRegex.hasMatch(password);
   }
 }
