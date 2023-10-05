@@ -243,7 +243,7 @@ class _SignupState extends State<Signup> {
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 18,
-                          decoration: TextDecoration.underline,
+                          color: Colors.blue, //  Set the color to blue
                         ),
                       ),
                     ),
@@ -265,13 +265,12 @@ class _SignupState extends State<Signup> {
   }
 
   bool isEmailValid(String email) {
-    final emailRegex = RegExp(r'^[a-z]+@[a-z]+\.com$');
+    final emailRegex = RegExp(r'^[a-z0-9]+@[a-z0-9]+\.[c][o][m]$');
     return emailRegex.hasMatch(email);
   }
 
   bool isPasswordValid(String password) {
-    final passwordRegex =
-        RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
+    final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
     return passwordRegex.hasMatch(password);
   }
 }

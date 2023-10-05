@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'Forgotpasspage.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,7 +13,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   TextEditingController _emailController = TextEditingController();
@@ -27,9 +27,9 @@ class _LoginPageState extends State<LoginPage> {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
 
       // Navigate to the next screen after successful login
-       Navigator.of(context).pushReplacement(MaterialPageRoute(
-         builder: (context) => HomeScreen(),
-       ));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => HomeScreen(),
+      ));
     } catch (e) {
       // Handle sign-in errors
       print("Error: $e");
@@ -91,38 +91,74 @@ class _LoginPageState extends State<LoginPage> {
                       padding: EdgeInsets.symmetric(horizontal: 60),
                       child: Column(
                         children: <Widget>[
-                          TextFormField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              labelText: "Email",
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust vertical padding as needed
+                            child: TextFormField(
+                              controller: _emailController,
+                              decoration: InputDecoration(
+                                labelText: "Email",
+                              ),
+                              validator: (value) {
+                                final email = _emailController.text;
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your email';
+                                }
+                                if (!isEmailValid(email)) {
+                                  return 'Invalid Mail Id include @ and make sure it ends with .com';
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (value) {
-                              final email = _emailController.text;
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              if (!isEmailValid(email)) {
-                                return 'Invalid Mail Id include @ and make sure it ends with .com';
-                              }
-                              return null;
-                            },
                           ),
-                          TextFormField(
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                              labelText: "Password",
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust vertical padding as needed
+                            child: TextFormField(
+                              controller: _passwordController,
+                              decoration: InputDecoration(
+                                labelText: "Password",
+                              ),
+                              obscureText: true,
+                              validator: (value) {
+                                final password = _passwordController.text;
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                if (!isPasswordValid(password)) {
+                                  return 'Please enter a valid password (at least 6 characters, one uppercase, one lowercase, one number, and one special character)';
+                                }
+                                return null;
+                              },
                             ),
-                            obscureText: true,
-                            validator: (value) {
-                              final password = _passwordController.text;
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              if (!isPasswordValid(password)) {
-                                return 'Please enter a valid password (at least 6 characters, one uppercase, one lowercase, one number, and one special character)';
-                              }
-                              return null;
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 60),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return ForgotPassPage();
+                                  },
+                                ),
+                              );
                             },
+                            child: Text(
+                              'Forgot Password'
+                              " Sign up",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                  color: Colors.blue),
+                            ),
                           ),
                         ],
                       ),
@@ -143,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: MaterialButton(
                           minWidth: double.infinity,
                           height: 60,
-                          onPressed: () async{
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               // Form is valid, handle login logic here
                               // For example, you can navigate to another page
@@ -175,14 +211,15 @@ class _LoginPageState extends State<LoginPage> {
                         GestureDetector(
                           onTap: () {
                             // Add your onPressed function here to navigate to the sign-up page or perform any other action.
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => Signup()));
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => Signup()));
                           },
                           child: Text(
                             " Sign up",
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 18,
-                              decoration: TextDecoration.underline, // Add underline to make it look like a link
+                              color: Colors.blue, // Set the color to blue
                             ),
                           ),
                         ),
@@ -208,7 +245,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   bool isEmailValid(String email) {
-    final emailRegex = RegExp(r'^[a-z]+@[a-z]+\.com$');
+    final emailRegex = RegExp(r'^[a-z0-9]+@[a-z0-9]+\.[c][o][m]$');
     return emailRegex.hasMatch(email);
   }
 
