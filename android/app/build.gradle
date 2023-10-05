@@ -21,7 +21,9 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
-
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-android'
 android {
     defaultConfig {
         // ...
@@ -59,6 +61,7 @@ android {
 flutter {
     source '../..'
 }
+apply plugin: 'com.google.gms.google-services'
 dependencies {
     // ...
     implementation 'androidx.multidex:multidex:2.0.1'

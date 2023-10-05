@@ -1,9 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'LoginPage.dart';
 import 'SignUp.dart';
+import 'HomeScreen.dart';
 
-void main() {
-  runApp(MaterialApp(
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
     home: HomePage(),
   )); //MaterialApp
@@ -22,13 +26,13 @@ class HomePage extends StatelessWidget {
             //while Media-query make it big as per the screen
             width: double.infinity,
             height: MediaQuery.of(context).size.height,
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 50),
             child: Column(
               //even space distribution
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Column(
+                const Column(
                   children: <Widget>[
                     Text("Welcome",
                         style: TextStyle(
@@ -51,7 +55,7 @@ class HomePage extends StatelessWidget {
                 ),
                 Container(
                   height: MediaQuery.of(context).size.height / 3,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       image:
                       DecorationImage(image: AssetImage("assets/welcome.png"))),
                 ),
@@ -67,15 +71,15 @@ class HomePage extends StatelessWidget {
                       },
                       // defining the shape
                       shape: RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.black),
+                          side: const BorderSide(color: Colors.black),
                           borderRadius: BorderRadius.circular(50)),
-                      child: Text(
+                      child: const Text(
                         "LogIn",
                         style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                       ),
                     ),
                     // signup button
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     MaterialButton(
                       minWidth: double.infinity,
                       height: 60,
@@ -86,7 +90,7 @@ class HomePage extends StatelessWidget {
                       color: Colors.blue,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50)),
-                      child: Text("Sign Up",
+                      child: const Text("Sign Up",
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,

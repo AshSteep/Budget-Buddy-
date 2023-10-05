@@ -1,3 +1,6 @@
+import 'package:base_app/HomeScreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,8 +11,29 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
+
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _signInWithEmailAndPassword() async {
+    try {
+      final String email = _emailController.text.trim();
+      final String password = _passwordController.text;
+
+      // Sign in with email and password
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      // Navigate to the next screen after successful login
+       Navigator.of(context).pushReplacement(MaterialPageRoute(
+         builder: (context) => HomeScreen(),
+       ));
+    } catch (e) {
+      // Handle sign-in errors
+      print("Error: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,11 +142,13 @@ class _LoginPageState extends State<LoginPage> {
                         child: MaterialButton(
                           minWidth: double.infinity,
                           height: 60,
-                          onPressed: () {
+                          onPressed: () async{
                             if (_formKey.currentState!.validate()) {
                               // Form is valid, handle login logic here
                               // For example, you can navigate to another page
                               // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                              // await FirebaseFirestore.instance.collection('').add(data)
+                              _signInWithEmailAndPassword();
                             }
                           },
                           color: Colors.blue,

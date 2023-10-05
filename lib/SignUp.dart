@@ -1,3 +1,6 @@
+import 'package:base_app/model/normal_user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,6 +15,39 @@ class _SignupState extends State<Signup> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore fire = FirebaseFirestore.instance;
+  Future<void> createUser() async {
+    try {
+      // Create a new user with email and password
+      UserCredential authResult = await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
+
+      // Get the Firebase user object
+      User? firebaseUser = authResult.user;
+
+      if (firebaseUser != null) {
+        // Create a UserModal object
+        UserModal usermodel = UserModal(username: _usernameController.text);
+
+        // Convert UserModal to a Map
+        Map<String, dynamic> userMap = usermodel.toJson();
+
+        // Add the user data to Firestore with the Firebase user's UID as the document ID
+        await fire.collection('users').doc(firebaseUser.uid).set(userMap);
+
+        // Successful user creation
+        print('User created successfully with UID: ${firebaseUser.uid}');
+      } else {
+        // Handle case where firebaseUser is null
+        print('User creation failed.');
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error creating user: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +76,8 @@ class _SignupState extends State<Signup> {
           width: double.infinity,
           child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction, // Enable real-time validation
+            autovalidateMode: AutovalidateMode
+                .onUserInteraction, // Enable real-time validation
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
@@ -69,7 +106,8 @@ class _SignupState extends State<Signup> {
                       decoration: InputDecoration(
                         labelText: "Username",
                       ),
-                      onChanged: (_) => _formKey.currentState!.validate(), // Validate on text change
+                      onChanged: (_) => _formKey.currentState!
+                          .validate(), // Validate on text change
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your username';
@@ -85,7 +123,8 @@ class _SignupState extends State<Signup> {
                       decoration: InputDecoration(
                         labelText: "Email",
                       ),
-                      onChanged: (_) => _formKey.currentState!.validate(), // Validate on text change
+                      onChanged: (_) => _formKey.currentState!
+                          .validate(), // Validate on text change
                       validator: (value) {
                         final email = _emailController.text;
                         if (value == null || value.isEmpty) {
@@ -103,7 +142,8 @@ class _SignupState extends State<Signup> {
                         labelText: "Password",
                       ),
                       obscureText: true,
-                      onChanged: (_) => _formKey.currentState!.validate(), // Validate on text change
+                      onChanged: (_) => _formKey.currentState!
+                          .validate(), // Validate on text change
                       validator: (value) {
                         final password = _passwordController.text;
                         if (value == null || value.isEmpty) {
@@ -121,7 +161,8 @@ class _SignupState extends State<Signup> {
                         labelText: "Confirm Password",
                       ),
                       obscureText: true,
-                      onChanged: (_) => _formKey.currentState!.validate(), // Validate on text change
+                      onChanged: (_) => _formKey.currentState!
+                          .validate(), // Validate on text change
                       validator: (value) {
                         final confirmPassword = _confirmPasswordController.text;
                         final password = _passwordController.text;
@@ -137,7 +178,8 @@ class _SignupState extends State<Signup> {
                   ],
                 ),
                 Container(
-                  padding: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 0),
+                  padding:
+                      EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
                     border: Border(
@@ -155,6 +197,7 @@ class _SignupState extends State<Signup> {
                         // Form is valid, handle signup logic here
                         // For example, you can create the account
                         // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                        createUser();
                       }
                     },
                     color: Colors.blue,
@@ -206,7 +249,7 @@ class _SignupState extends State<Signup> {
 
   bool isPasswordValid(String password) {
     final passwordRegex =
-    RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
+        RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
     return passwordRegex.hasMatch(password);
   }
 }
