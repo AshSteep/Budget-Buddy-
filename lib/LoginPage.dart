@@ -1,9 +1,11 @@
 import 'package:base_app/HomeScreen.dart';
 import 'package:base_app/SignUp.dart';
+import 'package:base_app/UserPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'AdminPage.dart';
 import 'Forgotpasspage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -28,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
 
       // Navigate to the next screen after successful login
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => HomeScreen(),
+        builder: (context) => UserPage(),
       ));
     } catch (e) {
       // Handle sign-in errors
@@ -236,7 +238,12 @@ class _LoginPageState extends State<LoginPage> {
                     )
                   ],
                 ),
-              )
+              ),
+              ElevatedButton(onPressed: (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => AdminPage()),
+                );
+              }, child: Text("admin")),
             ],
           ),
         ),
