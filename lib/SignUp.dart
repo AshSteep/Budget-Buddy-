@@ -1,11 +1,10 @@
 import 'package:base_app/LoginPage.dart';
+import 'package:base_app/UserPage.dart';
 import 'package:base_app/model/normal_user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'HomeScreen.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -204,8 +203,7 @@ class _SignupState extends State<Signup> {
                           // If createUser() is successful, navigate to the HomeScreen
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
+                            MaterialPageRoute(builder: (context) => UserPage()),
                           );
                         } catch (e) {
                           // Handle any errors during sign-up
