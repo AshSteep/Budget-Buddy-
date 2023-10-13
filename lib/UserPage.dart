@@ -1,6 +1,5 @@
-import 'package:base_app/main.dart';
+import 'package:base_app/LoginPage.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 
 class UserPage extends StatefulWidget {
   @override
@@ -8,94 +7,21 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  String selectedIncomeCategory =
-      ""; // Initialize with an empty string or a default category
-  String selectedExpenseCategory =
-      ""; // Initialize with an empty string or a default category
-  final TextEditingController incomeController = TextEditingController();
-  final TextEditingController expenseController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  List<String> incomeRecords = [];
+  List<String> expenseRecords = [];
 
-  List<String> incomeCategories = [];
-  List<String> expenseCategories = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // Fetch income and expense categories from Firestore
-    fetchCategories();
-  }
-
-  void fetchCategories() {
-    // Fetch income categories
-    FirebaseFirestore.instance
-        .collection('categories')
-        .doc('item') // Change 'item' to 'income' for income categories
-        .get()
-        .then((DocumentSnapshot incomeSnapshot) {
-      if (incomeSnapshot.exists) {
-        setState(() {
-          Map<String, dynamic> incomeList =
-              incomeSnapshot.data() as Map<String, dynamic>;
-          incomeCategories = List.from(incomeList['cat_items']);
-
-          // Check if the initial selectedIncomeCategory is empty or not in the list
-          if (selectedIncomeCategory.isEmpty ||
-              !incomeCategories.contains(selectedIncomeCategory)) {
-            // Set the initial value to the first item in the list or any default category
-            selectedIncomeCategory = incomeCategories.isNotEmpty
-                ? incomeCategories[0]
-                : "Default Income Category";
-          }
-        });
-      }
-    });
-
-    // Fetch expense categories
-    FirebaseFirestore.instance
-        .collection('categories')
-        .doc('item') // Change 'item' to 'expense' for expense categories
-        .get()
-        .then((DocumentSnapshot expenseSnapshot) {
-      if (expenseSnapshot.exists) {
-        setState(() {
-          Map<String, dynamic> expenseList =
-              expenseSnapshot.data() as Map<String, dynamic>;
-          expenseCategories = List.from(expenseList['expense']);
-
-          // Check if the initial selectedExpenseCategory is empty or not in the list
-          if (selectedExpenseCategory.isEmpty ||
-              !expenseCategories.contains(selectedExpenseCategory)) {
-            // Set the initial value to the first item in the list or any default category
-            selectedExpenseCategory = expenseCategories.isNotEmpty
-                ? expenseCategories[0]
-                : "Default Expense Category";
-          }
-        });
-      }
-    });
-  }
-
-// ...
-
-  void addIncomeRecord() {
-    final String newIncome = incomeController.text.trim();
-    if (newIncome.isNotEmpty && selectedIncomeCategory.isNotEmpty) {
-      // Implement logic to add the income record to the database
-      // You can use newIncome and selectedIncomeCategory here
-      // Then clear the input fields
-      incomeController.clear();
-      selectedIncomeCategory = "";
-    }
-  }
-
-  void addExpenseRecord() {
-    final String newExpense = expenseController.text.trim();
-    if (newExpense.isNotEmpty && selectedExpenseCategory.isNotEmpty) {
-      // Implement logic to add the expense record to the database
-      // You can use newExpense and selectedExpenseCategory here
-      // Then clear the input fields
-      expenseController.clear();
-      selectedExpenseCategory = "";
+  void _addRecord(String category) {
+    String value = amountController.text.trim();
+    if (value.isNotEmpty) {
+      setState(() {
+        if (category == "Income") {
+          incomeRecords.add(value);
+        } else if (category == "Expense") {
+          expenseRecords.add(value);
+        }
+      });
+      amountController.clear();
     }
   }
 
@@ -106,86 +32,59 @@ class _UserPageState extends State<UserPage> {
         title: Text("Budget Buddy"),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons
-                .logout), // You can change the icon to your preferred logout icon
+            icon: Icon(Icons.logout),
             onPressed: () {
-              // Implement your logout logic here
-              // For example, you can sign out the user and navigate to the login page
-              // Example:
-              // FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ));
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => LoginPage(),
+                ),
+              );
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Add Income Record",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        "Income",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      for (var record in incomeRecords)
+                        Text(record),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        "Expense",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      for (var record in expenseRecords)
+                        Text(record),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            DropdownButton<String>(
-              value: selectedIncomeCategory,
-              hint: Text("Select Income Category"),
-              items: incomeCategories.map((category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedIncomeCategory = value!;
-                });
-              },
-            ),
-            TextField(
-              controller: incomeController,
-              decoration: InputDecoration(
-                hintText: "Enter income amount",
-              ),
-            ),
-            ElevatedButton(
-              onPressed: addIncomeRecord,
-              child: Text("Add Income"),
-            ),
-            SizedBox(height: 16),
-            Text(
-              "Add Expense Record",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            DropdownButton<String>(
-              value: selectedExpenseCategory,
-              hint: Text("Select Expense Category"),
-              items: expenseCategories.map((category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedExpenseCategory = value!;
-                });
-              },
-            ),
-            TextField(
-              controller: expenseController,
-              decoration: InputDecoration(
-                hintText: "Enter expense amount",
-              ),
-            ),
-            ElevatedButton(
-              onPressed: addExpenseRecord,
-              child: Text("Add Expense"),
-            ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: () => _addRecord("Income"),
+            child: Text("Add Income"),
+          ),
+          ElevatedButton(
+            onPressed: () => _addRecord("Expense"),
+            child: Text("Add Expense"),
+          ),
+        ],
       ),
     );
   }

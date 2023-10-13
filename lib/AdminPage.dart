@@ -1,3 +1,4 @@
+import 'package:base_app/LoginPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -77,7 +78,7 @@ class _AdminPageState extends State<AdminPage> {
               // Example:
               // FirebaseAuth.instance.signOut();
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => HomePage(),
+                builder: (context) => LoginPage(),
               ));
             },
           ),

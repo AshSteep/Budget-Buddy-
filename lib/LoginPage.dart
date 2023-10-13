@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Form(
         key: _formKey,
         autovalidateMode:
-            AutovalidateMode.always, // Enable automatic validation
+        AutovalidateMode.onUserInteraction, // Enable automatic validation
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: double.infinity,
@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                         Text(
                           "Login to your account",
                           style:
-                              TextStyle(fontSize: 15, color: Colors.grey[700]),
+                          TextStyle(fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
                     ),
@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical:
-                                    8.0), // Adjust vertical padding as needed
+                                8.0), // Adjust vertical padding as needed
                             child: TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical:
-                                    8.0), // Adjust vertical padding as needed
+                                8.0), // Adjust vertical padding as needed
                             child: TextFormField(
                               controller: _passwordController,
                               decoration: InputDecoration(
@@ -158,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                               'Forgot Password',
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   color: Colors.blue),
                             ),
                           ),
@@ -253,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isPasswordValid(String password) {
     final passwordRegex =
-        RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
+    RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
     return passwordRegex.hasMatch(password);
   }
 }
