@@ -1,5 +1,18 @@
-import 'package:base_app/LoginPage.dart';
 import 'package:flutter/material.dart';
+
+class Transaction {
+  final DateTime date;
+  final double amount;
+  final String description;
+  final String category;
+
+  Transaction({
+    required this.date,
+    required this.amount,
+    required this.description,
+    required this.category,
+  });
+}
 
 class UserPage extends StatefulWidget {
   @override
@@ -7,21 +20,87 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  final List<Transaction> transactions = [];
   final TextEditingController amountController = TextEditingController();
-  List<String> incomeRecords = [];
-  List<String> expenseRecords = [];
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  String? selectedCategory;
+  DateTime selectedDate = DateTime.now();
 
-  void _addRecord(String category) {
-    String value = amountController.text.trim();
-    if (value.isNotEmpty) {
+  List<Category> categories = [
+    Category(id: '1', name: 'Income'),
+    Category(id: '2', name: 'Expense'),
+  ];
+
+  void addTransaction() {
+    final double amount = double.tryParse(amountController.text) ?? 0.0;
+    final String description = descriptionController.text;
+
+    if (amount > 0 && selectedCategory != null) {
+      transactions.add(
+          Transaction(
+            date: selectedDate,
+            amount: amount,
+            description: description,
+            category: selectedCategory!,
+          ));
       setState(() {
-        if (category == "Income") {
-          incomeRecords.add(value);
-        } else if (category == "Expense") {
-          expenseRecords.add(value);
-        }
+        amountController.clear();
+        descriptionController.clear();
       });
-      amountController.clear();
+    }
+  }
+
+  Future<void> _addCategory() async {
+    String newCategory = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Add Category"),
+          content: TextField(
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(labelText: "Category Name"),
+            onSubmitted: (value) {
+              Navigator.pop(context, value);
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context, null);
+              },
+            ),
+            TextButton(
+              child: Text("Save"),
+              onPressed: () {
+                Navigator.pop(context, textController.text);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newCategory != null) {
+      final uniqueId = UniqueKey().toString();
+      setState(() {
+        categories.add(Category(id: uniqueId, name: newCategory));
+      });
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
     }
   }
 
@@ -29,63 +108,109 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Budget Buddy"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => LoginPage(),
-                ),
-              );
-            },
-          ),
-        ],
+        title: Text('Income and Expense Tracker'),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Expanded(
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        "Income",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      for (var record in incomeRecords)
-                        Text(record),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        "Expense",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      for (var record in expenseRecords)
-                        Text(record),
-                    ],
-                  ),
+              children: [
+                Text("Date: ${selectedDate.toLocal()}".split(' ')[0]),
+                SizedBox(width: 20.0),
+                ElevatedButton(
+                  onPressed: () => _selectDate(context),
+                  child: Text('Select date'),
                 ),
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () => _addRecord("Income"),
-            child: Text("Add Income"),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: amountController,
+              decoration: InputDecoration(
+                labelText: 'Amount',
+                border: OutlineInputBorder(),
+              ),
+            ),
           ),
-          ElevatedButton(
-            onPressed: () => _addRecord("Expense"),
-            child: Text("Add Expense"),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: descriptionController,
+              decoration: InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: <Widget>[
+                DropdownButton<String>(
+                  value: selectedCategory,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedCategory = newValue;
+                    });
+                  },
+                  items: categories.map((Category category) {
+                    return DropdownMenuItem<String>(
+                      value: category.name,
+                      child: Text(category.name),
+                    );
+                  }).toList(),
+                ),
+                TextButton(
+                  onPressed: _addCategory,
+                  child: Text("Add Category"),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: addTransaction,
+              child: Text('Add Transaction'),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: transactions.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: EdgeInsets.all(8),
+                  elevation: 2,
+                  child: ListTile(
+                    title: Text(transactions[index].description),
+                    subtitle: Text(
+                      '${transactions[index].category}: \$${transactions[index].amount.toStringAsFixed(2)}',
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        setState(() {
+                          transactions.removeAt(index);
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+class Category {
+  final String id;
+  final String name;
+
+  Category({required this.id, required this.name});
 }

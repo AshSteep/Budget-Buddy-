@@ -138,8 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 0),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 60, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 5), // Reduce the top padding to 5
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -157,14 +156,16 @@ class _LoginPageState extends State<LoginPage> {
                             child: Text(
                               'Forgot Password',
                               style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.blue),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.blue,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
+
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 60),
                       child: Container(
