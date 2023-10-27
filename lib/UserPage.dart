@@ -108,7 +108,7 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Income and Expense Tracker'),
+        title: Text('Budget Buddy'),
       ),
       body: Column(
         children: <Widget>[
