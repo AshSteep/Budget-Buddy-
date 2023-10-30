@@ -30,7 +30,7 @@ class _SignupState extends State<Signup> {
 
       if (firebaseUser != null) {
         // Create a UserModal object
-        UserModel usermodel = UserModel(username: _usernameController.text);
+        UserModel usermodel = UserModel(username: _usernameController.text, userType: 'normal_user');
 
         // Convert UserModal to a Map
         Map<String, dynamic> userMap = usermodel.toJson();

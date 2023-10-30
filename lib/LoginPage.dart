@@ -1,9 +1,13 @@
+import 'package:base_app/AdminPage.dart';
 import 'package:base_app/SignUp.dart';
 import 'package:base_app/UserPage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'Forgotpasspage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,10 +16,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
 
   Future<void> _signInWithEmailAndPassword() async {
     try {
@@ -25,12 +31,54 @@ class _LoginPageState extends State<LoginPage> {
       // Sign in with email and password
       await _auth.signInWithEmailAndPassword(email: email, password: password);
 
-      // Navigate to the next screen after successful login
+      // Get the current user's UID
+      String userUID = _auth.currentUser!.uid;
+
+      // Access Firestore collection 'users' and document with UID
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userUID).get();
+
+      // Check if the document exists and userType is 'admin'
+      if (userSnapshot.exists) {
+        Map<String,dynamic> userData=userSnapshot.data() as Map<String,dynamic>;
+        String userType = userData['userType'];
+
+        if (userType == 'admin') {
+          // User is an admin
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => AdminPage(), // Replace with the admin page
+          ));
+        } else {
+          // User is not an admin
+          Navigator.of(context).pushReplacementNamed('/userPage', arguments: userUID);
+        }
+      } else {
+        // Document with UID doesn't exist
+        // Handle this case (user document not found)
+      }
+    } catch (e) {
+      // Handle sign-in errors
+      print("Error: $e");
+      // Perform error handling
+    }
+  }
+
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication =
+      await googleSignInAccount!.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+
+      await _auth.signInWithCredential(credential);
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => UserPage(),
       ));
     } catch (e) {
-      // Handle sign-in errors
       print("Error: $e");
     }
   }
@@ -57,8 +105,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Form(
         key: _formKey,
-        autovalidateMode:
-        AutovalidateMode.onUserInteraction, // Enable automatic validation
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: double.infinity,
@@ -73,16 +120,14 @@ class _LoginPageState extends State<LoginPage> {
                       children: <Widget>[
                         Text(
                           "Login",
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "Login to your account",
-                          style:
-                          TextStyle(fontSize: 15, color: Colors.grey[700]),
+                          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
                     ),
@@ -92,8 +137,8 @@ class _LoginPageState extends State<LoginPage> {
                         children: <Widget>[
                           Padding(
                             padding: const EdgeInsets.symmetric(
-                                vertical:
-                                8.0), // Adjust vertical padding as needed
+                              vertical: 8.0,
+                            ),
                             child: TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
@@ -113,8 +158,8 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
-                                vertical:
-                                8.0), // Adjust vertical padding as needed
+                              vertical: 8.0,
+                            ),
                             child: TextFormField(
                               controller: _passwordController,
                               decoration: InputDecoration(
@@ -138,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 0),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 5), // Reduce the top padding to 5
+                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 5),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -165,55 +210,93 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                     ),
-
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 60),
-                      child: Container(
-                        padding: EdgeInsets.only(
-                            top: 0, left: 0, right: 0, bottom: 0),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border(
-                              bottom: BorderSide(color: Colors.black),
-                              top: BorderSide(color: Colors.black),
-                              left: BorderSide(color: Colors.black),
-                              right: BorderSide(color: Colors.black),
-                            )),
-                        child: MaterialButton(
-                          minWidth: double.infinity,
-                          height: 60,
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              // Form is valid, handle login logic here
-                              // For example, you can navigate to another page
-                              // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-                              // await FirebaseFirestore.instance.collection('').add(data)
-                              _signInWithEmailAndPassword();
-                            }
-                          },
-                          color: Colors.blue,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 18,
-                              color: Colors.white,
+                    Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 60),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: MaterialButton(
+                              minWidth: double.infinity,
+                              height: 60,
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  _signInWithEmailAndPassword();
+                                }
+                              },
+                              color: Colors.blue,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Text(
+                                "Login",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                        SizedBox(height: 10), // Adjust the spacing between buttons
+
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 60),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: MaterialButton(
+                              minWidth: double.infinity,
+                              height: 60,
+                              onPressed: () {
+                                _signInWithGoogle();
+                              },
+                              color: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/google_logo.png',
+                                    width: 30,
+                                    height: 30,// Replace with your asset path
+                                     // Ensure the image covers the available space
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    "Sign in with Google",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+
+
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text("Don't have an account?"),
                         GestureDetector(
                           onTap: () {
-                            // Add your onPressed function here to navigate to the sign-up page or perform any other action.
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => Signup()));
                           },
@@ -222,21 +305,12 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 18,
-                              color: Colors.blue, // Set the color to blue
+                              color: Colors.blue,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    Container(
-                      padding: EdgeInsets.only(top: 100),
-                      height: 200,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage("assets/background.png"),
-                            fit: BoxFit.fitHeight),
-                      ),
-                    )
                   ],
                 ),
               ),

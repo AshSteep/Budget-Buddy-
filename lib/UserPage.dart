@@ -1,3 +1,5 @@
+import 'package:buttons_tabbar/buttons_tabbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Transaction {
@@ -20,189 +22,213 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  final List<Transaction> transactions = [];
-  final TextEditingController amountController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController textController = TextEditingController();
-  String? selectedCategory;
-  DateTime selectedDate = DateTime.now();
-
-  List<Category> categories = [
-    Category(id: '1', name: 'Income'),
-    Category(id: '2', name: 'Expense'),
-  ];
-
-  void addTransaction() {
-    final double amount = double.tryParse(amountController.text) ?? 0.0;
-    final String description = descriptionController.text;
-
-    if (amount > 0 && selectedCategory != null) {
-      transactions.add(
-          Transaction(
-            date: selectedDate,
-            amount: amount,
-            description: description,
-            category: selectedCategory!,
-          ));
-      setState(() {
-        amountController.clear();
-        descriptionController.clear();
-      });
-    }
+  List<String> expenses = []; // Initialize an empty list
+  List<String> income = []; // Initialize an empty list
+  String selectedExpense = ''; // Initialize an empty string
+  String selectedIncome = ''; // Initialize an empty string
+  String amount = '';
+  @override
+  void initState() {
+    super.initState();
+    _fetchExpensesFromServer(); // Fetch expenses from a server
   }
 
-  Future<void> _addCategory() async {
-    String newCategory = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Add Category"),
-          content: TextField(
-            textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(labelText: "Category Name"),
-            onSubmitted: (value) {
-              Navigator.pop(context, value);
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text("Cancel"),
-              onPressed: () {
-                Navigator.pop(context, null);
-              },
-            ),
-            TextButton(
-              child: Text("Save"),
-              onPressed: () {
-                Navigator.pop(context, textController.text);
-              },
-            ),
-          ],
-        );
-      },
-    );
+  // Function to fetch expenses from a server or any other source
+  void _fetchExpensesFromServer() async {
+    // Simulated data fetching or initialization of the expenses list
+    try {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .doc('item')
+          .get();
 
-    if (newCategory != null) {
-      final uniqueId = UniqueKey().toString();
-      setState(() {
-        categories.add(Category(id: uniqueId, name: newCategory));
-      });
-    }
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData =
+            userSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          expenses = List<String>.from(userData['expense'] ?? []);
+          selectedExpense = expenses.isNotEmpty ? expenses[0] : '';
+          income = List<String>.from(userData['income_cat'] ?? []);
+          selectedIncome = income.isNotEmpty ? income[0] : '';
+        });
+      } else {
+        // Handle document not found
+      }
+    } catch (e) {
+      // Handle errors
+      print("Error: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final String uid = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
       appBar: AppBar(
         title: Text('Budget Buddy'),
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Text("Date: ${selectedDate.toLocal()}".split(' ')[0]),
-                SizedBox(width: 20.0),
-                ElevatedButton(
-                  onPressed: () => _selectDate(context),
-                  child: Text('Select date'),
-                ),
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          children: <Widget>[
+            ButtonsTabBar(
+              backgroundColor: Colors.red,
+              borderWidth: 2,
+              borderColor: Colors.black,
+              labelStyle: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              unselectedLabelStyle: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+              tabs: [
+                Tab(text: 'Expense'), // Expense Tab
+                Tab(text: 'Income'), // Income Tab
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: amountController,
-              decoration: InputDecoration(
-                labelText: 'Amount',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: descriptionController,
-              decoration: InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: <Widget>[
-                DropdownButton<String>(
-                  value: selectedCategory,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedCategory = newValue;
-                    });
-                  },
-                  items: categories.map((Category category) {
-                    return DropdownMenuItem<String>(
-                      value: category.name,
-                      child: Text(category.name),
-                    );
-                  }).toList(),
-                ),
-                TextButton(
-                  onPressed: _addCategory,
-                  child: Text("Add Category"),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: addTransaction,
-              child: Text('Add Transaction'),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: transactions.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: EdgeInsets.all(8),
-                  elevation: 2,
-                  child: ListTile(
-                    title: Text(transactions[index].description),
-                    subtitle: Text(
-                      '${transactions[index].category}: \$${transactions[index].amount.toStringAsFixed(2)}',
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () {
-                        setState(() {
-                          transactions.removeAt(index);
-                        });
-                      },
+            Expanded(
+              child: TabBarView(
+                children: [
+                  // Expense Tab View
+                  Container(
+                    color: Colors.grey[200],
+                    child: Column(
+                      children: [
+                        if (expenses.isNotEmpty)
+                          Column(
+                            children: [
+                              DropdownButton<String>(
+                                value: selectedExpense,
+                                items: expenses.map((dynamic value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value as String,
+                                    child: Text(value.toString()),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    selectedExpense = newValue!;
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 20),
+                              TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Enter Amount',
+                                  border: OutlineInputBorder(),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    amount = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        if (expenses.isEmpty)
+                          Center(child: CircularProgressIndicator()),
+                        ElevatedButton(
+                            onPressed: () async {
+                              try {
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(uid)
+                                    .set({
+                                  'expenseData': FieldValue.arrayUnion([
+                                    {
+                                      'amount': amount,
+                                      'expenseType': selectedExpense,
+                                    }
+                                  ])
+                                }, SetOptions(merge: true));
+                                // Success message or further handling can be added here
+                              } catch (e) {
+                                // Handle errors or exceptions here
+                                print("Error: $e");
+                              }
+                            },
+                            child: Text("Add income")), // Loading indicator
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Expanded(
+                          child: StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
+                            builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(child: Text('Error: ${snapshot.error}'));
+                              } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                                return Center(child: Text('Document does not exist'));
+                              } else {
+                                final Map<String,dynamic> expenseData = snapshot.data!.data() as Map<String,dynamic>;
+                                List<dynamic> expenseDataList=expenseData['expenseData'];
+
+                                return Scaffold(
+                                  appBar: AppBar(
+                                    title: Text('Expense Data List'),
+                                  ),
+                                  body: ListView.builder(
+                                    itemCount: expenseDataList.length,
+                                    itemBuilder: (context, index) {
+                                      final dynamic expense = expenseDataList[index];
+
+                                      if (expense is Map<String, dynamic>) {
+                                        return ListTile(
+                                          title: Text('Amount: ${expense['amount']} - Type: ${expense['expenseType']}'),
+                                          // Other tile settings/styles as needed
+                                        );
+                                      } else {
+                                        return ListTile(
+                                          title: Text('Invalid Expense Data'),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        )
+
+                      ],
                     ),
                   ),
-                );
-              },
+                  // Income Tab View
+                  Container(
+                    color: Colors.grey[200],
+                    child: Column(
+                      children: [
+                        if (income.isNotEmpty)
+                          DropdownButton<String>(
+                            value: selectedIncome,
+                            items: income.map((dynamic value) {
+                              return DropdownMenuItem<String>(
+                                value: value as String,
+                                child: Text(value.toString()),
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedIncome = newValue!;
+                              });
+                            },
+                          ),
+                        if (income.isEmpty)
+                          Center(
+                              child:
+                                  CircularProgressIndicator()), // Loading indicator
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

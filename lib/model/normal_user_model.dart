@@ -1,7 +1,11 @@
 class UserModel {
   final String username;
-  UserModel({required this.username});
+  final String userType;
+  UserModel({
+    required this.username,
+    required this.userType
+  });
   toJson() {
-    return {"username": username};
+    return {"username": username,"userType":userType};
   }
 }

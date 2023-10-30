@@ -25,7 +25,7 @@ class _AdminPageState extends State<AdminPage> {
 
       // Use Firestore's arrayUnion to add the new category to the array
       categoriesRef.update({
-        'cat_items': FieldValue.arrayUnion([newCategory]),
+        'income_cat': FieldValue.arrayUnion([newCategory]),
       }).then((_) {
         // Clear the input field
         incomeController.clear();
