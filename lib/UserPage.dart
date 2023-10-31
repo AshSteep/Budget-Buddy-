@@ -1,6 +1,9 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'LoginPage.dart';
+import 'something'
+
 
 class Transaction {
   final DateTime date;
@@ -65,7 +68,22 @@ class _UserPageState extends State<UserPage> {
     final String uid = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Budget Buddy'),
+        title: Text("Budget Buddy"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons
+                .logout), // You can change the icon to your preferred logout icon
+            onPressed: () {
+              // Implement your logout logic here
+              // For example, you can sign out the user and navigate to the login page
+              // Example:
+              // FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ));
+            },
+          ),
+        ],
       ),
       body: DefaultTabController(
         length: 2,
@@ -149,7 +167,7 @@ class _UserPageState extends State<UserPage> {
                                 print("Error: $e");
                               }
                             },
-                            child: Text("Add income")), // Loading indicator
+                            child: Text("Add Expense")), // Loading indicator
                         SizedBox(
                           height: 15,
                         ),
