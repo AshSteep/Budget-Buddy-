@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'Forgotpasspage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -74,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
         idToken: googleSignInAuthentication.idToken,
       );
 
-      await _auth.signInWithCredential(credential);
+      await FirebaseAuth.instance.signInWithCredential(credential);
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => UserPage(),
       ));

@@ -41,13 +41,8 @@ dependencies:
   firebase_auth: ^4.10.1
   google_sign_in: ^6.1.5
   flutter_signin_button: ^2.0.0
-  flutter_native_splash: ^2.3.4
   buttons_tabbar: ^1.3.8
-
-flutter_native_splash:
-  android: true
-  background_image: "assets/bg.jpg"
-  image: "assets/financial.png"
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
