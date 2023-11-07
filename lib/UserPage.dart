@@ -1,5 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'LoginPage.dart';
+
+class Transaction {
+  final DateTime date;
+  final double amount;
+  final String description;
+  final String category;
+
+  Transaction({
+    required this.date,
+    required this.amount,
+    required this.description,
+    required this.category,
+  });
+}
 
 class UserPage extends StatefulWidget {
   @override
@@ -9,12 +26,44 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  DateTime selectedDate = DateTime.now(); // New DateTime variable for selected date
+  DateTime selectedDate = DateTime.now();
+  List<String> expenses = []; // Initialize an empty list
+  List<String> income = []; // Initialize an empty list
+  String selectedExpense = ''; // Initialize an empty string
+  String selectedIncome = ''; // Initialize an empty string
+  String amount = ''; // New DateTime variable for selected date
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _fetchExpensesFromServer(); // Fetch expenses from a server
+  }
+
+  void _fetchExpensesFromServer() async {
+    // Simulated data fetching or initialization of the expenses list
+    try {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .doc('item')
+          .get();
+
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData =
+            userSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          expenses = List<String>.from(userData['expense'] ?? []);
+          selectedExpense = expenses.isNotEmpty ? expenses[0] : '';
+          income = List<String>.from(userData['income_cat'] ?? []);
+          selectedIncome = income.isNotEmpty ? income[0] : '';
+        });
+      } else {
+        // Handle document not found
+      }
+    } catch (e) {
+      // Handle errors
+      print("Error: $e");
+    }
   }
 
   Future<void> selectDate(BuildContext context) async {
@@ -40,16 +89,42 @@ class _UserPageState extends State<UserPage>
         backgroundColor: Colors.blue[900],
         title: Text('Budget Buddy'),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.pie_chart),
-            onPressed: () {
-              // Action when the pie chart button is pressed
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              // Action when the logout button is pressed
+          PopupMenuButton(
+            icon: Icon(Icons.more_vert),
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry>[
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.pie_chart),
+                    title: Text('Charts'),
+                    onTap: () {
+                      // Action for the Pie Chart
+                    },
+                  ),
+                ),
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.person),
+                    title: Text('Profile'),
+                    onTap: () {
+                      // Action for the Profile
+                    },
+                  ),
+                ),
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.logout),
+                    title: Text('Logout'),
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => LoginPage(),
+                      ));
+                    },
+                  ),
+                ),
+                // Add more options as needed
+              ];
             },
           ),
         ],
@@ -109,13 +184,14 @@ class _UserPageState extends State<UserPage>
                 ],
               ),
               SizedBox(height: 10),
-              Card( // New Card
+              Card(
+                // New Card
                 elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 color: Colors.blue[900],
-                margin: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Container(
@@ -144,13 +220,14 @@ class _UserPageState extends State<UserPage>
                   ),
                 ),
               ),
-              Card( // New Card
+              Card(
+                // New Card
                 elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 color: Colors.blue[900],
-                margin: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Container(
@@ -185,101 +262,167 @@ class _UserPageState extends State<UserPage>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 80,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Container(
-                              height: 300, // Customize the height as needed
-                              color: Colors.blueGrey[700], // Set the desired color
-                              child: DefaultTabController(
-                                length: 2, // Number of tabs
-                                child: Column(
-                                  children: <Widget>[
-                                    TabBar(
-                                      tabs: [
-                                        Tab(text: 'Income'),
-                                        Tab(text: 'Expense'),
-                                      ],
-                                    ),
-                                    Expanded(
-                                      child: TabBarView(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                TextField(
-                                                  decoration: InputDecoration(labelText: 'Amount'),
-                                                  keyboardType: TextInputType.number,
-                                                ),
-                                                TextField(
-                                                  decoration: InputDecoration(labelText: 'Category'),
-                                                ),
-                                                TextField(
-                                                  decoration: InputDecoration(labelText: 'Extra Notes'),
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(Icons.category), // Change the icon as needed
-                                                  onPressed: () {
-                                                    // Add function to select category for income
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                TextField(
-                                                  decoration: InputDecoration(labelText: 'Amount'),
-                                                  keyboardType: TextInputType.number,
-                                                ),
-                                                TextField(
-                                                  decoration: InputDecoration(labelText: 'Category'),
-                                                ),
-                                                TextField(
-                                                  decoration: InputDecoration(labelText: 'Extra Notes'),
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(Icons.category), // Change the icon as needed
-                                                  onPressed: () {
-                                                    // Add function to select category for expense
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                      height: 80,
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Container(
+                                height: 350, // Customize the height as needed
+                                color: Colors
+                                    .blueGrey[700], // Set the desired color
+                                child: DefaultTabController(
+                                  length: 2, // Number of tabs
+                                  child: Column(
+                                    children: <Widget>[
+                                      TabBar(
+                                        tabs: [
+                                          Tab(text: 'Income'),
+                                          Tab(text: 'Expense'),
                                         ],
                                       ),
-                                    ),
-                                  ],
+                                      Expanded(
+                                        child: TabBarView(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(16.0),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Align(
+                                                          alignment: Alignment
+                                                              .topRight,
+                                                          child: IconButton(
+                                                            icon: Icon(Icons
+                                                                .calendar_today),
+                                                            onPressed: () {
+                                                              selectDate(
+                                                                  context);
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.topLeft,
+                                                          child: IconButton(
+                                                            icon: Icon(
+                                                                Icons.category),
+                                                            onPressed: () {
+                                                              // Add function to select category for income
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  TextField(
+                                                    decoration: InputDecoration(
+                                                        labelText: 'Amount'),
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                  ),
+                                                  TextField(
+                                                    decoration: InputDecoration(
+                                                        labelText: 'Text'),
+                                                  ),
+                                                  TextField(
+                                                    decoration: InputDecoration(
+                                                        labelText:
+                                                            'Extra Notes'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(16.0),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Align(
+                                                          alignment: Alignment
+                                                              .topRight,
+                                                          child: IconButton(
+                                                            icon: Icon(Icons
+                                                                .calendar_today),
+                                                            onPressed: () {
+                                                              selectDate(
+                                                                  context);
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.topLeft,
+                                                          child: IconButton(
+                                                            icon: Icon(
+                                                                Icons.category),
+                                                            onPressed: () {
+                                                              // Add function to select category for income
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  TextField(
+                                                    decoration: InputDecoration(
+                                                        labelText: 'Amount'),
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                  ),
+                                                  TextField(
+                                                    decoration: InputDecoration(
+                                                        labelText: 'Text'),
+                                                  ),
+                                                  TextField(
+                                                    decoration: InputDecoration(
+                                                        labelText:
+                                                            'Extra Notes'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          // Add function for submitting the data
+                                        },
+                                        child: Text('Submit'),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-
-
-                          },
-                        );
-                      },
-                      child: Icon(Icons.add),
-                      backgroundColor: Colors.blue[900],
-                      foregroundColor: Colors.white70,
-                      splashColor: Colors.grey,
-                      elevation: 6,
-                    )
-
-                  ),
+                              );
+                            },
+                          );
+                        },
+                        child: Icon(Icons.add),
+                        backgroundColor: Colors.blue[900],
+                        foregroundColor: Colors.white70,
+                        splashColor: Colors.grey,
+                        elevation: 6,
+                      )),
                 ],
               ),
             ],
           ),
-
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -331,7 +474,6 @@ class _UserPageState extends State<UserPage>
               ),
             ],
           ),
-
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -388,7 +530,6 @@ class _UserPageState extends State<UserPage>
     );
   }
 }
-
 
 // import 'package:buttons_tabbar/buttons_tabbar.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';

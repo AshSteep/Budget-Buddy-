@@ -65,7 +65,9 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blueGrey[900],
       appBar: AppBar(
+        backgroundColor: Colors.blue[900],
         title: Text("Budget Buddy"),
         actions: <Widget>[
           IconButton(

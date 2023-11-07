@@ -16,7 +16,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: <String>[
+      'email',
+    ],
+  );
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
@@ -62,25 +66,34 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount!.authentication;
+      await _googleSignIn.signOut(); // To force account selection each time
+      GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        print('Google sign-in aborted');
+        return;
+      }
 
+      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => UserPage(),
-      ));
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => UserPage(),
+        ),
+      );
     } catch (e) {
       print("Error: $e");
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                               minWidth: double.infinity,
                               height: 60,
                               onPressed: () {
-                                _signInWithGoogle();
+                                _signInWithGoogle(context);
                               },
                               color: Colors.white,
                               elevation: 0,
