@@ -81,6 +81,25 @@ class _UserPageState extends State<UserPage>
     }
   }
 
+  Future<void> deleteIncomeRecord(String incomeRecordId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')  // Replace 'users' with your collection name
+          .doc('items')            // Replace 'uid' with your user's document ID
+          .update({
+        'IncomeData': FieldValue.arrayRemove([
+          {'id': incomeRecordId} // Assuming 'id' is the field to identify records
+        ])
+      });
+      // Optionally, display a success message or perform other actions after deletion
+      print('Income record deleted successfully!');
+    } catch (e) {
+      // Handle errors, e.g., show an error message or handle exception
+      print('Error deleting income record: $e');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final String uid = ModalRoute.of(context)!.settings.arguments as String;
@@ -238,20 +257,70 @@ class _UserPageState extends State<UserPage>
                 ),
               ),
               SizedBox(height: 10), // Adding space after the card
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25.0),
-                    child: Text(
-                      'Balance :',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                ],
+              StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Center(child: Text('Document does not exist'));
+                  } else {
+                    final Map<String, dynamic>? data = snapshot.data!.data() as Map<String, dynamic>?;
+
+                    if (data == null || !data.containsKey('IncomeData') || !data.containsKey('expenseData')) {
+                      return Center(child: Text('Insufficient data to compute balance'));
+                    }
+
+                    List<dynamic> incomeDataList = data['IncomeData'];
+                    List<dynamic> expenseDataList = data['expenseData'];
+
+// Compute the total income
+                    double totalIncome = incomeDataList.fold(0, (previousValue, element) {
+                      if (element is Map<String, dynamic>) {
+                        // Convert 'amount' from string to double before addition
+                        return previousValue + (double.tryParse(element['amount']) ?? 0);
+                      }
+                      return previousValue;
+                    });
+
+// Compute the total expense
+                    double totalExpense = expenseDataList.fold(0, (previousValue, element) {
+                      if (element is Map<String, dynamic>) {
+                        // Convert 'amount' from string to double before addition
+                        return previousValue + (double.tryParse(element['amount']) ?? 0);
+                      }
+                      return previousValue;
+                    });
+
+
+                    // Calculate the balance
+                    double balance = totalIncome - totalExpense;
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 25.0),
+                          child: Text(
+                            'Balance : ${balance.toStringAsFixed(2)}', // Displaying balance with two decimal places
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: balance < 0 ? Colors.red : Colors.green, // Check if the balance is negative
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ],
+                    );
+
+                  }
+                },
               ),
-              SizedBox(height: 10),
+
+
+              SizedBox(height: 8),
               Card(
                 // New Card
                 elevation: 8,
@@ -324,15 +393,43 @@ class _UserPageState extends State<UserPage>
                           itemBuilder: (context, index) {
                             final dynamic income = incomeDataList[index];
                             if (income is Map<String, dynamic>) {
-                              return ListTile(
-                                title: Text(
-                                  'Amount: ${income['amount']} - Type: ${income['IncomeType']} - Date: ${income['date']}',
+                              DateTime date = income['date'].toDate();
+                              String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+                              return Card(
+                                elevation:
+                                    4, // Set the elevation to your preference
+                                margin: EdgeInsets.all(
+                                    8),
+                                color: Colors.blueGrey[900],// Adjust the margins as needed
+                                child: ListTile(
+                                  title: Text(
+                                    'Amount: ${income['amount']} - Category: ${income['incomeType']} - Date: $formattedDate',
+                                    style: TextStyle(
+                                    fontSize: 16, // Adjust the font size as desired
+                                    color: Colors.white, // Change the text color if needed
+                                    // Other text styles (fontWeight, fontStyle, etc.) can be added here
+                                  ),
+                                  ),
+                                  subtitle: Text('Record ID: ${income['id']}'), // Display the record ID for deletion
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.delete), // Icon for deletion
+                                    onPressed: () {
+                                      String incomeRecordId = income['id']; // Get the ID of the income record to delete
+                                      deleteIncomeRecord(incomeRecordId); // Call the delete function
+                                    },
+                                  ),
+                                  // Other tile settings/styles as needed
                                 ),
-                                // Other tile settings/styles as needed
                               );
                             } else {
-                              return ListTile(
-                                title: Text('Invalid Income Data'),
+                              return Card(
+                                elevation:
+                                    4, // Set the elevation to your preference
+                                margin: EdgeInsets.all(
+                                    8), // Adjust the margins as needed
+                                child: ListTile(
+                                  title: Text('Invalid Income Data'),
+                                ),
                               );
                             }
                           },
@@ -415,17 +512,36 @@ class _UserPageState extends State<UserPage>
                           itemCount: expenseDataList.length,
                           itemBuilder: (context, index) {
                             final dynamic expense = expenseDataList[index];
-
                             if (expense is Map<String, dynamic>) {
-                              return ListTile(
-                                title: Text(
-                                  'Amount: ${expense['amount']} - Type: ${expense['expenseType']} - Date: ${expense['date']}',
+                              DateTime date = expense['date'].toDate();
+                              String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+                              return Card(
+                                elevation:
+                                4, // Set the elevation to your preference
+                                margin: EdgeInsets.all(
+                                    8),
+                                color: Colors.blueGrey[900],// Adjust the margins as needed
+                                child: ListTile(
+                                  title: Text(
+                                    'Amount: ${expense['amount']} - Category: ${expense['expenseType']} - Date: $formattedDate',
+                                    style: TextStyle(
+                                      fontSize: 16, // Adjust the font size as desired
+                                      color: Colors.white, // Change the text color if needed
+                                      // Other text styles (fontWeight, fontStyle, etc.) can be added here
+                                    ),
+                                  ),
+                                  // Other tile settings/styles as needed
                                 ),
-                                // Other tile settings/styles as needed
                               );
                             } else {
-                              return ListTile(
-                                title: Text('Invalid Expense Data'),
+                              return Card(
+                                elevation:
+                                4, // Set the elevation to your preference
+                                margin: EdgeInsets.all(
+                                    8), // Adjust the margins as needed
+                                child: ListTile(
+                                  title: Text('Invalid Income Data'),
+                                ),
                               );
                             }
                           },
