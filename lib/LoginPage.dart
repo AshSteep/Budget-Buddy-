@@ -25,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-
   Future<void> _signInWithEmailAndPassword() async {
     try {
       final String email = _emailController.text.trim();
@@ -38,11 +37,15 @@ class _LoginPageState extends State<LoginPage> {
       String userUID = _auth.currentUser!.uid;
 
       // Access Firestore collection 'users' and document with UID
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userUID).get();
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userUID)
+          .get();
 
       // Check if the document exists and userType is 'admin'
       if (userSnapshot.exists) {
-        Map<String,dynamic> userData=userSnapshot.data() as Map<String,dynamic>;
+        Map<String, dynamic> userData =
+            userSnapshot.data() as Map<String, dynamic>;
         String userType = userData['userType'];
 
         if (userType == 'admin') {
@@ -52,7 +55,8 @@ class _LoginPageState extends State<LoginPage> {
           ));
         } else {
           // User is not an admin
-          Navigator.of(context).pushReplacementNamed('/userPage', arguments: userUID);
+          Navigator.of(context)
+              .pushReplacementNamed('/userPage', arguments: userUID);
         }
       } else {
         // Document with UID doesn't exist
@@ -65,7 +69,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
       await _googleSignIn.signOut(); // To force account selection each time
@@ -76,24 +79,23 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      if (googleAuth.idToken != null && googleAuth.accessToken != null) {
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken!,
+          idToken: googleAuth.idToken!,
+        );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => UserPage(),
-        ),
-      );
-    } catch (e) {
-      print("Error: $e");
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        String userUID = _auth.currentUser!.uid;
+        Navigator.of(context)
+            .pushReplacementNamed('/userPage', arguments: userUID);
+      } else {
+        print('ID token or Access token is null');
+      }
+    } catch (e, s) {
+      print("Error: $e, StackTrace: $s");
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -132,14 +134,16 @@ class _LoginPageState extends State<LoginPage> {
                       children: <Widget>[
                         Text(
                           "Login",
-                          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "Login to your account",
-                          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
                     ),
@@ -195,7 +199,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 0),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 60, vertical: 5),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -255,7 +260,8 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10), // Adjust the spacing between buttons
+                        SizedBox(
+                            height: 10), // Adjust the spacing between buttons
 
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 60),
@@ -281,8 +287,8 @@ class _LoginPageState extends State<LoginPage> {
                                   Image.asset(
                                     'assets/google_logo.png',
                                     width: 30,
-                                    height: 30,// Replace with your asset path
-                                     // Ensure the image covers the available space
+                                    height: 30, // Replace with your asset path
+                                    // Ensure the image covers the available space
                                   ),
                                   SizedBox(width: 10),
                                   Text(
@@ -300,9 +306,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-
-
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -340,7 +343,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isPasswordValid(String password) {
     final passwordRegex =
-    RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
+        RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$');
     return passwordRegex.hasMatch(password);
   }
 }

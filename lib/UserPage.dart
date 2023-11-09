@@ -83,6 +83,9 @@ class _UserPageState extends State<UserPage>
 
   @override
   Widget build(BuildContext context) {
+    final String uid = ModalRoute.of(context)!.settings.arguments as String;
+    print(uid);
+
     return Scaffold(
       backgroundColor: Colors.blueGrey[900],
       appBar: AppBar(
@@ -95,7 +98,8 @@ class _UserPageState extends State<UserPage>
               return <PopupMenuEntry>[
                 PopupMenuItem(
                   child: Container(
-                    padding: EdgeInsets.zero, // Removes the white space at the margins
+                    padding: EdgeInsets
+                        .zero, // Removes the white space at the margins
                     color: Colors.blue[900], // Example background color
                     child: ListTile(
                       leading: Icon(Icons.pie_chart),
@@ -114,10 +118,10 @@ class _UserPageState extends State<UserPage>
                   },
                 ),
 
-
                 PopupMenuItem(
                   child: Container(
-                    margin: EdgeInsets.zero, // Removes the white space at the margins
+                    margin: EdgeInsets
+                        .zero, // Removes the white space at the margins
                     color: Colors.blue[900],
                     child: ListTile(
                       leading: Icon(Icons.person),
@@ -135,62 +139,62 @@ class _UserPageState extends State<UserPage>
                     // Action for the Profile
                   },
                 ),
-              PopupMenuItem(
-              child: Container(
-              margin: EdgeInsets.zero,
-              color: Colors.blue[900],
-              child: ListTile(
-              leading: Icon(Icons.logout),
-              title: Text(
-              'Logout',
-              style: TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              ),
-              ),
-              ),
-              ),
-              onTap: () async {
-              bool confirmLogout = await showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-              title: Text('Confirm Logout'),
-              content: Text('Are you sure you want to log out?'),
-              actions: <Widget>[
-              TextButton(
-              onPressed: () {
-              Navigator.of(context).pop(false);
-              },
-              child: Text('Cancel'),
-              ),
-              TextButton(
-              onPressed: () {
-              Navigator.of(context).pop(true);
-              },
-              child: Text('Logout'),
-              ),
-              ],
-              ),
-              );
+                PopupMenuItem(
+                  child: Container(
+                    margin: EdgeInsets.zero,
+                    color: Colors.blue[900],
+                    child: ListTile(
+                      leading: Icon(Icons.logout),
+                      title: Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  onTap: () async {
+                    bool confirmLogout = await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor: Colors.grey[400],
+                        title: Text('Confirm Logout'),
+                        content: Text('Are you sure you want to log out?'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                            child: Text('Logout'),
+                          ),
+                        ],
+                      ),
+                    );
 
-              if (confirmLogout != true && confirmLogout) {
-              // Log out user from Firebase
-              await FirebaseAuth.instance.signOut();
+                    if (confirmLogout == true && confirmLogout) {
+                      // Log out user from Firebase
+                      await FirebaseAuth.instance.signOut();
 
-              // Redirect to login page
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => LoginPage(),
-              ));
-              }
-              },
-              ),
+                      // Redirect to login page
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => LoginPage(),
+                      ));
+                    }
+                  },
+                ),
 
-              // Add more options as needed
+                // Add more options as needed
               ];
             },
           ),
-
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -269,21 +273,76 @@ class _UserPageState extends State<UserPage>
                   ),
                 ),
               ),
-              Flexible(
-                flex: 0, // Initial size
+              Expanded(
                 child: Container(
-                  height: 40,
-                  width: 500,
-                  color: Colors.blueGrey[900], // Example background color
                   margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: Center(
-                    child: Text(
-                      'Income details displayed here ',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
+                  color: Colors.blueGrey[900], // Example background color
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Center(child: Text('Document does not exist'));
+                      } else {
+                        final Map<String, dynamic>? incomeData =
+                            snapshot.data!.data() as Map<String, dynamic>?;
+
+                        if (incomeData == null ||
+                            !incomeData.containsKey('IncomeData')) {
+                          return Center(child: Text('No Income Data Found'));
+                        }
+
+                        List<dynamic> incomeDataList = incomeData['IncomeData'];
+
+                        // Filter and sort the income data based on the selected date
+                        incomeDataList = incomeDataList.where((income) {
+                          if (income is Map<String, dynamic>) {
+                            DateTime incomeDate = income['date'].toDate();
+                            return incomeDate.day == selectedDate.day &&
+                                incomeDate.month == selectedDate.month &&
+                                incomeDate.year == selectedDate.year;
+                          }
+                          return false;
+                        }).toList();
+
+                        // Sort by date
+                        incomeDataList.sort((a, b) {
+                          DateTime dateA = a['date'].toDate();
+                          DateTime dateB = b['date'].toDate();
+                          return dateA.compareTo(dateB);
+                        });
+
+                        return ListView.builder(
+                          itemCount: incomeDataList.length,
+                          itemBuilder: (context, index) {
+                            final dynamic income = incomeDataList[index];
+                            if (income is Map<String, dynamic>) {
+                              return ListTile(
+                                title: Text(
+                                  'Amount: ${income['amount']} - Type: ${income['IncomeType']} - Date: ${income['date']}',
+                                ),
+                                // Other tile settings/styles as needed
+                              );
+                            } else {
+                              return ListTile(
+                                title: Text('Invalid Income Data'),
+                              );
+                            }
+                          },
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
+
               Card(
                 // New Card
                 elevation: 8,
@@ -305,22 +364,79 @@ class _UserPageState extends State<UserPage>
                   ),
                 ),
               ),
-              Flexible(
-                flex: 0, // Initial size
+              Expanded(
                 child: Container(
-                  height: 40,
-                  width: 500,
-                  color: Colors.blueGrey[900], // Example background color
                   margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: Center(
-                    child: Text(
-                      'Expense details displayed here ',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
+                  color: Colors.blueGrey[900],
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Center(child: Text('Document does not exist'));
+                      } else {
+                        final Map<String, dynamic>? expenseData =
+                            snapshot.data!.data() as Map<String, dynamic>?;
+
+                        if (expenseData == null ||
+                            !expenseData.containsKey('expenseData')) {
+                          return Center(child: Text('No Expense Data Found'));
+                        }
+
+                        List<dynamic> expenseDataList =
+                            expenseData['expenseData'];
+
+                        // Filter and sort the expense data based on the selected date
+                        expenseDataList = expenseDataList.where((expense) {
+                          if (expense is Map<String, dynamic>) {
+                            DateTime expenseDate = expense['date'].toDate();
+                            return expenseDate.day == selectedDate.day &&
+                                expenseDate.month == selectedDate.month &&
+                                expenseDate.year == selectedDate.year;
+                          }
+                          return false;
+                        }).toList();
+
+                        // Sort by date
+                        expenseDataList.sort((a, b) {
+                          DateTime dateA = a['date'].toDate();
+                          DateTime dateB = b['date'].toDate();
+                          return dateA.compareTo(dateB);
+                        });
+
+                        return ListView.builder(
+                          itemCount: expenseDataList.length,
+                          itemBuilder: (context, index) {
+                            final dynamic expense = expenseDataList[index];
+
+                            if (expense is Map<String, dynamic>) {
+                              return ListTile(
+                                title: Text(
+                                  'Amount: ${expense['amount']} - Type: ${expense['expenseType']} - Date: ${expense['date']}',
+                                ),
+                                // Other tile settings/styles as needed
+                              );
+                            } else {
+                              return ListTile(
+                                title: Text('Invalid Expense Data'),
+                              );
+                            }
+                          },
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
-              Expanded(child: Center(child: Text('Daily Content'))),
+
+              Expanded(child: Center(child: Text(''))),
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -336,11 +452,15 @@ class _UserPageState extends State<UserPage>
                               return SingleChildScrollView(
                                 child: Container(
                                   padding: EdgeInsets.only(
-                                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                                    bottom: MediaQuery.of(context)
+                                        .viewInsets
+                                        .bottom,
                                   ),
                                   child: Container(
-                                    height: 350, // Customize the height as needed
-                                    color: Colors.blueGrey[700], // Set the desired color
+                                    height:
+                                        350, // Customize the height as needed
+                                    color: Colors
+                                        .blueGrey[700], // Set the desired color
                                     child: DefaultTabController(
                                       length: 2, // Number of tabs
                                       child: Column(
@@ -355,30 +475,74 @@ class _UserPageState extends State<UserPage>
                                             child: TabBarView(
                                               children: [
                                                 Padding(
-                                                  padding: const EdgeInsets.all(16.0),
+                                                  padding: const EdgeInsets.all(
+                                                      16.0),
                                                   child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Row(
                                                         children: [
                                                           Expanded(
                                                             child: Align(
-                                                              alignment: Alignment.topRight,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .topRight,
                                                               child: IconButton(
-                                                                icon: Icon(Icons.calendar_today),
+                                                                icon: Icon(Icons
+                                                                    .calendar_today),
                                                                 onPressed: () {
-                                                                  selectDate(context);
+                                                                  selectedDate =
+                                                                      selectDate(
+                                                                              context)
+                                                                          as DateTime;
                                                                 },
                                                               ),
                                                             ),
                                                           ),
                                                           Expanded(
                                                             child: Align(
-                                                              alignment: Alignment.topLeft,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .topLeft,
                                                               child: IconButton(
-                                                                icon: Icon(Icons.category),
+                                                                icon: Icon(Icons
+                                                                    .category),
                                                                 onPressed: () {
-                                                                  // Add function to select category for income
+                                                                  showModalBottomSheet(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (BuildContext
+                                                                            context) {
+                                                                      return Column(
+                                                                        children: [
+                                                                          if (income
+                                                                              .isNotEmpty)
+                                                                            Column(
+                                                                              children: [
+                                                                                DropdownButton<String>(
+                                                                                  value: selectedIncome,
+                                                                                  items: income.map((dynamic value) {
+                                                                                    return DropdownMenuItem<String>(
+                                                                                      value: value as String,
+                                                                                      child: Text(value.toString()),
+                                                                                    );
+                                                                                  }).toList(),
+                                                                                  onChanged: (newValue) {
+                                                                                    setState(() {
+                                                                                      selectedIncome = newValue!;
+                                                                                    });
+                                                                                    Navigator.pop(context); // Close the bottom sheet on selection
+                                                                                  },
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
                                                                 },
                                                               ),
                                                             ),
@@ -386,43 +550,142 @@ class _UserPageState extends State<UserPage>
                                                         ],
                                                       ),
                                                       TextField(
-                                                        decoration: InputDecoration(labelText: 'Amount'),
-                                                        keyboardType: TextInputType.number,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          labelText: 'Amount',
+                                                        ),
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            amount =
+                                                                value; // Use the value to update the desired state or variable.
+                                                          });
+                                                        },
                                                       ),
                                                       TextField(
-                                                        decoration: InputDecoration(labelText: 'Text'),
+                                                        decoration:
+                                                            InputDecoration(
+                                                                labelText:
+                                                                    'Text'),
                                                       ),
                                                       TextField(
-                                                        decoration: InputDecoration(labelText: 'Extra Notes'),
+                                                        decoration:
+                                                            InputDecoration(
+                                                                labelText:
+                                                                    'Extra Notes'),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () async {
+                                                          try {
+                                                            // Add logic to handle income data insertion to Firestore
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'users')
+                                                                .doc(uid)
+                                                                .set(
+                                                                    {
+                                                                  'IncomeData':
+                                                                      FieldValue
+                                                                          .arrayUnion([
+                                                                    {
+                                                                      'amount':
+                                                                          amount, // Replace with your income amount data
+                                                                      'incomeType':
+                                                                          selectedIncome, // Replace with selected income type
+                                                                      'date':
+                                                                          selectedDate, // Replace with selected date
+                                                                    }
+                                                                  ])
+                                                                },
+                                                                    SetOptions(
+                                                                        merge:
+                                                                            true));
+                                                            // Success message or further handling can be added here
+                                                          } catch (e) {
+                                                            // Handle errors or exceptions here
+                                                            print("Error: $e");
+                                                          }
+                                                        },
+                                                        child: Text("Submit"),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding: const EdgeInsets.all(16.0),
+                                                  padding: const EdgeInsets.all(
+                                                      16.0),
                                                   child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Row(
                                                         children: [
                                                           Expanded(
                                                             child: Align(
-                                                              alignment: Alignment.topRight,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .topRight,
                                                               child: IconButton(
-                                                                icon: Icon(Icons.calendar_today),
+                                                                icon: Icon(Icons
+                                                                    .calendar_today),
                                                                 onPressed: () {
-                                                                  selectDate(context);
+                                                                  selectedDate =
+                                                                      selectDate(
+                                                                              context)
+                                                                          as DateTime;
                                                                 },
                                                               ),
                                                             ),
                                                           ),
                                                           Expanded(
                                                             child: Align(
-                                                              alignment: Alignment.topLeft,
+                                                              alignment:
+                                                                  Alignment
+                                                                      .topLeft,
                                                               child: IconButton(
-                                                                icon: Icon(Icons.category),
+                                                                icon: Icon(Icons
+                                                                    .category),
                                                                 onPressed: () {
-                                                                  // Add function to select category for expense
+                                                                  showModalBottomSheet(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (BuildContext
+                                                                            context) {
+                                                                      return Column(
+                                                                        children: [
+                                                                          if (expenses
+                                                                              .isNotEmpty)
+                                                                            Column(
+                                                                              children: [
+                                                                                DropdownButton<String>(
+                                                                                  value: selectedExpense,
+                                                                                  items: expenses.map((dynamic value) {
+                                                                                    return DropdownMenuItem<String>(
+                                                                                      value: value as String,
+                                                                                      child: Text(value.toString()),
+                                                                                    );
+                                                                                  }).toList(),
+                                                                                  onChanged: (newValue) {
+                                                                                    setState(() {
+                                                                                      selectedExpense = newValue!;
+                                                                                    });
+                                                                                    Navigator.pop(context); // Close the bottom sheet on selection
+                                                                                  },
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
                                                                 },
                                                               ),
                                                             ),
@@ -430,14 +693,68 @@ class _UserPageState extends State<UserPage>
                                                         ],
                                                       ),
                                                       TextField(
-                                                        decoration: InputDecoration(labelText: 'Amount'),
-                                                        keyboardType: TextInputType.number,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          labelText: 'Amount',
+                                                        ),
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            amount =
+                                                                value; // Use the value to update the desired state or variable.
+                                                          });
+                                                        },
                                                       ),
                                                       TextField(
-                                                        decoration: InputDecoration(labelText: 'Text'),
+                                                        decoration:
+                                                            InputDecoration(
+                                                                labelText:
+                                                                    'Text'),
                                                       ),
                                                       TextField(
-                                                        decoration: InputDecoration(labelText: 'Extra Notes'),
+                                                        decoration:
+                                                            InputDecoration(
+                                                                labelText:
+                                                                    'Extra Notes'),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () async {
+                                                          try {
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'users')
+                                                                .doc(uid)
+                                                                .set(
+                                                                    {
+                                                                  'expenseData':
+                                                                      FieldValue
+                                                                          .arrayUnion([
+                                                                    {
+                                                                      'amount':
+                                                                          amount,
+                                                                      'expenseType':
+                                                                          selectedExpense,
+                                                                      'date':
+                                                                          selectedDate,
+                                                                    }
+                                                                  ])
+                                                                },
+                                                                    SetOptions(
+                                                                        merge:
+                                                                            true));
+                                                            // Success message or further handling can be added here
+                                                          } catch (e) {
+                                                            // Handle errors or exceptions here
+                                                            print("Error: $e");
+                                                          }
+                                                        },
+                                                        child: Text("Submit"),
                                                       ),
                                                     ],
                                                   ),
@@ -445,12 +762,8 @@ class _UserPageState extends State<UserPage>
                                               ],
                                             ),
                                           ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              // Add function for submitting the data
-                                            },
-                                            child: Text('Submit'),
-                                          ),
+
+                                          // Loading indicator
                                         ],
                                       ),
                                     ),
