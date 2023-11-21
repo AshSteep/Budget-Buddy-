@@ -1,3 +1,4 @@
+import 'package:base_app/pie_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,6 +33,8 @@ class _UserPageState extends State<UserPage>
   String selectedExpense = ''; // Initialize an empty string
   String selectedIncome = ''; // Initialize an empty string
   String amount = ''; // New DateTime variable for selected date
+  String subject = ''; // New DateTime variable for selected date
+  String extraNotes = ''; // New DateTime variable for selected date
 
   @override
   void initState() {
@@ -66,7 +69,7 @@ class _UserPageState extends State<UserPage>
     }
   }
 
-  Future<void> selectDate(BuildContext context) async {
+  selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -84,11 +87,13 @@ class _UserPageState extends State<UserPage>
   Future<void> deleteIncomeRecord(String incomeRecordId) async {
     try {
       await FirebaseFirestore.instance
-          .collection('users')  // Replace 'users' with your collection name
-          .doc('items')            // Replace 'uid' with your user's document ID
+          .collection('users') // Replace 'users' with your collection name
+          .doc('items') // Replace 'uid' with your user's document ID
           .update({
         'IncomeData': FieldValue.arrayRemove([
-          {'id': incomeRecordId} // Assuming 'id' is the field to identify records
+          {
+            'id': incomeRecordId
+          } // Assuming 'id' is the field to identify records
         ])
       });
       // Optionally, display a success message or perform other actions after deletion
@@ -99,6 +104,25 @@ class _UserPageState extends State<UserPage>
     }
   }
 
+  Future<void> deleteExpenseRecord(String expenseRecordId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users') // Replace 'users' with your collection name
+          .doc('items') // Replace 'uid' with your user's document ID
+          .update({
+        'ExpenseData': FieldValue.arrayRemove([
+          {
+            'id': expenseRecordId
+          } // Assuming 'id' is the field to identify records
+        ])
+      });
+      // Optionally, display a success message or perform other actions after deletion
+      print('Expense record deleted successfully!');
+    } catch (e) {
+      // Handle errors, e.g., show an error message or handle exception
+      print('Error deleting expense record: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +130,17 @@ class _UserPageState extends State<UserPage>
     print(uid);
 
     return Scaffold(
-      backgroundColor: Colors.blueGrey[900],
+      backgroundColor: Colors.black54,
       appBar: AppBar(
-        backgroundColor: Colors.blue[900],
+        backgroundColor: Color(0xFF0336FF),
         title: Text('Budget Buddy'),
         actions: <Widget>[
           PopupMenuButton(
-            icon: Icon(Icons.more_vert),
+            color: Colors.blue[900],
+            icon: Icon(
+              Icons.more_vert,
+              color: Colors.white,
+            ),
             itemBuilder: (BuildContext context) {
               return <PopupMenuEntry>[
                 PopupMenuItem(
@@ -121,7 +149,10 @@ class _UserPageState extends State<UserPage>
                         .zero, // Removes the white space at the margins
                     color: Colors.blue[900], // Example background color
                     child: ListTile(
-                      leading: Icon(Icons.pie_chart),
+                      leading: Icon(
+                        Icons.pie_chart,
+                        color: Colors.white,
+                      ),
                       title: Text(
                         'Charts',
                         style: TextStyle(
@@ -133,7 +164,12 @@ class _UserPageState extends State<UserPage>
                     ),
                   ),
                   onTap: () {
-                    // Action for the Pie Chart
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ChartPage()), // Replace PieChartPage with your actual page
+                    );
                   },
                 ),
 
@@ -236,7 +272,7 @@ class _UserPageState extends State<UserPage>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Colors.blue[900],
+                color: Color(0xFF0336FF),
                 margin: EdgeInsets.symmetric(horizontal: 10),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -258,8 +294,12 @@ class _UserPageState extends State<UserPage>
               ),
               SizedBox(height: 10), // Adding space after the card
               StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
-                builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<DocumentSnapshot> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
@@ -267,58 +307,74 @@ class _UserPageState extends State<UserPage>
                   } else if (!snapshot.hasData || !snapshot.data!.exists) {
                     return Center(child: Text('Document does not exist'));
                   } else {
-                    final Map<String, dynamic>? data = snapshot.data!.data() as Map<String, dynamic>?;
+                    final Map<String, dynamic>? data =
+                        snapshot.data!.data() as Map<String, dynamic>?;
 
-                    if (data == null || !data.containsKey('IncomeData') || !data.containsKey('expenseData')) {
-                      return Center(child: Text('Insufficient data to compute balance'));
+                    if (data == null ||
+                        !data.containsKey('IncomeData') ||
+                        !data.containsKey('expenseData')) {
+                      return Center(
+                          child: Text('Insufficient data to compute balance'));
                     }
 
                     List<dynamic> incomeDataList = data['IncomeData'];
                     List<dynamic> expenseDataList = data['expenseData'];
 
 // Compute the total income
-                    double totalIncome = incomeDataList.fold(0, (previousValue, element) {
+                    double totalIncome =
+                        incomeDataList.fold(0, (previousValue, element) {
                       if (element is Map<String, dynamic>) {
                         // Convert 'amount' from string to double before addition
-                        return previousValue + (double.tryParse(element['amount']) ?? 0);
+                        return previousValue +
+                            (double.tryParse(element['amount']) ?? 0);
                       }
                       return previousValue;
                     });
 
 // Compute the total expense
-                    double totalExpense = expenseDataList.fold(0, (previousValue, element) {
+                    double totalExpense =
+                        expenseDataList.fold(0, (previousValue, element) {
                       if (element is Map<String, dynamic>) {
                         // Convert 'amount' from string to double before addition
-                        return previousValue + (double.tryParse(element['amount']) ?? 0);
+                        return previousValue +
+                            (double.tryParse(element['amount']) ?? 0);
                       }
                       return previousValue;
                     });
 
-
                     // Calculate the balance
                     double balance = totalIncome - totalExpense;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 25.0),
-                          child: Text(
-                            'Balance : ${balance.toStringAsFixed(2)}', // Displaying balance with two decimal places
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: balance < 0 ? Colors.red : Colors.green, // Check if the balance is negative
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 15.0, left: 15),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: Colors.black,
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Balance : ${balance.toStringAsFixed(2)}', // Displaying balance with two decimal places
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: balance < 0
+                                    ? Colors.red
+                                    : Colors
+                                        .white, // Check if the balance is negative
+                              ),
+                              textAlign: TextAlign.left,
                             ),
-                            textAlign: TextAlign.left,
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     );
-
                   }
                 },
               ),
-
 
               SizedBox(height: 8),
               Card(
@@ -327,7 +383,7 @@ class _UserPageState extends State<UserPage>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Colors.blue[900],
+                color: Color(0xFF0336FF),
                 margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -343,9 +399,8 @@ class _UserPageState extends State<UserPage>
                 ),
               ),
               Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  color: Colors.blueGrey[900], // Example background color
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
                   child: StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('users')
@@ -388,37 +443,62 @@ class _UserPageState extends State<UserPage>
                           return dateA.compareTo(dateB);
                         });
 
-                        return ListView.builder(
+                        return ListView.separated(
                           itemCount: incomeDataList.length,
                           itemBuilder: (context, index) {
                             final dynamic income = incomeDataList[index];
                             if (income is Map<String, dynamic>) {
                               DateTime date = income['date'].toDate();
-                              String formattedDate = DateFormat('dd/MM/yyyy').format(date);
-                              return Card(
-                                elevation:
-                                    4, // Set the elevation to your preference
-                                margin: EdgeInsets.all(
-                                    8),
-                                color: Colors.blueGrey[900],// Adjust the margins as needed
-                                child: ListTile(
-                                  title: Text(
-                                    'Amount: ${income['amount']} - Category: ${income['incomeType']} - Date: $formattedDate',
-                                    style: TextStyle(
-                                    fontSize: 16, // Adjust the font size as desired
-                                    color: Colors.white, // Change the text color if needed
-                                    // Other text styles (fontWeight, fontStyle, etc.) can be added here
-                                  ),
-                                  ),
-                                  subtitle: Text('Record ID: ${income['id']}'), // Display the record ID for deletion
-                                  trailing: IconButton(
-                                    icon: Icon(Icons.delete), // Icon for deletion
-                                    onPressed: () {
-                                      String incomeRecordId = income['id']; // Get the ID of the income record to delete
-                                      deleteIncomeRecord(incomeRecordId); // Call the delete function
-                                    },
-                                  ),
-                                  // Other tile settings/styles as needed
+                              String formattedDate =
+                                  DateFormat('dd/MM/yyyy').format(date);
+                              return SizedBox(
+                                height: 30,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${income['text']}',
+                                          style: TextStyle(
+                                              fontSize:
+                                                  16, // Adjust the font size as desired
+                                              color: Colors.white,
+                                              fontWeight: FontWeight
+                                                  .bold // Change the text color if needed
+                                              // Other text styles (fontWeight, fontStyle, etc.) can be added here
+                                              ),
+                                        ),
+                                        Text(
+                                          '${income['incomeType']}',
+                                          style: TextStyle(
+                                              fontSize:
+                                                  12, // Adjust the font size as desired
+                                              color: Colors.white,
+                                              fontWeight: FontWeight
+                                                  .normal // Change the text color if needed
+                                              // Other text styles (fontWeight, fontStyle, etc.) can be added here
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.currency_rupee,
+                                          color: Colors.white,
+                                          size: 12,
+                                        ),
+                                        Text(
+                                          '${income['amount']}',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    )
+                                  ],
                                 ),
                               );
                             } else {
@@ -433,6 +513,10 @@ class _UserPageState extends State<UserPage>
                               );
                             }
                           },
+                          separatorBuilder: (BuildContext context, int index) =>
+                              Divider(
+                            color: Colors.grey,
+                          ),
                         );
                       }
                     },
@@ -446,7 +530,7 @@ class _UserPageState extends State<UserPage>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                color: Colors.blue[900],
+                color: Color(0xFF0336FF),
                 margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -464,7 +548,7 @@ class _UserPageState extends State<UserPage>
               Expanded(
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  color: Colors.blueGrey[900],
+                  color: Colors.white,
                   child: StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('users')
@@ -514,21 +598,34 @@ class _UserPageState extends State<UserPage>
                             final dynamic expense = expenseDataList[index];
                             if (expense is Map<String, dynamic>) {
                               DateTime date = expense['date'].toDate();
-                              String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+                              String formattedDate =
+                                  DateFormat('dd/MM/yyyy').format(date);
                               return Card(
                                 elevation:
-                                4, // Set the elevation to your preference
-                                margin: EdgeInsets.all(
-                                    8),
-                                color: Colors.blueGrey[900],// Adjust the margins as needed
+                                    4, // Set the elevation to your preference
+                                margin: EdgeInsets.all(8),
+                                color: Colors.blueGrey[
+                                    900], // Adjust the margins as needed
                                 child: ListTile(
                                   title: Text(
                                     'Amount: ${expense['amount']} - Category: ${expense['expenseType']} - Date: $formattedDate',
                                     style: TextStyle(
-                                      fontSize: 16, // Adjust the font size as desired
-                                      color: Colors.white, // Change the text color if needed
+                                      fontSize:
+                                          16, // Adjust the font size as desired
+                                      color: Colors
+                                          .white, // Change the text color if needed
                                       // Other text styles (fontWeight, fontStyle, etc.) can be added here
                                     ),
+                                  ),
+                                  trailing: IconButton(
+                                    icon:
+                                        Icon(Icons.delete), // Icon for deletion
+                                    onPressed: () {
+                                      String expenseRecordId = expense[
+                                          'id']; // Get the ID of the income record to delete
+                                      deleteExpenseRecord(
+                                          expenseRecordId); // Call the delete function
+                                    },
                                   ),
                                   // Other tile settings/styles as needed
                                 ),
@@ -536,7 +633,7 @@ class _UserPageState extends State<UserPage>
                             } else {
                               return Card(
                                 elevation:
-                                4, // Set the elevation to your preference
+                                    4, // Set the elevation to your preference
                                 margin: EdgeInsets.all(
                                     8), // Adjust the margins as needed
                                 child: ListTile(
@@ -685,12 +782,24 @@ class _UserPageState extends State<UserPage>
                                                             InputDecoration(
                                                                 labelText:
                                                                     'Text'),
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            subject =
+                                                                value; // Use the value to update the desired state or variable.
+                                                          });
+                                                        },
                                                       ),
                                                       TextField(
                                                         decoration:
                                                             InputDecoration(
                                                                 labelText:
                                                                     'Extra Notes'),
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            extraNotes =
+                                                                value; // Use the value to update the desired state or variable.
+                                                          });
+                                                        },
                                                       ),
                                                       SizedBox(
                                                         height: 10,
@@ -715,7 +824,11 @@ class _UserPageState extends State<UserPage>
                                                                       'incomeType':
                                                                           selectedIncome, // Replace with selected income type
                                                                       'date':
-                                                                          selectedDate, // Replace with selected date
+                                                                          selectedDate,
+                                                                      'text':
+                                                                          subject,
+                                                                      'extraNotes':
+                                                                          extraNotes, // Replace with selected date
                                                                     }
                                                                   ])
                                                                 },
@@ -928,7 +1041,125 @@ class _UserPageState extends State<UserPage>
                   ),
                 ),
               ),
-              Expanded(child: Center(child: Text('Monthly Content'))),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Center(child: Text('Document does not exist'));
+                      } else {
+                        final Map<String, dynamic>? incomeData =
+                            snapshot.data!.data() as Map<String, dynamic>?;
+
+                        if (incomeData == null ||
+                            !incomeData.containsKey('IncomeData')) {
+                          return Center(child: Text('No Income Data Found'));
+                        }
+
+                        List<dynamic> incomeDataList = incomeData['IncomeData'];
+
+                        // Filter the income data based on the selected month
+                        incomeDataList = incomeDataList.where((income) {
+                          if (income is Map<String, dynamic>) {
+                            DateTime incomeDate = income['date'].toDate();
+                            return incomeDate.month == selectedDate.month &&
+                                incomeDate.year == selectedDate.year;
+                          }
+                          return false;
+                        }).toList();
+
+                        // Sort by date
+                        incomeDataList.sort((a, b) {
+                          DateTime dateA = a['date'].toDate();
+                          DateTime dateB = b['date'].toDate();
+                          return dateA.compareTo(dateB);
+                        });
+
+                        return ListView.separated(
+                          itemCount: incomeDataList.length,
+                          itemBuilder: (context, index) {
+                            final dynamic income = incomeDataList[index];
+                            if (income is Map<String, dynamic>) {
+                              DateTime date = income['date'].toDate();
+                              String formattedDate =
+                                  DateFormat('dd/MM/yyyy').format(date);
+                              return SizedBox(
+                                height: 30,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${income['text']}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${income['incomeType']}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.currency_rupee,
+                                          color: Colors.white,
+                                          size: 12,
+                                        ),
+                                        Text(
+                                          '${income['amount']}',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return Card(
+                                elevation: 4,
+                                margin: EdgeInsets.all(8),
+                                child: ListTile(
+                                  title: Text(
+                                    'Invalid Income Data',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          separatorBuilder: (BuildContext context, int index) =>
+                              Divider(
+                            color: Colors.grey,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
