@@ -84,6 +84,21 @@ class _UserPageState extends State<UserPage>
     }
   }
 
+  Future<void> pickDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked; // Update the selected date
+      });
+    }
+  }
+
   Future<void> deleteIncomeRecord(String incomeRecordId) async {
     try {
       await FirebaseFirestore.instance
@@ -282,7 +297,7 @@ class _UserPageState extends State<UserPage>
                     alignment: Alignment.center,
                     child: InkWell(
                       onTap: () {
-                        selectDate(context);
+                        pickDate(context); // Invoke the date picker
                       },
                       child: Text(
                         DateFormat('EEEE, MMMM d, y').format(selectedDate),
@@ -292,6 +307,7 @@ class _UserPageState extends State<UserPage>
                   ),
                 ),
               ),
+
               SizedBox(height: 10), // Adding space after the card
               StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance
@@ -546,9 +562,8 @@ class _UserPageState extends State<UserPage>
                 ),
               ),
               Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
                   child: StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('users')
@@ -564,15 +579,14 @@ class _UserPageState extends State<UserPage>
                         return Center(child: Text('Document does not exist'));
                       } else {
                         final Map<String, dynamic>? expenseData =
-                            snapshot.data!.data() as Map<String, dynamic>?;
+                        snapshot.data!.data() as Map<String, dynamic>?;
 
                         if (expenseData == null ||
                             !expenseData.containsKey('expenseData')) {
                           return Center(child: Text('No Expense Data Found'));
                         }
 
-                        List<dynamic> expenseDataList =
-                            expenseData['expenseData'];
+                        List<dynamic> expenseDataList = expenseData['expenseData'];
 
                         // Filter and sort the expense data based on the selected date
                         expenseDataList = expenseDataList.where((expense) {
@@ -592,62 +606,85 @@ class _UserPageState extends State<UserPage>
                           return dateA.compareTo(dateB);
                         });
 
-                        return ListView.builder(
+                        return ListView.separated(
                           itemCount: expenseDataList.length,
                           itemBuilder: (context, index) {
                             final dynamic expense = expenseDataList[index];
                             if (expense is Map<String, dynamic>) {
                               DateTime date = expense['date'].toDate();
                               String formattedDate =
-                                  DateFormat('dd/MM/yyyy').format(date);
-                              return Card(
-                                elevation:
-                                    4, // Set the elevation to your preference
-                                margin: EdgeInsets.all(8),
-                                color: Colors.blueGrey[
-                                    900], // Adjust the margins as needed
-                                child: ListTile(
-                                  title: Text(
-                                    'Amount: ${expense['amount']} - Category: ${expense['expenseType']} - Date: $formattedDate',
-                                    style: TextStyle(
-                                      fontSize:
-                                          16, // Adjust the font size as desired
-                                      color: Colors
-                                          .white, // Change the text color if needed
-                                      // Other text styles (fontWeight, fontStyle, etc.) can be added here
+                              DateFormat('dd/MM/yyyy').format(date);
+                              return SizedBox(
+                                height: 30,
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${expense['text']}',
+                                          style: TextStyle(
+                                              fontSize:
+                                              16,
+                                              color: Colors.white,
+                                              fontWeight:
+                                              FontWeight.bold),
+                                        ),
+                                        Text(
+                                          '${expense['expenseType']}',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                              fontWeight:
+                                              FontWeight.normal),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  trailing: IconButton(
-                                    icon:
-                                        Icon(Icons.delete), // Icon for deletion
-                                    onPressed: () {
-                                      String expenseRecordId = expense[
-                                          'id']; // Get the ID of the income record to delete
-                                      deleteExpenseRecord(
-                                          expenseRecordId); // Call the delete function
-                                    },
-                                  ),
-                                  // Other tile settings/styles as needed
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons
+                                              .currency_rupee,
+                                          color: Colors.white,
+                                          size: 12,
+                                        ),
+                                        Text(
+                                          '${expense['amount']}',
+                                          style:
+                                          TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    )
+                                  ],
                                 ),
                               );
                             } else {
                               return Card(
-                                elevation:
-                                    4, // Set the elevation to your preference
-                                margin: EdgeInsets.all(
-                                    8), // Adjust the margins as needed
+                                elevation: 4,
+                                margin: EdgeInsets.all(8),
                                 child: ListTile(
-                                  title: Text('Invalid Income Data'),
+                                  title: Text('Invalid Expense Data'),
                                 ),
                               );
                             }
                           },
+                          separatorBuilder:
+                              (BuildContext context, int index) =>
+                              Divider(
+                                color: Colors.grey,
+                              ),
                         );
                       }
                     },
                   ),
                 ),
               ),
+
+
+
 
               Expanded(child: Center(child: Text(''))),
               Column(
@@ -938,15 +975,27 @@ class _UserPageState extends State<UserPage>
                                                       ),
                                                       TextField(
                                                         decoration:
-                                                            InputDecoration(
-                                                                labelText:
-                                                                    'Text'),
+                                                        InputDecoration(
+                                                            labelText:
+                                                            'Text'),
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            subject =
+                                                                value; // Use the value to update the desired state or variable.
+                                                          });
+                                                        },
                                                       ),
                                                       TextField(
                                                         decoration:
-                                                            InputDecoration(
-                                                                labelText:
-                                                                    'Extra Notes'),
+                                                        InputDecoration(
+                                                            labelText:
+                                                            'Extra Notes'),
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            extraNotes =
+                                                                value; // Use the value to update the desired state or variable.
+                                                          });
+                                                        },
                                                       ),
                                                       SizedBox(
                                                         height: 10,
@@ -954,29 +1003,34 @@ class _UserPageState extends State<UserPage>
                                                       ElevatedButton(
                                                         onPressed: () async {
                                                           try {
+                                                            // Add logic to handle income data insertion to Firestore
                                                             await FirebaseFirestore
                                                                 .instance
                                                                 .collection(
-                                                                    'users')
+                                                                'users')
                                                                 .doc(uid)
                                                                 .set(
-                                                                    {
+                                                                {
                                                                   'expenseData':
-                                                                      FieldValue
-                                                                          .arrayUnion([
+                                                                  FieldValue
+                                                                      .arrayUnion([
                                                                     {
                                                                       'amount':
-                                                                          amount,
+                                                                      amount, // Replace with your income amount data
                                                                       'expenseType':
-                                                                          selectedExpense,
+                                                                      selectedExpense, // Replace with selected income type
                                                                       'date':
-                                                                          selectedDate,
+                                                                      selectedDate,
+                                                                      'text':
+                                                                      subject,
+                                                                      'extraNotes':
+                                                                      extraNotes, // Replace with selected date
                                                                     }
                                                                   ])
                                                                 },
-                                                                    SetOptions(
-                                                                        merge:
-                                                                            true));
+                                                                SetOptions(
+                                                                    merge:
+                                                                    true));
                                                             // Success message or further handling can be added here
                                                           } catch (e) {
                                                             // Handle errors or exceptions here
@@ -1160,25 +1214,6 @@ class _UserPageState extends State<UserPage>
                   ),
                 ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    height: 80,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        // Action for the Monthly FAB
-                      },
-                      child: Icon(Icons.add),
-                      backgroundColor: Colors.blue[900],
-                      foregroundColor: Colors.white70,
-                      splashColor: Colors.grey,
-                      elevation: 6,
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
           Column(
@@ -1210,28 +1245,126 @@ class _UserPageState extends State<UserPage>
                   ),
                 ),
               ),
-              Expanded(child: Center(child: Text('Yearly Content'))),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    height: 80,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        // Action for the Yearly FAB
-                      },
-                      child: Icon(Icons.add),
-                      backgroundColor: Colors.blue[900],
-                      foregroundColor: Colors.white70,
-                      splashColor: Colors.grey,
-                      elevation: 6,
-                    ),
+              Expanded(
+                child: Center(
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Text('Document does not exist');
+                      } else {
+                        final Map<String, dynamic>? incomeData =
+                        snapshot.data!.data() as Map<String, dynamic>?;
+
+                        if (incomeData == null ||
+                            !incomeData.containsKey('IncomeData')) {
+                          return Text('No Income Data Found');
+                        }
+
+                        List<dynamic> incomeDataList = incomeData['IncomeData'];
+
+                        // Filter the income data based on the selected year
+                        int selectedYear = 2023; // Replace with the desired selected year
+                        incomeDataList = incomeDataList.where((income) {
+                          if (income is Map<String, dynamic>) {
+                            DateTime incomeDate = income['date'].toDate();
+                            return incomeDate.year == selectedYear;
+                          }
+                          return false;
+                        }).toList();
+
+                        // Sort by date
+                        incomeDataList.sort((a, b) {
+                          DateTime dateA = a['date'].toDate();
+                          DateTime dateB = b['date'].toDate();
+                          return dateA.compareTo(dateB);
+                        });
+
+                        // Displaying year-wise data
+                        return ListView.separated(
+                          itemCount: incomeDataList.length,
+                          itemBuilder: (context, index) {
+                            final dynamic income = incomeDataList[index];
+                            if (income is Map<String, dynamic>) {
+                              DateTime date = income['date'].toDate();
+                              String formattedDate =
+                              DateFormat('dd/MM/yyyy').format(date);
+                              return SizedBox(
+                                height: 30,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${income['text']}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${income['incomeType']}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.currency_rupee,
+                                          color: Colors.white,
+                                          size: 12,
+                                        ),
+                                        Text(
+                                          '${income['amount']}',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return Card(
+                                elevation: 4,
+                                margin: EdgeInsets.all(8),
+                                child: ListTile(
+                                  title: Text(
+                                    'Invalid Income Data',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          separatorBuilder: (BuildContext context, int index) =>
+                              Divider(
+                                color: Colors.grey,
+                              ),
+                        );
+                      }
+                    },
                   ),
-                ],
+                ),
               ),
             ],
           ),
+
         ],
       ),
     );
