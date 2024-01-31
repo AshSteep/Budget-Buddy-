@@ -25,6 +25,7 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage>
+
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   DateTime selectedDate = DateTime.now();
@@ -35,7 +36,7 @@ class _UserPageState extends State<UserPage>
   String amount = ''; // New DateTime variable for selected date
   String subject = ''; // New DateTime variable for selected date
   String extraNotes = ''; // New DateTime variable for selected date
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -138,6 +139,20 @@ class _UserPageState extends State<UserPage>
       print('Error deleting expense record: $e');
     }
   }
+
+  String? validateValue(int? value) {
+    if (value == null) {
+      return 'Value cannot be null';
+    }
+
+    if (value > 100000) {
+      return 'Value must be less than or equal to 100000';
+    }
+
+    // Return null if the value is valid
+    return null;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -843,39 +858,41 @@ class _UserPageState extends State<UserPage>
                                                       ),
                                                       ElevatedButton(
                                                         onPressed: () async {
-                                                          try {
-                                                            // Add logic to handle income data insertion to Firestore
-                                                            await FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    'users')
-                                                                .doc(uid)
-                                                                .set(
-                                                                    {
-                                                                  'IncomeData':
-                                                                      FieldValue
-                                                                          .arrayUnion([
-                                                                    {
-                                                                      'amount':
-                                                                          amount, // Replace with your income amount data
-                                                                      'incomeType':
-                                                                          selectedIncome, // Replace with selected income type
-                                                                      'date':
-                                                                          selectedDate,
-                                                                      'text':
-                                                                          subject,
-                                                                      'extraNotes':
-                                                                          extraNotes, // Replace with selected date
-                                                                    }
-                                                                  ])
-                                                                },
-                                                                    SetOptions(
-                                                                        merge:
-                                                                            true));
-                                                            // Success message or further handling can be added here
-                                                          } catch (e) {
-                                                            // Handle errors or exceptions here
-                                                            print("Error: $e");
+                                                          if(_formKey.currentState!.validate()){
+                                                            try {
+                                                              // Add logic to handle income data insertion to Firestore
+                                                              await FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                  'users')
+                                                                  .doc(uid)
+                                                                  .set(
+                                                                  {
+                                                                    'IncomeData':
+                                                                    FieldValue
+                                                                        .arrayUnion([
+                                                                      {
+                                                                        'amount':
+                                                                        amount, // Replace with your income amount data
+                                                                        'incomeType':
+                                                                        selectedIncome, // Replace with selected income type
+                                                                        'date':
+                                                                        selectedDate,
+                                                                        'text':
+                                                                        subject,
+                                                                        'extraNotes':
+                                                                        extraNotes, // Replace with selected date
+                                                                      }
+                                                                    ])
+                                                                  },
+                                                                  SetOptions(
+                                                                      merge:
+                                                                      true));
+                                                              // Success message or further handling can be added here
+                                                            } catch (e) {
+                                                              // Handle errors or exceptions here
+                                                              print("Error: $e");
+                                                            }
                                                           }
                                                         },
                                                         child: Text("Submit"),
@@ -886,160 +903,168 @@ class _UserPageState extends State<UserPage>
                                                 Padding(
                                                   padding: const EdgeInsets.all(
                                                       16.0),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            child: Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .topRight,
-                                                              child: IconButton(
-                                                                icon: Icon(Icons
-                                                                    .calendar_today),
-                                                                onPressed: () {
-                                                                  selectedDate =
-                                                                      selectDate(
-                                                                              context)
-                                                                          as DateTime;
-                                                                },
+                                                  child: Form(
+                                                    key: _formKey,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: Align(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .topRight,
+                                                                child: IconButton(
+                                                                  icon: Icon(Icons
+                                                                      .calendar_today),
+                                                                  onPressed: () {
+                                                                    selectedDate =
+                                                                        selectDate(
+                                                                                context)
+                                                                            as DateTime;
+                                                                  },
+                                                                ),
                                                               ),
                                                             ),
-                                                          ),
-                                                          Expanded(
-                                                            child: Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .topLeft,
-                                                              child: IconButton(
-                                                                icon: Icon(Icons
-                                                                    .category),
-                                                                onPressed: () {
-                                                                  showModalBottomSheet(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (BuildContext
-                                                                            context) {
-                                                                      return Column(
-                                                                        children: [
-                                                                          if (expenses
-                                                                              .isNotEmpty)
-                                                                            Column(
-                                                                              children: [
-                                                                                DropdownButton<String>(
-                                                                                  value: selectedExpense,
-                                                                                  items: expenses.map((dynamic value) {
-                                                                                    return DropdownMenuItem<String>(
-                                                                                      value: value as String,
-                                                                                      child: Text(value.toString()),
-                                                                                    );
-                                                                                  }).toList(),
-                                                                                  onChanged: (newValue) {
-                                                                                    setState(() {
-                                                                                      selectedExpense = newValue!;
-                                                                                    });
-                                                                                    Navigator.pop(context); // Close the bottom sheet on selection
-                                                                                  },
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                        ],
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                },
+                                                            Expanded(
+                                                              child: Align(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .topLeft,
+                                                                child: IconButton(
+                                                                  icon: Icon(Icons
+                                                                      .category),
+                                                                  onPressed: () {
+                                                                    showModalBottomSheet(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return Column(
+                                                                          children: [
+                                                                            if (expenses
+                                                                                .isNotEmpty)
+                                                                              Column(
+                                                                                children: [
+                                                                                  DropdownButton<String>(
+                                                                                    value: selectedExpense,
+                                                                                    items: expenses.map((dynamic value) {
+                                                                                      return DropdownMenuItem<String>(
+                                                                                        value: value as String,
+                                                                                        child: Text(value.toString()),
+                                                                                      );
+                                                                                    }).toList(),
+                                                                                    onChanged: (newValue) {
+                                                                                      setState(() {
+                                                                                        selectedExpense = newValue!;
+                                                                                      });
+                                                                                      Navigator.pop(context); // Close the bottom sheet on selection
+                                                                                    },
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                          ],
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                ),
                                                               ),
                                                             ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      TextField(
-                                                        decoration:
-                                                            InputDecoration(
-                                                          labelText: 'Amount',
+                                                          ],
                                                         ),
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            amount =
-                                                                value; // Use the value to update the desired state or variable.
-                                                          });
-                                                        },
-                                                      ),
-                                                      TextField(
-                                                        decoration:
-                                                        InputDecoration(
-                                                            labelText:
-                                                            'Text'),
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            subject =
-                                                                value; // Use the value to update the desired state or variable.
-                                                          });
-                                                        },
-                                                      ),
-                                                      TextField(
-                                                        decoration:
-                                                        InputDecoration(
-                                                            labelText:
-                                                            'Extra Notes'),
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            extraNotes =
-                                                                value; // Use the value to update the desired state or variable.
-                                                          });
-                                                        },
-                                                      ),
-                                                      SizedBox(
-                                                        height: 10,
-                                                      ),
-                                                      ElevatedButton(
-                                                        onPressed: () async {
-                                                          try {
-                                                            // Add logic to handle income data insertion to Firestore
-                                                            await FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                'users')
-                                                                .doc(uid)
-                                                                .set(
-                                                                {
-                                                                  'expenseData':
-                                                                  FieldValue
-                                                                      .arrayUnion([
-                                                                    {
-                                                                      'amount':
-                                                                      amount, // Replace with your income amount data
-                                                                      'expenseType':
-                                                                      selectedExpense, // Replace with selected income type
-                                                                      'date':
-                                                                      selectedDate,
-                                                                      'text':
-                                                                      subject,
-                                                                      'extraNotes':
-                                                                      extraNotes, // Replace with selected date
-                                                                    }
-                                                                  ])
-                                                                },
-                                                                SetOptions(
-                                                                    merge:
-                                                                    true));
-                                                            // Success message or further handling can be added here
-                                                          } catch (e) {
-                                                            // Handle errors or exceptions here
-                                                            print("Error: $e");
-                                                          }
-                                                        },
-                                                        child: Text("Submit"),
-                                                      ),
-                                                    ],
+                                                        TextFormField(
+                                                          decoration:
+                                                              InputDecoration(
+                                                            labelText: 'Amount',
+                                                          ),
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          onChanged: (value) {
+                                                            setState(() {
+                                                              amount =
+                                                                  value; // Use the value to update the desired state or variable.
+                                                            });
+                                                          },
+                                                          validator: (value) {
+                                                            // Convert the input string to an integer for validation
+                                                            int? intValue = int.tryParse(value ?? '');
+                                                            return validateValue(intValue);
+                                                          },
+                                                        ),
+                                                        TextField(
+                                                          decoration:
+                                                          InputDecoration(
+                                                              labelText:
+                                                              'Text'),
+                                                          onChanged: (value) {
+                                                            setState(() {
+                                                              subject =
+                                                                  value; // Use the value to update the desired state or variable.
+                                                            });
+                                                          },
+                                                        ),
+                                                        TextField(
+                                                          decoration:
+                                                          InputDecoration(
+                                                              labelText:
+                                                              'Extra Notes'),
+                                                          onChanged: (value) {
+                                                            setState(() {
+                                                              extraNotes =
+                                                                  value; // Use the value to update the desired state or variable.
+                                                            });
+                                                          },
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        ElevatedButton(
+                                                          onPressed: () async {
+                                                            try {
+                                                              // Add logic to handle income data insertion to Firestore
+                                                              await FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                  'users')
+                                                                  .doc(uid)
+                                                                  .set(
+                                                                  {
+                                                                    'expenseData':
+                                                                    FieldValue
+                                                                        .arrayUnion([
+                                                                      {
+                                                                        'amount':
+                                                                        amount, // Replace with your income amount data
+                                                                        'expenseType':
+                                                                        selectedExpense, // Replace with selected income type
+                                                                        'date':
+                                                                        selectedDate,
+                                                                        'text':
+                                                                        subject,
+                                                                        'extraNotes':
+                                                                        extraNotes, // Replace with selected date
+                                                                      }
+                                                                    ])
+                                                                  },
+                                                                  SetOptions(
+                                                                      merge:
+                                                                      true));
+                                                              // Success message or further handling can be added here
+                                                            } catch (e) {
+                                                              // Handle errors or exceptions here
+                                                              print("Error: $e");
+                                                            }
+                                                          },
+                                                          child: Text("Submit"),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ],
