@@ -9,8 +9,8 @@ class ChartPage extends StatefulWidget {
   @override
   State<ChartPage> createState() => _ChartPageState();
 }
-
-class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMixin {
+class _ChartPageState extends State<ChartPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<CategoryData> categories = []; // Initialize empty category list
   String selectedTime = 'Day';
@@ -20,13 +20,18 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
     // Replace 'selectedDate' with the chosen date and format it as required
-    DateTime startOfDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
-    DateTime endOfDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
+    DateTime startOfDay = DateTime(
+        selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
+    DateTime endOfDay = DateTime(
+        selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
 
     QuerySnapshot<Map<String, dynamic>> snapshot = await users
-        .doc('JFZG2UtxJgNUcTqnUKznGgMQ6Yl2') // Replace with the user ID or document ID
-        .collection('yourCollection') // Replace with the collection name containing your data
-        .where('date', isGreaterThanOrEqualTo: startOfDay, isLessThanOrEqualTo: endOfDay)
+        .doc(
+            'JFZG2UtxJgNUcTqnUKznGgMQ6Yl2') // Replace with the user ID or document ID
+        .collection(
+            'yourCollection') // Replace with the collection name containing your data
+        .where('date',
+            isGreaterThanOrEqualTo: startOfDay, isLessThanOrEqualTo: endOfDay)
         .get();
 
     if (snapshot.docs.isNotEmpty) {
@@ -50,7 +55,6 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
     }
   }
 
-
   DateTime selectedDate = DateTime.now(); // Initial selected date
 
   Future<void> _selectDate(BuildContext context) async {
@@ -66,7 +70,8 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
         selectedDate = pickedDate; // Update the selectedDate variable
       });
 
-      fetchDataForSelectedDate(selectedDate); // Fetch data for the selected date
+      fetchDataForSelectedDate(
+          selectedDate); // Fetch data for the selected date
     }
   }
 
@@ -99,7 +104,8 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
         });
 
         // Convert category totals to CategoryData objects
-        List<CategoryData> updatedCategories = categoryTotals.entries.map((entry) {
+        List<CategoryData> updatedCategories =
+            categoryTotals.entries.map((entry) {
           return CategoryData(
             category: entry.key,
             value: entry.value.toDouble(),
@@ -168,7 +174,8 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
                   child: Text('Select Date'),
                 ),
                 SizedBox(height: 20),
-                if (selectedTime == 'Day') // Show pie chart for the selected time
+                if (selectedTime ==
+                    'Day') // Show pie chart for the selected time
                   AspectRatio(
                     aspectRatio: 1.3,
                     child: PieChart(
@@ -179,7 +186,8 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
                           return PieChartSectionData(
                             color: category.color,
                             value: category.value,
-                            title: '${category.category}: ${category.value.toInt()}',
+                            title:
+                                '${category.category}: ${category.value.toInt()}',
                             radius: 100,
                             titleStyle: TextStyle(
                               fontSize: 16,
@@ -202,7 +210,8 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
                           return PieChartSectionData(
                             color: category.color,
                             value: category.value,
-                            title: '${category.category}: ${category.value.toInt()}',
+                            title:
+                                '${category.category}: ${category.value.toInt()}',
                             radius: 100,
                             titleStyle: TextStyle(
                               fontSize: 16,
@@ -215,33 +224,32 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
                     ),
                   )
                 else if (selectedTime == 'Year')
-                    AspectRatio(
-                      aspectRatio: 1.3,
-                      child: PieChart(
-                        PieChartData(
-                          sectionsSpace: 0,
-                          centerSpaceRadius: 40,
-                          sections: categories.map((category) {
-                            return PieChartSectionData(
-                              color: category.color,
-                              value: category.value,
-                              title: '${category.category}: ${category.value.toInt()}',
-                              radius: 100,
-                              titleStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                  AspectRatio(
+                    aspectRatio: 1.3,
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 0,
+                        centerSpaceRadius: 40,
+                        sections: categories.map((category) {
+                          return PieChartSectionData(
+                            color: category.color,
+                            value: category.value,
+                            title:
+                                '${category.category}: ${category.value.toInt()}',
+                            radius: 100,
+                            titleStyle: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    )
+                    ),
+                  )
               ],
             ),
           ),
-
-
           Center(child: Text('Content for Tab 2')),
         ],
       ),
@@ -271,7 +279,6 @@ class _ChartPageState extends State<ChartPage> with SingleTickerProviderStateMix
     // Creating a color from random values
     return Color.fromARGB(255, r, g, b);
   }
-
 }
 
 class CategoryData {
