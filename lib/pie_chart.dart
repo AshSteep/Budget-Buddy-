@@ -5,10 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChartPage extends StatefulWidget {
   const ChartPage({Key? key}) : super(key: key);
-
   @override
   State<ChartPage> createState() => _ChartPageState();
 }
+
 class _ChartPageState extends State<ChartPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
