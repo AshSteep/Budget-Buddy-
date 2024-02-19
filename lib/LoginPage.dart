@@ -1,4 +1,4 @@
-import 'package:base_app/AdminPage.dart';
+import 'AdminPage.dart';
 import 'package:base_app/SignUp.dart';
 import 'package:base_app/UserPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -66,6 +66,10 @@ class _LoginPageState extends State<LoginPage> {
       // Handle sign-in errors
       print("Error: $e");
       // Perform error handling
+      String errorMessage = "Invalid credentials. Please try again.";
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorMessage),
+      ));
     }
   }
 

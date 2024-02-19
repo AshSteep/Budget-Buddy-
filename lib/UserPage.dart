@@ -25,7 +25,6 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage>
-
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   DateTime selectedDate = DateTime.now();
@@ -152,7 +151,6 @@ class _UserPageState extends State<UserPage>
     // Return null if the value is valid
     return null;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -594,14 +592,15 @@ class _UserPageState extends State<UserPage>
                         return Center(child: Text('Document does not exist'));
                       } else {
                         final Map<String, dynamic>? expenseData =
-                        snapshot.data!.data() as Map<String, dynamic>?;
+                            snapshot.data!.data() as Map<String, dynamic>?;
 
                         if (expenseData == null ||
                             !expenseData.containsKey('expenseData')) {
                           return Center(child: Text('No Expense Data Found'));
                         }
 
-                        List<dynamic> expenseDataList = expenseData['expenseData'];
+                        List<dynamic> expenseDataList =
+                            expenseData['expenseData'];
 
                         // Filter and sort the expense data based on the selected date
                         expenseDataList = expenseDataList.where((expense) {
@@ -628,48 +627,43 @@ class _UserPageState extends State<UserPage>
                             if (expense is Map<String, dynamic>) {
                               DateTime date = expense['date'].toDate();
                               String formattedDate =
-                              DateFormat('dd/MM/yyyy').format(date);
+                                  DateFormat('dd/MM/yyyy').format(date);
                               return SizedBox(
                                 height: 30,
                                 child: Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.start,
+                                          MainAxisAlignment.start,
                                       children: [
                                         Text(
                                           '${expense['text']}',
                                           style: TextStyle(
-                                              fontSize:
-                                              16,
+                                              fontSize: 16,
                                               color: Colors.white,
-                                              fontWeight:
-                                              FontWeight.bold),
+                                              fontWeight: FontWeight.bold),
                                         ),
                                         Text(
                                           '${expense['expenseType']}',
                                           style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.white,
-                                              fontWeight:
-                                              FontWeight.normal),
+                                              fontWeight: FontWeight.normal),
                                         ),
                                       ],
                                     ),
                                     Row(
                                       children: [
                                         Icon(
-                                          Icons
-                                              .currency_rupee,
+                                          Icons.currency_rupee,
                                           color: Colors.white,
                                           size: 12,
                                         ),
                                         Text(
                                           '${expense['amount']}',
-                                          style:
-                                          TextStyle(color: Colors.white),
+                                          style: TextStyle(color: Colors.white),
                                         ),
                                       ],
                                     )
@@ -686,20 +680,16 @@ class _UserPageState extends State<UserPage>
                               );
                             }
                           },
-                          separatorBuilder:
-                              (BuildContext context, int index) =>
+                          separatorBuilder: (BuildContext context, int index) =>
                               Divider(
-                                color: Colors.grey,
-                              ),
+                            color: Colors.grey,
+                          ),
                         );
                       }
                     },
                   ),
                 ),
               ),
-
-
-
 
               Expanded(child: Center(child: Text(''))),
               Column(
@@ -858,40 +848,43 @@ class _UserPageState extends State<UserPage>
                                                       ),
                                                       ElevatedButton(
                                                         onPressed: () async {
-                                                          if(_formKey.currentState!.validate()){
+                                                          if (_formKey
+                                                              .currentState!
+                                                              .validate()) {
                                                             try {
                                                               // Add logic to handle income data insertion to Firestore
                                                               await FirebaseFirestore
                                                                   .instance
                                                                   .collection(
-                                                                  'users')
+                                                                      'users')
                                                                   .doc(uid)
                                                                   .set(
-                                                                  {
+                                                                      {
                                                                     'IncomeData':
-                                                                    FieldValue
-                                                                        .arrayUnion([
+                                                                        FieldValue
+                                                                            .arrayUnion([
                                                                       {
                                                                         'amount':
-                                                                        amount, // Replace with your income amount data
+                                                                            amount, // Replace with your income amount data
                                                                         'incomeType':
-                                                                        selectedIncome, // Replace with selected income type
+                                                                            selectedIncome, // Replace with selected income type
                                                                         'date':
-                                                                        selectedDate,
+                                                                            selectedDate,
                                                                         'text':
-                                                                        subject,
+                                                                            subject,
                                                                         'extraNotes':
-                                                                        extraNotes, // Replace with selected date
+                                                                            extraNotes, // Replace with selected date
                                                                       }
                                                                     ])
                                                                   },
-                                                                  SetOptions(
-                                                                      merge:
-                                                                      true));
+                                                                      SetOptions(
+                                                                          merge:
+                                                                              true));
                                                               // Success message or further handling can be added here
                                                             } catch (e) {
                                                               // Handle errors or exceptions here
-                                                              print("Error: $e");
+                                                              print(
+                                                                  "Error: $e");
                                                             }
                                                           }
                                                         },
@@ -917,13 +910,14 @@ class _UserPageState extends State<UserPage>
                                                                 alignment:
                                                                     Alignment
                                                                         .topRight,
-                                                                child: IconButton(
+                                                                child:
+                                                                    IconButton(
                                                                   icon: Icon(Icons
                                                                       .calendar_today),
-                                                                  onPressed: () {
+                                                                  onPressed:
+                                                                      () {
                                                                     selectedDate =
-                                                                        selectDate(
-                                                                                context)
+                                                                        selectDate(context)
                                                                             as DateTime;
                                                                   },
                                                                 ),
@@ -934,10 +928,12 @@ class _UserPageState extends State<UserPage>
                                                                 alignment:
                                                                     Alignment
                                                                         .topLeft,
-                                                                child: IconButton(
+                                                                child:
+                                                                    IconButton(
                                                                   icon: Icon(Icons
                                                                       .category),
-                                                                  onPressed: () {
+                                                                  onPressed:
+                                                                      () {
                                                                     showModalBottomSheet(
                                                                       context:
                                                                           context,
@@ -946,8 +942,7 @@ class _UserPageState extends State<UserPage>
                                                                               context) {
                                                                         return Column(
                                                                           children: [
-                                                                            if (expenses
-                                                                                .isNotEmpty)
+                                                                            if (expenses.isNotEmpty)
                                                                               Column(
                                                                                 children: [
                                                                                   DropdownButton<String>(
@@ -993,15 +988,19 @@ class _UserPageState extends State<UserPage>
                                                           },
                                                           validator: (value) {
                                                             // Convert the input string to an integer for validation
-                                                            int? intValue = int.tryParse(value ?? '');
-                                                            return validateValue(intValue);
+                                                            int? intValue =
+                                                                int.tryParse(
+                                                                    value ??
+                                                                        '');
+                                                            return validateValue(
+                                                                intValue);
                                                           },
                                                         ),
                                                         TextField(
                                                           decoration:
-                                                          InputDecoration(
-                                                              labelText:
-                                                              'Text'),
+                                                              InputDecoration(
+                                                                  labelText:
+                                                                      'Text'),
                                                           onChanged: (value) {
                                                             setState(() {
                                                               subject =
@@ -1011,9 +1010,9 @@ class _UserPageState extends State<UserPage>
                                                         ),
                                                         TextField(
                                                           decoration:
-                                                          InputDecoration(
-                                                              labelText:
-                                                              'Extra Notes'),
+                                                              InputDecoration(
+                                                                  labelText:
+                                                                      'Extra Notes'),
                                                           onChanged: (value) {
                                                             setState(() {
                                                               extraNotes =
@@ -1031,34 +1030,35 @@ class _UserPageState extends State<UserPage>
                                                               await FirebaseFirestore
                                                                   .instance
                                                                   .collection(
-                                                                  'users')
+                                                                      'users')
                                                                   .doc(uid)
                                                                   .set(
-                                                                  {
+                                                                      {
                                                                     'expenseData':
-                                                                    FieldValue
-                                                                        .arrayUnion([
+                                                                        FieldValue
+                                                                            .arrayUnion([
                                                                       {
                                                                         'amount':
-                                                                        amount, // Replace with your income amount data
+                                                                            amount, // Replace with your income amount data
                                                                         'expenseType':
-                                                                        selectedExpense, // Replace with selected income type
+                                                                            selectedExpense, // Replace with selected income type
                                                                         'date':
-                                                                        selectedDate,
+                                                                            selectedDate,
                                                                         'text':
-                                                                        subject,
+                                                                            subject,
                                                                         'extraNotes':
-                                                                        extraNotes, // Replace with selected date
+                                                                            extraNotes, // Replace with selected date
                                                                       }
                                                                     ])
                                                                   },
-                                                                  SetOptions(
-                                                                      merge:
-                                                                      true));
+                                                                      SetOptions(
+                                                                          merge:
+                                                                              true));
                                                               // Success message or further handling can be added here
                                                             } catch (e) {
                                                               // Handle errors or exceptions here
-                                                              print("Error: $e");
+                                                              print(
+                                                                  "Error: $e");
                                                             }
                                                           },
                                                           child: Text("Submit"),
@@ -1287,7 +1287,7 @@ class _UserPageState extends State<UserPage>
                         return Text('Document does not exist');
                       } else {
                         final Map<String, dynamic>? incomeData =
-                        snapshot.data!.data() as Map<String, dynamic>?;
+                            snapshot.data!.data() as Map<String, dynamic>?;
 
                         if (incomeData == null ||
                             !incomeData.containsKey('IncomeData')) {
@@ -1297,7 +1297,8 @@ class _UserPageState extends State<UserPage>
                         List<dynamic> incomeDataList = incomeData['IncomeData'];
 
                         // Filter the income data based on the selected year
-                        int selectedYear = 2023; // Replace with the desired selected year
+                        int selectedYear =
+                            2023; // Replace with the desired selected year
                         incomeDataList = incomeDataList.where((income) {
                           if (income is Map<String, dynamic>) {
                             DateTime incomeDate = income['date'].toDate();
@@ -1321,14 +1322,16 @@ class _UserPageState extends State<UserPage>
                             if (income is Map<String, dynamic>) {
                               DateTime date = income['date'].toDate();
                               String formattedDate =
-                              DateFormat('dd/MM/yyyy').format(date);
+                                  DateFormat('dd/MM/yyyy').format(date);
                               return SizedBox(
                                 height: 30,
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       children: [
                                         Text(
                                           '${income['text']}',
@@ -1379,8 +1382,8 @@ class _UserPageState extends State<UserPage>
                           },
                           separatorBuilder: (BuildContext context, int index) =>
                               Divider(
-                                color: Colors.grey,
-                              ),
+                            color: Colors.grey,
+                          ),
                         );
                       }
                     },
@@ -1389,380 +1392,9 @@ class _UserPageState extends State<UserPage>
               ),
             ],
           ),
-
         ],
       ),
     );
   }
 }
 
-// import 'package:buttons_tabbar/buttons_tabbar.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'LoginPage.dart';
-//
-// class Transaction {
-//   final DateTime date;
-//   final double amount;
-//   final String description;
-//   final String category;
-//
-//   Transaction({
-//     required this.date,
-//     required this.amount,
-//     required this.description,
-//     required this.category,
-//   });
-// }
-
-// class UserPage extends StatefulWidget {
-//   @override
-//   _UserPageState createState() => _UserPageState();
-// }
-//
-// class _UserPageState extends State<UserPage> {
-//   List<String> expenses = []; // Initialize an empty list
-//   List<String> income = []; // Initialize an empty list
-//   String selectedExpense = ''; // Initialize an empty string
-//   String selectedIncome = ''; // Initialize an empty string
-//   String amount = '';
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fetchExpensesFromServer(); // Fetch expenses from a server
-//   }
-//
-//   // Function to fetch expenses from a server or any other source
-//   void _fetchExpensesFromServer() async {
-//     // Simulated data fetching or initialization of the expenses list
-//     try {
-//       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-//           .collection('categories')
-//           .doc('item')
-//           .get();
-//
-//       if (userSnapshot.exists) {
-//         Map<String, dynamic> userData =
-//             userSnapshot.data() as Map<String, dynamic>;
-//         setState(() {
-//           expenses = List<String>.from(userData['expense'] ?? []);
-//           selectedExpense = expenses.isNotEmpty ? expenses[0] : '';
-//           income = List<String>.from(userData['income_cat'] ?? []);
-//           selectedIncome = income.isNotEmpty ? income[0] : '';
-//         });
-//       } else {
-//         // Handle document not found
-//       }
-//     } catch (e) {
-//       // Handle errors
-//       print("Error: $e");
-//     }
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final String uid = ModalRoute.of(context)!.settings.arguments as String;
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Budget Buddy"),
-//         actions: <Widget>[
-//           IconButton(
-//               onPressed: () {
-//                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-//                   builder: (context) => LoginPage(),
-//                 ));
-//               },
-//               icon: Icon(Icons.pie_chart)),
-//           IconButton(
-//             icon: Icon(Icons.logout),
-//             // You can change the icon to your preferred logout icon
-//             onPressed: () {
-//               // Implement your logout logic here
-//               // For example, you can sign out the user and navigate to the login page
-//               // Example:
-//               // FirebaseAuth.instance.signOut();
-//               Navigator.of(context).pushReplacement(MaterialPageRoute(
-//                 builder: (context) => LoginPage(),
-//               ));
-//             },
-//           ),
-//         ],
-//       ),
-//       body: DefaultTabController(
-//         length: 2,
-//         child: Column(
-//           children: <Widget>[
-//             ButtonsTabBar(
-//               backgroundColor: Colors.red[900],
-//               borderWidth: 2,
-//               borderColor: Colors.black,
-//               labelStyle: TextStyle(
-//                 color: Colors.white,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//               unselectedLabelStyle: TextStyle(
-//                 color: Colors.black,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//               tabs: [
-//                 Tab(text: 'Expense'), // Expense Tab
-//                 Tab(text: 'Income'), // Income Tab
-//               ],
-//             ),
-//             Expanded(
-//               child: TabBarView(
-//                 children: [
-//                   // Expense Tab View
-//                   Container(
-//                     color: Colors.grey[200],
-//                     child: Column(
-//                       children: [
-//                         if (expenses.isNotEmpty)
-//                           Column(
-//                             children: [
-//                               DropdownButton<String>(
-//                                 value: selectedExpense,
-//                                 items: expenses.map((dynamic value) {
-//                                   return DropdownMenuItem<String>(
-//                                     value: value as String,
-//                                     child: Text(value.toString()),
-//                                   );
-//                                 }).toList(),
-//                                 onChanged: (newValue) {
-//                                   setState(() {
-//                                     selectedExpense = newValue!;
-//                                   });
-//                                 },
-//                               ),
-//                               SizedBox(height: 20),
-//                               TextField(
-//                                 decoration: InputDecoration(
-//                                   hintText: 'Enter Amount',
-//                                   border: OutlineInputBorder(),
-//                                 ),
-//                                 onChanged: (value) {
-//                                   setState(() {
-//                                     amount = value;
-//                                   });
-//                                 },
-//                               ),
-//                             ],
-//                           ),
-//                         if (expenses.isEmpty)
-//                           Center(child: CircularProgressIndicator()),
-//                         ElevatedButton(
-//                             onPressed: () async {
-//                               try {
-//                                 await FirebaseFirestore.instance
-//                                     .collection('users')
-//                                     .doc(uid)
-//                                     .set({
-//                                   'expenseData': FieldValue.arrayUnion([
-//                                     {
-//                                       'amount': amount,
-//                                       'expenseType': selectedExpense,
-//                                     }
-//                                   ])
-//                                 }, SetOptions(merge: true));
-//                                 // Success message or further handling can be added here
-//                               } catch (e) {
-//                                 // Handle errors or exceptions here
-//                                 print("Error: $e");
-//                               }
-//                             },
-//                             child: Text("Add Expense")), // Loading indicator
-//                         SizedBox(
-//                           height: 15,
-//                         ),
-//                         Expanded(
-//                           child: StreamBuilder<DocumentSnapshot>(
-//                             stream: FirebaseFirestore.instance
-//                                 .collection('users')
-//                                 .doc(uid)
-//                                 .snapshots(),
-//                             builder: (BuildContext context,
-//                                 AsyncSnapshot<DocumentSnapshot> snapshot) {
-//                               if (snapshot.connectionState ==
-//                                   ConnectionState.waiting) {
-//                                 return Center(
-//                                     child: CircularProgressIndicator());
-//                               } else if (snapshot.hasError) {
-//                                 return Center(
-//                                     child: Text('Error: ${snapshot.error}'));
-//                               } else if (!snapshot.hasData ||
-//                                   !snapshot.data!.exists) {
-//                                 return Center(
-//                                     child: Text('Document does not exist'));
-//                               } else {
-//                                 final Map<String, dynamic> expenseData =
-//                                     snapshot.data!.data()
-//                                         as Map<String, dynamic>;
-//                                 List<dynamic> expenseDataList =
-//                                     expenseData['expenseData'];
-//
-//                                 return Scaffold(
-//                                   appBar: AppBar(
-//                                     title: Text('Expense Data List'),
-//                                   ),
-//                                   body: ListView.builder(
-//                                     itemCount: expenseDataList.length,
-//                                     itemBuilder: (context, index) {
-//                                       final dynamic expense =
-//                                           expenseDataList[index];
-//
-//                                       if (expense is Map<String, dynamic>) {
-//                                         return ListTile(
-//                                           title: Text(
-//                                               'Amount: ${expense['amount']} - Type: ${expense['expenseType']}'),
-//                                           // Other tile settings/styles as needed
-//                                         );
-//                                       } else {
-//                                         return ListTile(
-//                                           title: Text('Invalid Expense Data'),
-//                                         );
-//                                       }
-//                                     },
-//                                   ),
-//                                 );
-//                               }
-//                             },
-//                           ),
-//                         )
-//                       ],
-//                     ),
-//                   ),
-//                   // Income Tab View
-//                   Container(
-//                     color: Colors.grey[200],
-//                     child: Column(
-//                       children: [
-//                         if (income.isNotEmpty)
-//                           Column(
-//                             children: [
-//                               DropdownButton<String>(
-//                                 value: selectedIncome,
-//                                 items: income.map((dynamic value) {
-//                                   return DropdownMenuItem<String>(
-//                                     value: value as String,
-//                                     child: Text(value.toString()),
-//                                   );
-//                                 }).toList(),
-//                                 onChanged: (newValue) {
-//                                   setState(() {
-//                                     selectedIncome = newValue!;
-//                                   });
-//                                 },
-//                               ),
-//                               SizedBox(height: 20),
-//                               TextField(
-//                                 decoration: InputDecoration(
-//                                   hintText: 'Enter Amount',
-//                                   border: OutlineInputBorder(),
-//                                 ),
-//                                 onChanged: (value) {
-//                                   setState(() {
-//                                     amount = value;
-//                                   });
-//                                 },
-//                               ),
-//                             ],
-//                           ),
-//                         if (income.isEmpty)
-//                           Center(child: CircularProgressIndicator()),
-//                         ElevatedButton(
-//                             onPressed: () async {
-//                               try {
-//                                 await FirebaseFirestore.instance
-//                                     .collection('users')
-//                                     .doc(uid)
-//                                     .set({
-//                                   'IncomeData': FieldValue.arrayUnion([
-//                                     {
-//                                       'amount': amount,
-//                                       'IncomeType': selectedIncome,
-//                                     }
-//                                   ])
-//                                 }, SetOptions(merge: true));
-//                                 // Success message or further handling can be added here
-//                               } catch (e) {
-//                                 // Handle errors or exceptions here
-//                                 print("Error: $e");
-//                               }
-//                             },
-//                             child: Text("Add Income")), // Loading indicator
-//                         SizedBox(
-//                           height: 15,
-//                         ),
-//                         Expanded(
-//                           child: StreamBuilder<DocumentSnapshot>(
-//                             stream: FirebaseFirestore.instance
-//                                 .collection('users')
-//                                 .doc(uid)
-//                                 .snapshots(),
-//                             builder: (BuildContext context,
-//                                 AsyncSnapshot<DocumentSnapshot> snapshot) {
-//                               if (snapshot.connectionState ==
-//                                   ConnectionState.waiting) {
-//                                 return Center(
-//                                     child: CircularProgressIndicator());
-//                               } else if (snapshot.hasError) {
-//                                 return Center(
-//                                     child: Text('Error: ${snapshot.error}'));
-//                               } else if (!snapshot.hasData ||
-//                                   !snapshot.data!.exists) {
-//                                 return Center(
-//                                     child: Text('Document does not exist'));
-//                               } else {
-//                                 final Map<String, dynamic> IncomeData =
-//                                     snapshot.data!.data()
-//                                         as Map<String, dynamic>;
-//                                 List<dynamic> IncomeDataList =
-//                                     IncomeData['IncomeData'];
-//
-//                                 return Scaffold(
-//                                   appBar: AppBar(
-//                                     title: Text('Income Data List'),
-//                                   ),
-//                                   body: ListView.builder(
-//                                     itemCount: IncomeDataList.length,
-//                                     itemBuilder: (context, index) {
-//                                       final dynamic Income =
-//                                           IncomeDataList[index];
-//
-//                                       if (Income is Map<String, dynamic>) {
-//                                         return ListTile(
-//                                           title: Text(
-//                                               'Amount: ${Income['amount']} - Type: ${Income['IncomeType']}'),
-//                                           // Other tile settings/styles as needed
-//                                         );
-//                                       } else {
-//                                         return ListTile(
-//                                           title: Text('Invalid Income Data'),
-//                                         );
-//                                       }
-//                                     },
-//                                   ),
-//                                 );
-//                               }
-//                             },
-//                           ),
-//                         )
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// class Category {
-//   final String id;
-//   final String name;
-//
-//   Category({required this.id, required this.name});
-// }
