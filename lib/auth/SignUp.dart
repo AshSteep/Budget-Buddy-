@@ -1,5 +1,5 @@
-import 'package:base_app/LoginPage.dart';
-import 'package:base_app/UserPage.dart';
+import 'package:base_app/auth/LoginPage.dart';
+import 'package:base_app/screens/UserPage.dart';
 import 'package:base_app/model/normal_user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

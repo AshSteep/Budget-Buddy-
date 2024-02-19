@@ -1,7 +1,7 @@
-import 'package:base_app/UserPage.dart';
+import 'package:base_app/screens/UserPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'LoginPage.dart';
+import 'auth/LoginPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

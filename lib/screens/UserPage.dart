@@ -1,9 +1,9 @@
-import 'package:base_app/pie_chart.dart';
+import 'package:base_app/screens/pie_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'LoginPage.dart';
+import '../auth/LoginPage.dart';
 
 class Transaction {
   final DateTime date;
