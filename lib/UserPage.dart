@@ -478,6 +478,7 @@ class _UserPageState extends State<UserPage>
                             final dynamic income = incomeDataList[index];
                             if (income is Map<String, dynamic>) {
                               DateTime date = income['date'].toDate();
+                              // ignore: unused_local_variable
                               String formattedDate =
                                   DateFormat('dd/MM/yyyy').format(date);
                               return SizedBox(
@@ -626,6 +627,7 @@ class _UserPageState extends State<UserPage>
                             final dynamic expense = expenseDataList[index];
                             if (expense is Map<String, dynamic>) {
                               DateTime date = expense['date'].toDate();
+                              // ignore: unused_local_variable
                               String formattedDate =
                                   DateFormat('dd/MM/yyyy').format(date);
                               return SizedBox(
@@ -1170,6 +1172,7 @@ class _UserPageState extends State<UserPage>
                             final dynamic income = incomeDataList[index];
                             if (income is Map<String, dynamic>) {
                               DateTime date = income['date'].toDate();
+                              // ignore: unused_local_variable
                               String formattedDate =
                                   DateFormat('dd/MM/yyyy').format(date);
                               return SizedBox(
@@ -1321,6 +1324,7 @@ class _UserPageState extends State<UserPage>
                             final dynamic income = incomeDataList[index];
                             if (income is Map<String, dynamic>) {
                               DateTime date = income['date'].toDate();
+                              // ignore: unused_local_variable
                               String formattedDate =
                                   DateFormat('dd/MM/yyyy').format(date);
                               return SizedBox(

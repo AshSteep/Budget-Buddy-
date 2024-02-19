@@ -2,7 +2,6 @@ import 'package:base_app/LoginPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-
 class AdminPage extends StatefulWidget {
   @override
   _AdminPageState createState() => _AdminPageState();
@@ -65,9 +64,9 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey[900],
+      backgroundColor: Colors.black54,
       appBar: AppBar(
-        backgroundColor: Colors.blue[900],
+        backgroundColor: Color(0xFF0336FF),
         title: Text("Budget Buddy"),
         actions: <Widget>[
           IconButton(
@@ -87,53 +86,106 @@ class _AdminPageState extends State<AdminPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
-            Text(
-              "Add Income Categories",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: incomeController,
-                    decoration: InputDecoration(
-                      hintText: "Enter new income category",
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: addIncomeCategory,
-                  child: Text("Add"),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Text(
-              "Add Expense Categories",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: expenseController,
-                    decoration: InputDecoration(
-                      hintText: "Enter new expense category",
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: addExpenseCategory,
-                  child: Text("Add"),
-                ),
-              ],
-            )
+            catergoryTab(incomeController, addIncomeCategory,
+                "Add Income Categories", "Add income category", 'income_cat'),
+            catergoryTab(expenseController, addExpenseCategory,
+                "Add Expense Categories", "Add expense category", 'expense'),
           ],
         ),
       ),
+    );
+  }
+
+  Widget catergoryTab(
+      controllerValue, Function action, title, hint, String category) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70),
+        ),
+        SizedBox(
+          height: 15,
+        ),
+        Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3), // Shadow color
+                  spreadRadius: 2, // Spread radius
+                  blurRadius: 5, // Blur radius
+                  offset: Offset(0, 3), // Shadow offset
+                ),
+              ],
+              gradient: LinearGradient(
+                colors: [Colors.white70, Colors.white], // Gradient colors
+                begin: Alignment.topLeft, // Gradient start position
+                end: Alignment.bottomRight, // Gradient end position
+              ),
+            ),
+            child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('categories')
+                  .doc('item')
+                  .snapshots(),
+              builder: (context,
+                  AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+                      snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator(); // Return a loading indicator while waiting for data
+                } else if (snapshot.hasError) {
+                  return Text(
+                      'Error: ${snapshot.error}'); // Return an error message if there's an error
+                } else {
+                  // Access the data from the snapshot and display it
+                  final data =
+                      snapshot.data?.data(); // Get the data from the snapshot
+                  final categoryData = data?[category] as List<dynamic>? ?? [];
+                  String dataList = categoryData.join(', ');
+                  // Display the categories or any other UI based on your requirements
+                  return Text(dataList);
+                }
+              },
+            )),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: controllerValue,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white60)),
+                  hintText: hint,
+                  hintStyle: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                action();
+              },
+              child: Text("Add"),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 50,
+        )
+      ],
     );
   }
 }
