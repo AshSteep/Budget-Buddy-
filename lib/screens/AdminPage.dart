@@ -112,24 +112,28 @@ class _AdminPageState extends State<AdminPage> {
           height: 15,
         ),
         Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3), // Shadow color
-                  spreadRadius: 2, // Spread radius
-                  blurRadius: 5, // Blur radius
-                  offset: Offset(0, 3), // Shadow offset
-                ),
-              ],
-              gradient: LinearGradient(
-                colors: [Colors.white70, Colors.white], // Gradient colors
-                begin: Alignment.topLeft, // Gradient start position
-                end: Alignment.bottomRight, // Gradient end position
+          width: 500,
+          height: 150,
+          padding: EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3),
               ),
+            ],
+            gradient: LinearGradient(
+              colors: [Colors.white70, Colors.white],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+          ),
+          child: SingleChildScrollView(
+            // Wrap with SingleChildScrollView
             child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
               stream: FirebaseFirestore.instance
                   .collection('categories')
@@ -139,21 +143,27 @@ class _AdminPageState extends State<AdminPage> {
                   AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
                       snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator(); // Return a loading indicator while waiting for data
+                  return CircularProgressIndicator();
                 } else if (snapshot.hasError) {
-                  return Text(
-                      'Error: ${snapshot.error}'); // Return an error message if there's an error
+                  return Text('Error: ${snapshot.error}');
                 } else {
-                  // Access the data from the snapshot and display it
-                  final data =
-                      snapshot.data?.data(); // Get the data from the snapshot
+                  final data = snapshot.data?.data();
                   final categoryData = data?[category] as List<dynamic>? ?? [];
                   String dataList = categoryData.join(', ');
-                  // Display the categories or any other UI based on your requirements
-                  return Text(dataList);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: dataList.split(',').map((item) {
+                      return Text(
+                        item.trim(),
+                        style: TextStyle(fontSize: 16),
+                      );
+                    }).toList(),
+                  );
                 }
               },
-            )),
+            ),
+          ),
+        ),
         SizedBox(
           height: 10,
         ),
@@ -171,8 +181,15 @@ class _AdminPageState extends State<AdminPage> {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white70),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                 ),
               ),
+            ),
+            SizedBox(
+              width: 10,
             ),
             ElevatedButton(
               onPressed: () {
