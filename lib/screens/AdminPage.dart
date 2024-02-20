@@ -61,6 +61,124 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  void updateItemName(BuildContext context, String itemId, String newItemName,
+      String fieldname) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('categories')
+          .doc('item')
+          .update({
+        // Use FieldValue.arrayRemove to remove the old item and FieldValue.arrayUnion to add the updated item
+        fieldname: FieldValue.arrayRemove([itemId]),
+      }).then((value) => FirebaseFirestore.instance
+                  .collection('categories')
+                  .doc('item')
+                  .update({
+                // Use FieldValue.arrayRemove to remove the old item and FieldValue.arrayUnion to add the updated item
+                fieldname: FieldValue.arrayUnion([newItemName]),
+              }));
+      Navigator.of(context).pop(); // Close the dialog
+    } catch (e) {
+      print('Error updating item: $e');
+      // Handle error
+    }
+  }
+
+  void showEditDialog(BuildContext context, String itemId, String fieldname) {
+    String newItemName = ''; // Variable to store the edited item name
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Item'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextFormField(
+                  initialValue:
+                      itemId, // Display the current item name in the text field
+                  decoration: InputDecoration(
+                    labelText: 'New Item Name',
+                  ),
+                  onChanged: (value) {
+                    // Update newItemName when the text field value changes
+                    newItemName = value;
+                  },
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    ElevatedButton(
+                      onPressed: () {
+                        // Implement update functionality
+                        updateItemName(context, itemId, newItemName, fieldname);
+                      },
+                      child: Text('Update'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      child: Text('Cancel'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showOptionsDialog(
+      BuildContext context, String itemId, String fieldname) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Options'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                GestureDetector(
+                  child: Text('Delete'),
+                  onTap: () async {
+                    // Implement delete functionality
+                    try {
+                      await FirebaseFirestore.instance
+                          .collection('categories')
+                          .doc('item')
+                          .update({
+                        fieldname: FieldValue.arrayRemove([itemId])
+                      });
+                      Navigator.of(context).pop(); // Close the dialog
+                    } catch (e) {
+                      print('Error deleting item: $e');
+                      // Handle error
+                    }
+                  },
+                ),
+                SizedBox(height: 10),
+                GestureDetector(
+                  child: Text('Edit'),
+                  onTap: () {
+                    Navigator.of(context).pop(); // Close the initial dialog
+                    showEditDialog(
+                        context, itemId, fieldname); // Show the edit dialog
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,13 +267,18 @@ class _AdminPageState extends State<AdminPage> {
                 } else {
                   final data = snapshot.data?.data();
                   final categoryData = data?[category] as List<dynamic>? ?? [];
-                  String dataList = categoryData.join(', ');
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: dataList.split(',').map((item) {
-                      return Text(
-                        item.trim(),
-                        style: TextStyle(fontSize: 16),
+                    children: categoryData.map<Widget>((item) {
+                      return GestureDetector(
+                        onLongPress: () {
+                          // Show options when pressed and holded
+                          showOptionsDialog(context, item, category);
+                        },
+                        child: Text(
+                          item.trim(),
+                          style: TextStyle(fontSize: 16),
+                        ),
                       );
                     }).toList(),
                   );
