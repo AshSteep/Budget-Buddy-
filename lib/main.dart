@@ -1,4 +1,4 @@
-import 'package:base_app/screens/UserPage.dart';
+import 'package:base_app/screens/userpage/UserPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'auth/LoginPage.dart';

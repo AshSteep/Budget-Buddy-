@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,7 +15,8 @@ class _ChartPageState extends State<ChartPage>
   late TabController _tabController;
   List<CategoryData> categories = []; // Initialize empty category list
   String selectedTime = 'Day';
-
+  // final auth = FirebaseAuth.instance;
+  // final User? user = auth.currentUser;
   Future<void> fetchDataForSelectedDate(DateTime selectedDate) async {
     // Assuming 'users' is your Firestore collection
     CollectionReference users = FirebaseFirestore.instance.collection('users');
@@ -27,7 +29,7 @@ class _ChartPageState extends State<ChartPage>
 
     QuerySnapshot<Map<String, dynamic>> snapshot = await users
         .doc(
-            'JFZG2UtxJgNUcTqnUKznGgMQ6Yl2') // Replace with the user ID or document ID
+            'JgPyXAVm4cMYkMDv9TTWne3OhT92') // Replace with the user ID or document ID
         .collection(
             'yourCollection') // Replace with the collection name containing your data
         .where('date',
