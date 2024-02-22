@@ -231,7 +231,7 @@ class _AdminPageState extends State<AdminPage> {
         ),
         Container(
           width: 500,
-          height: 150,
+          height: 200,
           padding: EdgeInsets.all(15),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -271,13 +271,21 @@ class _AdminPageState extends State<AdminPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: categoryData.map<Widget>((item) {
                       return GestureDetector(
-                        onLongPress: () {
-                          // Show options when pressed and holded
-                          showOptionsDialog(context, item, category);
-                        },
-                        child: Text(
-                          item.trim(),
-                          style: TextStyle(fontSize: 16),
+                        child: ListTile(
+                          title: Text(
+                            item.trim(),
+                            style: TextStyle(
+                                fontSize: 17,
+                                fontFamily: 'Bradley Hand',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          ),
+                          dense: true, // Make the tile smaller
+                          contentPadding:
+                              EdgeInsets.symmetric(vertical: 0, horizontal: 2),
+                          onTap: () {
+                            showOptionsDialog(context, item, category);
+                          },
                         ),
                       );
                     }).toList(),
