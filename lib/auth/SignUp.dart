@@ -30,7 +30,8 @@ class _SignupState extends State<Signup> {
 
       if (firebaseUser != null) {
         // Create a UserModal object
-        UserModel usermodel = UserModel(username: _usernameController.text, userType: 'normal_user');
+        UserModel usermodel = UserModel(
+            username: _usernameController.text, userType: 'normal_user');
 
         // Convert UserModal to a Map
         Map<String, dynamic> userMap = usermodel.toJson();
@@ -55,32 +56,28 @@ class _SignupState extends State<Signup> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.arrow_back_ios,
-            size: 20,
-            color: Colors.black,
-          ),
-        ),
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-      ),
       body: SingleChildScrollView(
         child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color.fromARGB(255, 52, 136, 205),
+                const Color.fromARGB(255, 248, 232, 232)
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
           padding: EdgeInsets.symmetric(horizontal: 40),
-          height: MediaQuery.of(context).size.height - 50,
+          height: MediaQuery.of(context).size.height,
           width: double.infinity,
           child: Form(
             key: _formKey,
             autovalidateMode: AutovalidateMode
                 .onUserInteraction, // Enable real-time validation
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Column(
                   children: <Widget>[
@@ -89,16 +86,23 @@ class _SignupState extends State<Signup> {
                       style: TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'noto serif', // Add fontFamily property
                       ),
                     ),
                     SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
                     Text(
-                      "Create an account, It's free ",
-                      style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                    )
+                      "Create an account, It's free",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color.fromARGB(255, 42, 39, 39),
+                      ),
+                    ),
                   ],
+                ),
+                SizedBox(
+                  height: 10,
                 ),
                 Column(
                   children: <Widget>[
@@ -106,6 +110,21 @@ class _SignupState extends State<Signup> {
                       controller: _usernameController,
                       decoration: InputDecoration(
                         labelText: "Username",
+                        hintText: "Enter your username",
+                        prefixIcon:
+                            Icon(Icons.person), // Icon before the input field
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 52, 136, 205),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 20.0),
+                        labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 15.0,
+                        ),
                       ),
                       onChanged: (_) => _formKey.currentState!
                           .validate(), // Validate on text change
@@ -119,10 +138,28 @@ class _SignupState extends State<Signup> {
                         return null;
                       },
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: "Email",
+                        hintText: "Enter your email",
+                        prefixIcon:
+                            Icon(Icons.email), // Icon before the input field
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 52, 136, 205),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 20.0),
+                        labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 15.0,
+                        ),
                       ),
                       onChanged: (_) => _formKey.currentState!
                           .validate(), // Validate on text change
@@ -137,10 +174,28 @@ class _SignupState extends State<Signup> {
                         return null;
                       },
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
                         labelText: "Password",
+                        hintText: "Enter your password",
+                        prefixIcon:
+                            Icon(Icons.lock), // Icon before the input field
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 52, 136, 205),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 20.0),
+                        labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 15.0,
+                        ),
                       ),
                       obscureText: true,
                       onChanged: (_) => _formKey.currentState!
@@ -156,10 +211,28 @@ class _SignupState extends State<Signup> {
                         return null;
                       },
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     TextFormField(
                       controller: _confirmPasswordController,
                       decoration: InputDecoration(
                         labelText: "Confirm Password",
+                        hintText: "Confirm your password",
+                        prefixIcon:
+                            Icon(Icons.lock), // Icon before the input field
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 52, 136, 205),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 20.0),
+                        labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 15.0,
+                        ),
                       ),
                       obscureText: true,
                       onChanged: (_) => _formKey.currentState!
@@ -178,18 +251,12 @@ class _SignupState extends State<Signup> {
                     ),
                   ],
                 ),
+                SizedBox(
+                  height: 25,
+                ),
                 Container(
                   padding:
                       EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    border: Border(
-                      bottom: BorderSide(color: Colors.black),
-                      top: BorderSide(color: Colors.black),
-                      left: BorderSide(color: Colors.black),
-                      right: BorderSide(color: Colors.black),
-                    ),
-                  ),
                   child: MaterialButton(
                     minWidth: double.infinity,
                     height: 60,
@@ -209,10 +276,17 @@ class _SignupState extends State<Signup> {
                           // Handle any errors during sign-up
                           print('Error during sign-up: $e');
                         }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please enter credentials'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
                       }
                     },
                     color: Colors.blue,
-                    elevation: 0,
+                    elevation: 20,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),
@@ -225,6 +299,9 @@ class _SignupState extends State<Signup> {
                       ),
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -241,7 +318,8 @@ class _SignupState extends State<Signup> {
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 18,
-                          color: Colors.blue, //  Set the color to blue
+                          color: const Color.fromARGB(
+                              255, 11, 15, 18), //  Set the color to blue
                         ),
                       ),
                     ),

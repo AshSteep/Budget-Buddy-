@@ -12,7 +12,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     // Add a delay to simulate a splash screen
-    Timer(Duration(seconds: 5), () {
+    Timer(Duration(seconds: 3), () {
       // Navigate to the login page after the delay
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => LoginPage()),
