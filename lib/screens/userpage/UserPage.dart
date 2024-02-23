@@ -4,7 +4,6 @@ import 'package:base_app/screens/userpage/monthlytab.dart';
 import 'package:base_app/screens/userpage/yearlytab.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../auth/LoginPage.dart';
 
@@ -38,7 +37,6 @@ class _UserPageState extends State<UserPage>
   String amount = ''; // New DateTime variable for selected date
   String subject = ''; // New DateTime variable for selected date
   String extraNotes = ''; // New DateTime variable for selected date
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
