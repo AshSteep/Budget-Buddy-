@@ -50,6 +50,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.7
+  google_fonts: ^6.1.0
+    
+flutter_native_splash:
+  color: "#ffffff"
+  image: C:\Users\ashin\StudioProjects\base_app\assets\welcome.png
+  
 
 flutter_icons:
   android: true
