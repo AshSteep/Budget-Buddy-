@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import '../screens/AdminPage.dart';
 import 'package:base_app/auth/SignUp.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -56,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           // User is not an admin
           Navigator.of(context)
-              .pushReplacementNamed('/userPage', arguments: userUID);
+              .pushReplacementNamed('/bottomNav', arguments: userUID);
         }
       } else {
         // Document with UID doesn't exist
@@ -92,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
         await FirebaseAuth.instance.signInWithCredential(credential);
         String userUID = _auth.currentUser!.uid;
         Navigator.of(context)
-            .pushReplacementNamed('/userPage', arguments: userUID);
+            .pushReplacementNamed('/bottomNav', arguments: userUID);
       } else {
         print('ID token or Access token is null');
       }

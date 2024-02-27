@@ -137,131 +137,16 @@ class _ChartPageState extends State<ChartPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Finance Statistics'),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(48.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              DropdownButton<String>(
-                value: selectedTime,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedTime = newValue!;
-                    fetchDataAndComputeTotal(); // Fetch data based on selection
-                  });
-                },
-                items: <String>['Day', 'Month', 'Year'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _selectDate(context); // Function to show a date picker
-                  },
-                  child: Text('Select Date'),
-                ),
-                SizedBox(height: 20),
-                if (selectedTime ==
-                    'Day') // Show pie chart for the selected time
-                  AspectRatio(
-                    aspectRatio: 1.3,
-                    child: PieChart(
-                      PieChartData(
-                        sectionsSpace: 0,
-                        centerSpaceRadius: 40,
-                        sections: categories.map((category) {
-                          return PieChartSectionData(
-                            color: category.color,
-                            value: category.value,
-                            title:
-                                '${category.category}: ${category.value.toInt()}',
-                            radius: 100,
-                            titleStyle: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  )
-                else if (selectedTime == 'Month')
-                  AspectRatio(
-                    aspectRatio: 1.3,
-                    child: PieChart(
-                      PieChartData(
-                        sectionsSpace: 0,
-                        centerSpaceRadius: 40,
-                        sections: categories.map((category) {
-                          return PieChartSectionData(
-                            color: category.color,
-                            value: category.value,
-                            title:
-                                '${category.category}: ${category.value.toInt()}',
-                            radius: 100,
-                            titleStyle: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  )
-                else if (selectedTime == 'Year')
-                  AspectRatio(
-                    aspectRatio: 1.3,
-                    child: PieChart(
-                      PieChartData(
-                        sectionsSpace: 0,
-                        centerSpaceRadius: 40,
-                        sections: categories.map((category) {
-                          return PieChartSectionData(
-                            color: category.color,
-                            value: category.value,
-                            title:
-                                '${category.category}: ${category.value.toInt()}',
-                            radius: 100,
-                            titleStyle: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  )
-              ],
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          title: Text(
+            'Statistics',
+            style: TextStyle(
+              color: const Color.fromARGB(255, 30, 28, 28),
+              fontSize: 23,
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.bold,
             ),
-          ),
-          Center(child: Text('Content for Tab 2')),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add functionality to refresh the data when needed
-          fetchDataAndComputeTotal();
-        },
-        child: Icon(Icons.picture_as_pdf),
-      ),
+          )),
     );
   }
 
