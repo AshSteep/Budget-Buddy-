@@ -1,4 +1,4 @@
-import 'package:base_app/auth/Splashscreen.dart';
+import 'package:base_app/auth/splashscreen.dart';
 import 'package:base_app/components/bottomnavbar.dart';
 import 'package:base_app/screens/userpage/UserPage.dart';
 import 'package:firebase_core/firebase_core.dart';

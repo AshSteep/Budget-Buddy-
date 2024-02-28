@@ -1,4 +1,4 @@
-import 'package:base_app/auth/LoginPage.dart';
+import 'package:base_app/auth/loginPage.dart';
 import 'package:base_app/screens/userpage/UserPage.dart';
 import 'package:base_app/model/normal_user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

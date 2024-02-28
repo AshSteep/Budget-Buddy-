@@ -1,12 +1,8 @@
-import 'package:base_app/screens/Statistics.dart';
-import 'package:base_app/screens/userpage/dailytab.dart';
-import 'package:base_app/screens/userpage/monthlytab.dart';
-import 'package:base_app/screens/userpage/yearlytab.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:base_app/screens/userpage/expense_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../auth/LoginPage.dart';
+import 'package:flutter/services.dart';
 
 class Transaction {
   final DateTime date;
@@ -29,13 +25,6 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage>
     with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    //HomePage(), // First page (Home Page)
-    ChartPage(), // Second page (Pie Chart Page)
-    Container(color: Colors.blue), // Third page
-    Container(color: Colors.yellow), // Fourth page
-  ];
   DateTime selectedDate = DateTime.now();
   List<String> expenses = []; // Initialize an empty list
   List<String> income = []; // Initialize an empty list
@@ -104,19 +93,17 @@ class _UserPageState extends State<UserPage>
     return null;
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
+    final user = _auth.currentUser?.uid;
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
         title: Align(
           alignment: Alignment.topLeft,
           child: Row(
@@ -150,7 +137,590 @@ class _UserPageState extends State<UserPage>
           ),
         ),
       ),
-      body: Container()
+      body: Padding(
+        padding: EdgeInsets.only(top: 0), // Adjust the top padding as needed
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ListTile(
+                tileColor: Color.fromARGB(
+                    255, 255, 255, 255), // Background color for the tile
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 20), // Padding for content
+                title: Row(
+                  children: [
+                    Image.asset(
+                      'assets/icons/hacker.png',
+                      width: 30,
+                      height: 30,
+                    ),
+                    // Icon
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue),
+                          ),
+                          SizedBox(height: 3), // Title
+                          Text(
+                            'Ashin Steephan',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          ), // Subtitle
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 120, // Adjust width as needed
+                      height: 40, // Adjust height as needed
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Colors.lightBlue,
+                          // color: Colors.grey,
+                          border:
+                              Border.all(color: Colors.grey), // Border color
+                          borderRadius:
+                              BorderRadius.circular(8.0), // Border radius
+                        ),
+                        child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: DropdownButton<String>(
+                              value: 'This Month', // No default value
+                              onChanged: (String? newValue) {
+                                // Handle dropdown value change
+                              },
+                              items: <String>[
+                                'This Month',
+                                'This Day',
+                                'This Year'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: TextStyle(
+                                      fontSize: 16.0, // Dropdown item text size
+                                      color: Colors
+                                          .black, // Dropdown item text color
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              style: TextStyle(
+                                fontSize: 16.0, // Dropdown button text size
+                                color:
+                                    Colors.black, // Dropdown button text color
+                              ),
+                              icon: Icon(
+                                Icons.arrow_drop_down, // Dropdown icon
+                                color: Colors.black, // Dropdown icon color
+                              ),
+                              elevation: 8, // Dropdown menu elevation
+                              underline:
+                                  Container(), // Remove default underline
+                              isExpanded: true, // Make dropdown button expanded
+                            )),
+                      ),
+                    ),
+
+                    // Dropdown menu
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 0,
+              ),
+              SizedBox(
+                width: 360.0, // Set the width of the card
+                height: 180.0, // Set the height of the card
+                child: Card(
+                  elevation: 5.0, // Elevation for the card
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        8.0), // Border radius for the card
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Color(0xFFF6573D3),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          child: Container(
+                            width: double
+                                .infinity, // Make container width match the card width
+                            height: double
+                                .infinity, // Make container height match the card height
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage(
+                                    'assets/icons/money.png'), // Path to your image asset
+                                alignment: Alignment
+                                    .topRight, // Cover the entire container
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                  8.0), // Border radius for the container
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(
+                              16.0), // Add padding inside the container
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Expense Total',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8.0),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 25,
+              ),
+              Align(
+                alignment:
+                    Alignment.centerLeft, // Align the text to the left side
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0),
+                  child: Text(
+                    'Expense List',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return ExpenseWidget();
+                    }));
+                  },
+                  child: Text("dedede")),
+              SizedBox(
+                height: 500,
+                child: ExpenseWidget(),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  height: 220,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          color: const Color.fromARGB(255, 204, 214, 219)),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Tuesday, 14",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [],
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            '- ₹ 710', // Amount
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Divider(
+                        color: Colors.blueGrey,
+                      ),
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/icons/cart.png',
+                            width: 25,
+                            height: 25,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Shop',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                SizedBox(height: 3),
+                                Text(
+                                  'New Clothes',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 120,
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '- ₹', // Rupee icon
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  '230', // Amount
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/icons/bus.png',
+                            width: 25,
+                            height: 25,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Transportation',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                SizedBox(height: 3),
+                                Text(
+                                  'Trip To Munnar',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 120,
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '- ₹', // Rupee icon
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  '180', // Amount
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/icons/cinema.png',
+                            width: 25,
+                            height: 25,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Movies',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                SizedBox(height: 3),
+                                Text(
+                                  'Bhramayugam',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 120,
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '- ₹', // Rupee icon
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  '300', // Amount
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: SizedBox(
+        height: 60,
+        width: 60,
+        child: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              context: context,
+              builder: (BuildContext context) {
+                // List to track button selection
+                List<bool> isSelected = [true, false];
+                return ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(40.0),
+                    topRight: Radius.circular(40.0),
+                  ),
+                  child: Container(
+                    height: 330,
+                    width: 100,
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.0),
+                        topRight: Radius.circular(20.0),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ToggleButtons(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  child: Text(
+                                    'Income',
+                                    style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  child: Text(
+                                    'Expense',
+                                    style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                              isSelected: isSelected,
+                              onPressed: (int newIndex) {
+                                setState(() {
+                                  for (int index = 0;
+                                      index < isSelected.length;
+                                      index++) {
+                                    isSelected[index] = index == newIndex;
+                                  }
+                                });
+                              },
+                              color:
+                                  Colors.grey.withOpacity(0.8), // Set the color
+                              selectedColor:
+                                  Colors.blue, // Set the color when selected
+                              borderRadius: BorderRadius.circular(
+                                  30), // Set the border radius
+                              borderWidth: 2, // Set the border width
+                              selectedBorderColor: Colors
+                                  .blue, // Set the border color when selected
+                              disabledBorderColor: Colors.grey.withOpacity(
+                                  0.5), // Set the border color when disabled
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Image.asset('assets/icons/categories.png',
+                                width: 30, height: 30),
+                            SizedBox(width: 10),
+                            Expanded(
+                                child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Enter Amount',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType
+                                  .number, // Set keyboard type to number
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter
+                                    .digitsOnly // Accept only digits
+                              ],
+                            )),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Enter text',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Image.asset('assets/icons/calendar.png',
+                                width: 30, height: 30),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ), // Spacer to push the ElevatedButton to the bottom
+                        SizedBox(
+                          width: 300,
+                          height:
+                              50, // Make the button fill the width of the container
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Add your onPressed functionality here
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.green, // Text color
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    30.0), // Rounded corners
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12.0), // Padding inside button
+                              child: Text(
+                                'Submit',
+                                style: TextStyle(fontSize: 16), // Text style
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          backgroundColor: Colors.lightBlue, // Set the background color
+          child: Icon(Icons.add), // Set the icon
+        ),
+      ),
     );
   }
 }

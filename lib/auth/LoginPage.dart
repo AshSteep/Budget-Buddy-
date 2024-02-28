@@ -1,9 +1,9 @@
-import '../screens/AdminPage.dart';
+import 'package:base_app/screens/adminpage/AdminPage.dart';
 import 'package:base_app/auth/SignUp.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'Forgotpasspage.dart';
+import 'forgotpasspage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {

@@ -94,6 +94,13 @@ flutter:
     - assets/icons/wallet.png
     - assets/icons/search.png
     - assets/icons/user.png
+    - assets/icons/hacker.png
+    - assets/icons/add.png
+    - assets/icons/cart.png
+    - assets/icons/bus.png
+    - assets/icons/cinema.png
+    - assets/icons/calendar.png
+    - assets/icons/categories.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
