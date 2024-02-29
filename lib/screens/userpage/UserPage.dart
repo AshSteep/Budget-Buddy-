@@ -137,68 +137,68 @@ class _UserPageState extends State<UserPage>
           ),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(top: 0), // Adjust the top padding as needed
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              ListTile(
-                tileColor: Color.fromARGB(
-                    255, 255, 255, 255), // Background color for the tile
-                contentPadding: EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 20), // Padding for content
-                title: Row(
-                  children: [
-                    Image.asset(
-                      'assets/icons/hacker.png',
-                      width: 30,
-                      height: 30,
-                    ),
-                    // Icon
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome',
-                            style: TextStyle(
+      body: Container(
+        child: Padding(
+          padding: EdgeInsets.only(top: 0), // Adjust the top padding as needed
+          child: Container(
+            height: MediaQuery.of(context)
+                .size
+                .height, // Set a fixed height for the container
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  tileColor: Color.fromARGB(255, 255, 255, 255),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  title: Row(
+                    children: [
+                      Image.asset(
+                        'assets/icons/hacker.png',
+                        width: 30,
+                        height: 30,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Welcome',
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue),
-                          ),
-                          SizedBox(height: 3), // Title
-                          Text(
-                            'Ashin Steephan',
-                            style: TextStyle(
+                                color: Colors.blue,
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'Ashin Steephan',
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black),
-                          ), // Subtitle
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 120, // Adjust width as needed
-                      height: 40, // Adjust height as needed
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          color: Colors.lightBlue,
-                          // color: Colors.grey,
-                          border:
-                              Border.all(color: Colors.grey), // Border color
-                          borderRadius:
-                              BorderRadius.circular(8.0), // Border radius
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
                         ),
-                        child: Padding(
+                      ),
+                      SizedBox(
+                        width: 120,
+                        height: 40,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            color: Colors.lightBlue,
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 12.0),
                             child: DropdownButton<String>(
-                              value: 'This Month', // No default value
-                              onChanged: (String? newValue) {
-                                // Handle dropdown value change
-                              },
+                              value: 'This Month',
+                              onChanged: (String? newValue) {},
                               items: <String>[
                                 'This Month',
                                 'This Day',
@@ -209,359 +209,112 @@ class _UserPageState extends State<UserPage>
                                   child: Text(
                                     value,
                                     style: TextStyle(
-                                      fontSize: 16.0, // Dropdown item text size
-                                      color: Colors
-                                          .black, // Dropdown item text color
+                                      fontSize: 16.0,
+                                      color: Colors.black,
                                     ),
                                   ),
                                 );
                               }).toList(),
                               style: TextStyle(
-                                fontSize: 16.0, // Dropdown button text size
-                                color:
-                                    Colors.black, // Dropdown button text color
+                                fontSize: 16.0,
+                                color: Colors.black,
                               ),
                               icon: Icon(
-                                Icons.arrow_drop_down, // Dropdown icon
-                                color: Colors.black, // Dropdown icon color
+                                Icons.arrow_drop_down,
+                                color: Colors.black,
                               ),
-                              elevation: 8, // Dropdown menu elevation
-                              underline:
-                                  Container(), // Remove default underline
-                              isExpanded: true, // Make dropdown button expanded
-                            )),
-                      ),
-                    ),
-
-                    // Dropdown menu
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 0,
-              ),
-              SizedBox(
-                width: 360.0, // Set the width of the card
-                height: 180.0, // Set the height of the card
-                child: Card(
-                  elevation: 5.0, // Elevation for the card
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Border radius for the card
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Color(0xFFF6573D3),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          child: Container(
-                            width: double
-                                .infinity, // Make container width match the card width
-                            height: double
-                                .infinity, // Make container height match the card height
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/icons/money.png'), // Path to your image asset
-                                alignment: Alignment
-                                    .topRight, // Cover the entire container
-                              ),
-                              borderRadius: BorderRadius.circular(
-                                  8.0), // Border radius for the container
+                              elevation: 8,
+                              underline: Container(),
+                              isExpanded: true,
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(
-                              16.0), // Add padding inside the container
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Expense Total',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8.0),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Align(
-                alignment:
-                    Alignment.centerLeft, // Align the text to the left side
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30.0, vertical: 0),
-                  child: Text(
-                    'Expense List',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return ExpenseWidget();
-                    }));
-                  },
-                  child: Text("dedede")),
-              SizedBox(
-                height: 500,
-                child: ExpenseWidget(),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Container(
-                  padding: EdgeInsets.all(15),
-                  height: 220,
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          color: const Color.fromARGB(255, 204, 214, 219)),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Tuesday, 14",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [],
-                          ),
-                          SizedBox(width: 5),
-                          Text(
-                            '- ₹ 710', // Amount
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Divider(
-                        color: Colors.blueGrey,
-                      ),
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/icons/cart.png',
-                            width: 25,
-                            height: 25,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Shop',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  'New Clothes',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: 120,
-                            height: 40,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '- ₹', // Rupee icon
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 5),
-                                Text(
-                                  '230', // Amount
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/icons/bus.png',
-                            width: 25,
-                            height: 25,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Transportation',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  'Trip To Munnar',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: 120,
-                            height: 40,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '- ₹', // Rupee icon
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 5),
-                                Text(
-                                  '180', // Amount
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/icons/cinema.png',
-                            width: 25,
-                            height: 25,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Movies',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                SizedBox(height: 3),
-                                Text(
-                                  'Bhramayugam',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: 120,
-                            height: 40,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '- ₹', // Rupee icon
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 5),
-                                Text(
-                                  '300', // Amount
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: 0,
+                ),
+                Center(
+                  child: SizedBox(
+                    width: 360.0,
+                    height: 180.0,
+                    child: Card(
+                      elevation: 5.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF6573D3),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              child: Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/icons/money.png'),
+                                    alignment: Alignment.topRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Expense Total',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30.0, vertical: 0),
+                    child: Text(
+                      'Expense List',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  // Wrap ExpenseWidget with Expanded to occupy remaining space
+                  child: SingleChildScrollView(
+                    // Wrap with SingleChildScrollView
+                    child: ExpenseWidget(), // Make the ExpenseWidget scrollable
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
