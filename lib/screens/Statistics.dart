@@ -312,7 +312,7 @@ class _StatisticsState extends State<Statistics> {
                           100, // Adjust height according to your requirement
                       color: Colors.transparent, // Choose your desired color
                       width:
-                          500, // Set a fixed width or use double.infinity for full width
+                          540, // Set a fixed width or use double.infinity for full width
                       child: Row(
                         children: [
                           // List of small rectangular containers
@@ -352,7 +352,7 @@ class _StatisticsState extends State<Statistics> {
                                       Text(
                                         "Shop",
                                         style: TextStyle(
-                                          fontSize: 25,
+                                          fontSize: 20,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
                                         ),
@@ -361,7 +361,7 @@ class _StatisticsState extends State<Statistics> {
                                       Text(
                                         "- ₹300",
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 17,
                                           fontWeight: FontWeight.bold,
                                           color: const Color.fromARGB(
                                               255, 70, 68, 68),
@@ -395,10 +395,10 @@ class _StatisticsState extends State<Statistics> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   SizedBox(
-                                      height: 60,
-                                      width: 60,
+                                      height: 50,
+                                      width: 50,
                                       child: Image.asset(
-                                          'assets/icons/cart.png')), // Icon
+                                          'assets/icons/bus.png')), // Icon
                                   SizedBox(
                                       width:
                                           10), // Spacer between icon and text fields
@@ -408,18 +408,18 @@ class _StatisticsState extends State<Statistics> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Shop",
+                                        "Transportation",
                                         style: TextStyle(
-                                          fontSize: 25,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
                                         ),
                                       ),
                                       SizedBox(height: 5), // First Text Field
                                       Text(
-                                        "- ₹300",
+                                        "- ₹250",
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 17,
                                           fontWeight: FontWeight.bold,
                                           color: const Color.fromARGB(
                                               255, 70, 68, 68),
@@ -455,7 +455,7 @@ class _StatisticsState extends State<Statistics> {
                                       height: 60,
                                       width: 60,
                                       child: Image.asset(
-                                          'assets/icons/cart.png')), // Icon
+                                          'assets/icons/cinema.png')), // Icon
                                   SizedBox(
                                       width:
                                           10), // Spacer between icon and text fields
@@ -465,16 +465,16 @@ class _StatisticsState extends State<Statistics> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Shop",
+                                        "Movies",
                                         style: TextStyle(
-                                          fontSize: 25,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
                                         ),
                                       ),
                                       SizedBox(height: 5), // First Text Field
                                       Text(
-                                        "- ₹300",
+                                        "- ₹170",
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
