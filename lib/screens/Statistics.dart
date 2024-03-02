@@ -431,63 +431,7 @@ class _StatisticsState extends State<Statistics> {
                               ),
                             ),
                           ),
-                          Container(
-                            width: 170, // Width of the small container
-                            height: double
-                                .infinity, // Match the height of the parent container
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: Colors.black,
-                                  width: 2), // Increase border thickness
-                              borderRadius: BorderRadius.circular(
-                                  15), // Make corners round
-                            ),
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 5), // Margin between containers
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 10, right: 10, top: 10, bottom: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                      height: 60,
-                                      width: 60,
-                                      child: Image.asset(
-                                          'assets/icons/cinema.png')), // Icon
-                                  SizedBox(
-                                      width:
-                                          10), // Spacer between icon and text fields
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Movies",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      SizedBox(height: 5), // First Text Field
-                                      Text(
-                                        "- ₹170",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color.fromARGB(
-                                              255, 70, 68, 68),
-                                        ),
-                                      ), // Second Text Field
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+
                           // Add more containers as needed
                         ],
                       ),
