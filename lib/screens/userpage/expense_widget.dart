@@ -1,58 +1,59 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class ExpenseWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        child: FutureBuilder<QuerySnapshot>(
-          future: FirebaseFirestore.instance.collection('users').get(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
+    return FutureBuilder<QuerySnapshot>(
+      future: FirebaseFirestore.instance.collection('users').get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
 
-            final expenseData = snapshot.data!.docs.first['expenseData'];
-            final groupedExpenses = _groupExpensesByDate(expenseData);
+        final expenseData = snapshot.data!.docs.first['expenseData'];
+        final groupedExpenses = _groupExpensesByDate(expenseData);
 
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: groupedExpenses.length,
-              itemBuilder: (context, index) {
-                final date = groupedExpenses.keys.elementAt(index);
-                final expensesForDate = groupedExpenses[date]!;
-                final totalExpense = _calculateTotalExpense(expensesForDate);
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: groupedExpenses.entries.map((entry) {
+              final date = entry.key;
+              final expensesForDate = entry.value;
+              final totalExpense = _calculateTotalExpense(expensesForDate);
 
-                return Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Container(
-                    padding: EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 204, 214, 219),
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+              return Padding(
+                padding: const EdgeInsets.only(
+                    left: 15, right: 15, top: 10, bottom: 10),
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 204, 214, 219),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
                               _formatDate(date),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            Text(
+                          ),
+                          SizedBox(width: 120),
+                          Expanded(
+                            child: Text(
                               'Total: - ₹ $totalExpense',
                               style: TextStyle(
                                 color: Colors.black,
@@ -60,46 +61,58 @@ class ExpenseWidget extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
-                        ),
-                        Divider(color: Colors.blueGrey),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: expensesForDate.map((expense) {
-                            final amount = int.parse(expense['amount']);
-                            final text = expense['text'];
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '$text',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                          ),
+                        ],
+                      ),
+                      Divider(color: Colors.blueGrey),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: expensesForDate.map((expense) {
+                          final amount = int.parse(expense['amount']);
+                          final text = expense['text'];
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.category, // Icon for category
+                                    size: 18, // Adjust size as needed
+                                    color: Colors.black, // Icon color
                                   ),
-                                ),
-                                Text(
-                                  '- ₹ $amount',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
+                                  SizedBox(
+                                      width:
+                                          5), // Adjust spacing between icon and text
+                                  Text(
+                                    '$text',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
                                   ),
+                                ],
+                              ),
+                              Text(
+                                '- ₹ $amount',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
                                 ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
-          },
-        ),
-      ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 
@@ -117,6 +130,9 @@ class ExpenseWidget extends StatelessWidget {
       }
       groupedExpenses[date]!.add(data);
     }
+
+    // Sort entries by date in descending order
+    groupedExpenses.entries.toList().sort((a, b) => b.key.compareTo(a.key));
 
     return groupedExpenses;
   }

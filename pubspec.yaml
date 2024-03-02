@@ -48,6 +48,7 @@ dependencies:
   fl_chart: ^0.64.0
   pdf: ^3.10.6
   curved_navigation_bar: ^1.0.3
+  pie_chart: ^5.4.0
 
 dev_dependencies:
   flutter_test:

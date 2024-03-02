@@ -1,3 +1,4 @@
+import 'package:base_app/screens/userpage/expense_total_widget.dart';
 import 'package:base_app/screens/userpage/expense_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -189,7 +190,7 @@ class _UserPageState extends State<UserPage>
                         child: Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
-                            color: Colors.lightBlue,
+                            color: Color(0xFFF6573D3),
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
@@ -238,54 +239,7 @@ class _UserPageState extends State<UserPage>
                 ),
                 Center(
                   child: SizedBox(
-                    width: 360.0,
-                    height: 180.0,
-                    child: Card(
-                      elevation: 5.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFFF6573D3),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              child: Container(
-                                width: double.infinity,
-                                height: double.infinity,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/icons/money.png'),
-                                    alignment: Alignment.topRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Expense Total',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                      width: 360.0, height: 180.0, child: ExpenseTotal()),
                 ),
                 SizedBox(
                   height: 15,
@@ -306,8 +260,9 @@ class _UserPageState extends State<UserPage>
                     ),
                   ),
                 ),
-                Expanded(
-                  // Wrap ExpenseWidget with Expanded to occupy remaining space
+                SizedBox(height: 5),
+                SizedBox(
+                  height: 330, // Define the desired height
                   child: SingleChildScrollView(
                     // Wrap with SingleChildScrollView
                     child: ExpenseWidget(), // Make the ExpenseWidget scrollable
@@ -470,7 +425,7 @@ class _UserPageState extends State<UserPage>
               },
             );
           },
-          backgroundColor: Colors.lightBlue, // Set the background color
+          backgroundColor: Color(0xFFF6573D3), // Set the background color
           child: Icon(Icons.add), // Set the icon
         ),
       ),

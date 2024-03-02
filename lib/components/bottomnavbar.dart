@@ -28,7 +28,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         physics: NeverScrollableScrollPhysics(), // Prevent scrolling
         children: [
           UserPage(),
-          ChartPage(),
+          Statistics(),
         ],
         onPageChanged: (int index) {
           setState(() {
@@ -37,9 +37,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
         },
       ),
       bottomNavigationBar: CurvedNavigationBar(
-        height: 60,
+        height: 50,
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        color: Colors.lightBlue,
+        color: Color(0xFFF6573D3),
         animationDuration: Duration(milliseconds: 300),
         index: _currentIndex,
         items: <Widget>[

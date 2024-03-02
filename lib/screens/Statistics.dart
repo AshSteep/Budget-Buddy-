@@ -1,180 +1,502 @@
-import 'dart:math';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pie_chart/pie_chart.dart';
 
-class ChartPage extends StatefulWidget {
-  const ChartPage({Key? key}) : super(key: key);
+class Statistics extends StatefulWidget {
+  const Statistics({super.key});
+
   @override
-  State<ChartPage> createState() => _ChartPageState();
+  State<Statistics> createState() => _StatisticsState();
 }
 
-class _ChartPageState extends State<ChartPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  List<CategoryData> categories = []; // Initialize empty category list
-  String selectedTime = 'Day';
-  // final auth = FirebaseAuth.instance;
-  // final User? user = auth.currentUser;
-  Future<void> fetchDataForSelectedDate(DateTime selectedDate) async {
-    // Assuming 'users' is your Firestore collection
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-    // Replace 'selectedDate' with the chosen date and format it as required
-    DateTime startOfDay = DateTime(
-        selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
-    DateTime endOfDay = DateTime(
-        selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
-
-    QuerySnapshot<Map<String, dynamic>> snapshot = await users
-        .doc(
-            'JgPyXAVm4cMYkMDv9TTWne3OhT92') // Replace with the user ID or document ID
-        .collection(
-            'yourCollection') // Replace with the collection name containing your data
-        .where('date',
-            isGreaterThanOrEqualTo: startOfDay, isLessThanOrEqualTo: endOfDay)
-        .get();
-
-    if (snapshot.docs.isNotEmpty) {
-      // Process the fetched data here
-      List<DocumentSnapshot> documents = snapshot.docs;
-      for (var document in documents) {
-        // Access document data and perform operations
-        Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
-
-        if (data != null) {
-          // Now you can access the data safely using the 'data' variable
-          print(data); // Example: Print the fetched data
-        } else {
-          print('No data found for the selected date');
-        }
-
-        print(data); // Example: Print the fetched data
-      }
-    } else {
-      print('No data found for the selected date');
-    }
-  }
-
-  DateTime selectedDate = DateTime.now(); // Initial selected date
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000), // Set the start date for the date picker
-      lastDate: DateTime.now(), // Set the end date for the date picker
-    );
-
-    if (pickedDate != null && pickedDate != selectedDate) {
-      setState(() {
-        selectedDate = pickedDate; // Update the selectedDate variable
-      });
-
-      fetchDataForSelectedDate(
-          selectedDate); // Fetch data for the selected date
-    }
-  }
-
-  Future<void> fetchDataAndComputeTotal() async {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-    DocumentSnapshot<Map<String, dynamic>> userDoc = await users
-        .doc('JFZG2UtxJgNUcTqnUKznGgMQ6Yl2')
-        .get() as DocumentSnapshot<Map<String, dynamic>>;
-
-    if (userDoc.exists) {
-      Map<String, dynamic>? incomeRawData = userDoc.data();
-
-      if (incomeRawData != null && incomeRawData.containsKey('IncomeData')) {
-        List<dynamic> incomeData = incomeRawData['IncomeData'];
-        Map<String, int> categoryTotals = {};
-
-        incomeData.forEach((data) {
-          if (data is Map<String, dynamic> &&
-              data.containsKey('incomeType') &&
-              data.containsKey('amount')) {
-            String incomeType = data['incomeType'];
-            int amount = int.parse(data['amount'].toString());
-
-            if (categoryTotals.containsKey(incomeType)) {
-              categoryTotals[incomeType] = categoryTotals[incomeType]! + amount;
-            } else {
-              categoryTotals[incomeType] = amount;
-            }
-          }
-        });
-
-        // Convert category totals to CategoryData objects
-        List<CategoryData> updatedCategories =
-            categoryTotals.entries.map((entry) {
-          return CategoryData(
-            category: entry.key,
-            value: entry.value.toDouble(),
-            color: getRandomColor(), // Implement your color logic here
-          );
-        }).toList();
-
-        setState(() {
-          categories = updatedCategories;
-        });
-      } else {
-        print('IncomeData not found or is empty');
-      }
-    } else {
-      print('Document does not exist');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    fetchDataAndComputeTotal();
-  }
-
+class _StatisticsState extends State<Statistics> {
   @override
   Widget build(BuildContext context) {
+    Map<String, double> dataMap = {
+      'A': 100,
+      'B': 200,
+      'C': 300,
+      'D': 400,
+    };
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-          title: Text(
-            'Statistics',
-            style: TextStyle(
-              color: const Color.fromARGB(255, 30, 28, 28),
-              fontSize: 23,
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.bold,
+        elevation: 0,
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+        title: Align(
+          alignment: Alignment.topLeft,
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/icons/wallet.png',
+                width: 60,
+                height: 40,
+              ),
+              SizedBox(width: 0), // Add some spacing between the icon and text
+              Text(
+                'Statistics',
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 30, 28, 28),
+                  fontSize: 23,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Spacer(), // This will push the IconButton to the right side
+              SizedBox(
+                width: 120,
+                height: 40,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Color(0xFFF6573D3),
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: DropdownButton<String>(
+                      value: 'This Month',
+                      onChanged: (String? newValue) {},
+                      items: <String>['This Month', 'This Day', 'This Year']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.black,
+                      ),
+                      icon: Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.black,
+                      ),
+                      elevation: 8,
+                      underline: Container(),
+                      isExpanded: true,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Center(
+            child: SizedBox(
+              width: 360.0,
+              height: 140.0,
+              child: Card(
+                elevation: 5.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF6573D3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 5),
+                            Text(
+                              'Statistics',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 15),
+                            Row(
+                              children: [
+                                Center(
+                                  child: Text(
+                                    '₹ 2780 /',
+                                    style: TextStyle(
+                                        color: Colors
+                                            .white, // Specify the text color
+                                        fontSize: 30.0,
+                                        fontWeight: FontWeight
+                                            .bold // Specify the font size
+                                        ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  '₹ 3500 Per Month  ',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white70),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                                height:
+                                    20), // Add some space between text and progress indicator
+                            LinearProgressIndicator(
+                              value: 2780 / 3500, // Calculate the progress
+                              backgroundColor: Colors.white,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors
+                                    .orange, // Choose your desired progress color
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          )),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(top: 15, right: 20, left: 20, bottom: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Expense Breakdown',
+                        style: TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'Limit ₹ 1000 per week ',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 104, 102, 102),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 120,
+                  height: 40,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      color: Color(0xFFF6573D3),
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: DropdownButton<String>(
+                        value: 'This Week',
+                        onChanged: (String? newValue) {},
+                        items: <String>['This Month', 'This Week', 'This Day']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value,
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.black,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black,
+                        ),
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.black,
+                        ),
+                        elevation: 8,
+                        underline: Container(),
+                        isExpanded: true,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(top: 10, right: 15, left: 15, bottom: 0),
+            child: SizedBox(
+              height: 280,
+              width: 500,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 15, bottom: 5),
+                  child: PieChart(
+                    dataMap: dataMap,
+                    chartRadius:
+                        200, // Adjust the chart radius according to your requirement
+                    chartType: ChartType.ring,
+                    ringStrokeWidth: 32,
+                    legendOptions: LegendOptions(
+                      showLegendsInRow: true,
+                      legendPosition: LegendPosition.bottom,
+                      legendShape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+              padding: const EdgeInsets.only(
+                  top: 10, left: 15, right: 15, bottom: 0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    // Wrap with a Container for left alignment
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Spending Details',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 23,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5), // Add some space between the texts
+                  Container(
+                    // Wrap with a Container for left alignment
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Expenses In categories ',
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 92, 87, 87),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 25),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      height:
+                          100, // Adjust height according to your requirement
+                      color: Colors.transparent, // Choose your desired color
+                      width:
+                          500, // Set a fixed width or use double.infinity for full width
+                      child: Row(
+                        children: [
+                          // List of small rectangular containers
+                          Container(
+                            width: 170, // Width of the small container
+                            height: double
+                                .infinity, // Match the height of the parent container
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Colors.black,
+                                  width: 2), // Increase border thickness
+                              borderRadius: BorderRadius.circular(
+                                  15), // Make corners round
+                            ),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 5), // Margin between containers
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 10, right: 10, top: 10, bottom: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                      height: 60,
+                                      width: 60,
+                                      child: Image.asset(
+                                          'assets/icons/cart.png')), // Icon
+                                  SizedBox(
+                                      width:
+                                          10), // Spacer between icon and text fields
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Shop",
+                                        style: TextStyle(
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(height: 5), // First Text Field
+                                      Text(
+                                        "- ₹300",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(
+                                              255, 70, 68, 68),
+                                        ),
+                                      ), // Second Text Field
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          Container(
+                            width: 170, // Width of the small container
+                            height: double
+                                .infinity, // Match the height of the parent container
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Colors.black,
+                                  width: 2), // Increase border thickness
+                              borderRadius: BorderRadius.circular(
+                                  15), // Make corners round
+                            ),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 5), // Margin between containers
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 10, right: 10, top: 10, bottom: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                      height: 60,
+                                      width: 60,
+                                      child: Image.asset(
+                                          'assets/icons/cart.png')), // Icon
+                                  SizedBox(
+                                      width:
+                                          10), // Spacer between icon and text fields
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Shop",
+                                        style: TextStyle(
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(height: 5), // First Text Field
+                                      Text(
+                                        "- ₹300",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(
+                                              255, 70, 68, 68),
+                                        ),
+                                      ), // Second Text Field
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 170, // Width of the small container
+                            height: double
+                                .infinity, // Match the height of the parent container
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Colors.black,
+                                  width: 2), // Increase border thickness
+                              borderRadius: BorderRadius.circular(
+                                  15), // Make corners round
+                            ),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 5), // Margin between containers
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 10, right: 10, top: 10, bottom: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                      height: 60,
+                                      width: 60,
+                                      child: Image.asset(
+                                          'assets/icons/cart.png')), // Icon
+                                  SizedBox(
+                                      width:
+                                          10), // Spacer between icon and text fields
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Shop",
+                                        style: TextStyle(
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(height: 5), // First Text Field
+                                      Text(
+                                        "- ₹300",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(
+                                              255, 70, 68, 68),
+                                        ),
+                                      ), // Second Text Field
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Add more containers as needed
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ))
+        ],
+      ),
     );
   }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  Color getRandomColor() {
-    // Generating random values for red, green, and blue channels
-    final Random random = Random();
-    final int r = random.nextInt(256);
-    final int g = random.nextInt(256);
-    final int b = random.nextInt(256);
-
-    // Creating a color from random values
-    return Color.fromARGB(255, r, g, b);
-  }
-}
-
-class CategoryData {
-  final String category;
-  final double value;
-  final Color color;
-
-  CategoryData({
-    required this.category,
-    required this.value,
-    required this.color,
-  });
 }
