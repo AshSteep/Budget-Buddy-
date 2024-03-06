@@ -1,4 +1,4 @@
-import 'package:base_app/screens/Statistics.dart';
+import 'package:base_app/screens/userpage/Statistics.dart';
 import 'package:base_app/screens/userpage/UserPage.dart'; // Assuming this is where your UserPage is defined
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
