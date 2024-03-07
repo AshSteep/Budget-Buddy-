@@ -68,7 +68,7 @@ class ExpenseWidget extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: expensesForDate.map<Widget>((expense) {
-                          final amount = int.parse(expense['amount']);
+                          final amount = _parseAmount(expense['amount']);
                           final text = expense['text'];
                           return Padding(
                             padding: const EdgeInsets.only(top: 8, bottom: 8),
@@ -78,13 +78,11 @@ class ExpenseWidget extends StatelessWidget {
                                 Row(
                                   children: [
                                     Icon(
-                                      Icons.category, // Icon for category
-                                      size: 18, // Adjust size as needed
-                                      color: Colors.black, // Icon color
+                                      Icons.category,
+                                      size: 18,
+                                      color: Colors.black,
                                     ),
-                                    SizedBox(
-                                      width: 5,
-                                    ), // Adjust spacing between icon and text
+                                    SizedBox(width: 5),
                                     Text(
                                       '$text',
                                       style: TextStyle(
@@ -106,7 +104,7 @@ class ExpenseWidget extends StatelessWidget {
                               ],
                             ),
                           );
-                        }).toList(), // Convert the mapped list to a list of Widgets
+                        }).toList(),
                       ),
                     ],
                   ),
@@ -126,9 +124,8 @@ class ExpenseWidget extends StatelessWidget {
       final timestamp = data['date'] as Timestamp;
       final date =
           DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
-
-      // Format the date as a string to be used as the key in the map
-      final dateString = '${date.year}-${date.month}-${date.day}';
+      final dateString =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
       if (groupedExpenses.containsKey(dateString)) {
         groupedExpenses[dateString]!.add(data);
@@ -138,12 +135,14 @@ class ExpenseWidget extends StatelessWidget {
     }
 
     List<Map<String, dynamic>> result = [];
-    groupedExpenses.forEach((key, value) {
-      // Parse the date string back to DateTime
+    List<String> sortedKeys = groupedExpenses.keys.toList()
+      ..sort((a, b) => DateTime.parse(b).compareTo(DateTime.parse(a)));
+
+    for (var key in sortedKeys) {
       final dateParts = key.split('-').map(int.parse).toList();
       final date = DateTime(dateParts[0], dateParts[1], dateParts[2]);
-      result.add({'date': date, 'expenses': value});
-    });
+      result.add({'date': date, 'expenses': groupedExpenses[key]});
+    }
 
     return result;
   }
@@ -151,7 +150,7 @@ class ExpenseWidget extends StatelessWidget {
   int _calculateTotalExpense(List<Map<String, dynamic>> expenses) {
     int totalExpense = 0;
     for (var expense in expenses) {
-      totalExpense += int.parse(expense['amount']);
+      totalExpense += _parseAmount(expense['amount']);
     }
     return totalExpense;
   }
@@ -179,5 +178,13 @@ class ExpenseWidget extends StatelessWidget {
       default:
         return '';
     }
+  }
+
+  int _parseAmount(dynamic value) {
+    if (value == null) return 0; // Handle null values
+    if (value is int) return value; // If the value is already an integer
+
+    final parsedValue = int.tryParse(value.toString());
+    return parsedValue ?? 0; // Return 0 if the parsing fails
   }
 }

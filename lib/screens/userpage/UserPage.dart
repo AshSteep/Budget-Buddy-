@@ -98,7 +98,7 @@ class _UserPageState extends State<UserPage>
 
   @override
   Widget build(BuildContext context) {
-    final user = _auth.currentUser?.uid;
+    final uid = _auth.currentUser?.uid;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
