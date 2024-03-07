@@ -20,9 +20,9 @@ class ExpenseWidget extends StatelessWidget {
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: groupedExpenses.entries.map((entry) {
-              final date = entry.key;
-              final expensesForDate = entry.value;
+            children: groupedExpenses.map((group) {
+              final date = group['date'];
+              final expensesForDate = group['expenses'];
               final totalExpense = _calculateTotalExpense(expensesForDate);
 
               return Padding(
@@ -67,43 +67,46 @@ class ExpenseWidget extends StatelessWidget {
                       Divider(color: Colors.blueGrey),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: expensesForDate.map((expense) {
+                        children: expensesForDate.map<Widget>((expense) {
                           final amount = int.parse(expense['amount']);
                           final text = expense['text'];
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.category, // Icon for category
-                                    size: 18, // Adjust size as needed
-                                    color: Colors.black, // Icon color
-                                  ),
-                                  SizedBox(
-                                      width:
-                                          5), // Adjust spacing between icon and text
-                                  Text(
-                                    '$text',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8, bottom: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.category, // Icon for category
+                                      size: 18, // Adjust size as needed
+                                      color: Colors.black, // Icon color
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                '- ₹ $amount',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                                    SizedBox(
+                                      width: 5,
+                                    ), // Adjust spacing between icon and text
+                                    Text(
+                                      '$text',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  '- ₹ $amount',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
-                        }).toList(),
+                        }).toList(), // Convert the mapped list to a list of Widgets
                       ),
                     ],
                   ),
@@ -116,25 +119,33 @@ class ExpenseWidget extends StatelessWidget {
     );
   }
 
-  Map<DateTime, List<Map<String, dynamic>>> _groupExpensesByDate(
-      List<dynamic> expenseData) {
-    Map<DateTime, List<Map<String, dynamic>>> groupedExpenses = {};
+  List<Map<String, dynamic>> _groupExpensesByDate(List<dynamic> expenseData) {
+    Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
 
     for (var data in expenseData) {
       final timestamp = data['date'] as Timestamp;
       final date =
           DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
 
-      if (!groupedExpenses.containsKey(date)) {
-        groupedExpenses[date] = [];
+      // Format the date as a string to be used as the key in the map
+      final dateString = '${date.year}-${date.month}-${date.day}';
+
+      if (groupedExpenses.containsKey(dateString)) {
+        groupedExpenses[dateString]!.add(data);
+      } else {
+        groupedExpenses[dateString] = [data];
       }
-      groupedExpenses[date]!.add(data);
     }
 
-    // Sort entries by date in descending order
-    groupedExpenses.entries.toList().sort((a, b) => b.key.compareTo(a.key));
+    List<Map<String, dynamic>> result = [];
+    groupedExpenses.forEach((key, value) {
+      // Parse the date string back to DateTime
+      final dateParts = key.split('-').map(int.parse).toList();
+      final date = DateTime(dateParts[0], dateParts[1], dateParts[2]);
+      result.add({'date': date, 'expenses': value});
+    });
 
-    return groupedExpenses;
+    return result;
   }
 
   int _calculateTotalExpense(List<Map<String, dynamic>> expenses) {

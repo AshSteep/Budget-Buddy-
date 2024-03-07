@@ -1,5 +1,5 @@
-import 'package:base_app/screens/userpage/expense_total_widget.dart';
-import 'package:base_app/screens/userpage/expense_widget.dart';
+import 'package:base_app/Widgets/expense_total_widget.dart';
+import 'package:base_app/Widgets/expense_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
