@@ -279,149 +279,358 @@ class _UserPageState extends State<UserPage>
         child: FloatingActionButton(
           onPressed: () {
             showModalBottomSheet(
-              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
               context: context,
               builder: (BuildContext context) {
-                // List to track button selection
-                List<bool> isSelected = [true, false];
-                return ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40.0),
-                    topRight: Radius.circular(40.0),
-                  ),
-                  child: Container(
-                    height: 330,
-                    width: 100,
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.blueGrey,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0),
+                Widget buildContent() {
+                  return SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ToggleButtons(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 8.0),
-                                  child: Text(
-                                    'Income',
-                                    style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                      child: Container(
+                        height: 350, // Customize the height as needed
+                        color: Colors.blueGrey[700], // Set the desired color
+                        child: DefaultTabController(
+                          length: 2, // Number of tabs
+                          child: Column(
+                            children: <Widget>[
+                              TabBar(
+                                tabs: [
+                                  Tab(text: 'Income'),
+                                  Tab(text: 'Expense'),
+                                ],
+                              ),
+                              Expanded(
+                                child: TabBarView(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Align(
+                                                  alignment: Alignment.topRight,
+                                                  child: IconButton(
+                                                    icon: Icon(
+                                                        Icons.calendar_today),
+                                                    onPressed: () async {
+                                                      // Await the result of the asynchronous operation
+                                                      final dynamic result =
+                                                          await selectDate(
+                                                              context);
+
+                                                      // Check if the result is of type DateTime
+                                                      if (result is DateTime) {
+                                                        // Cast the result to DateTime and update the selectedDate
+                                                        setState(() {
+                                                          selectedDate = result;
+                                                        });
+                                                      } else {
+                                                        // Handle unexpected result types or errors
+                                                        print(
+                                                            'Unexpected result type: $result');
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Align(
+                                                  alignment: Alignment.topLeft,
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.category),
+                                                    onPressed: () {
+                                                      showModalBottomSheet(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return Column(
+                                                            children: [
+                                                              if (income
+                                                                  .isNotEmpty)
+                                                                Column(
+                                                                  children: [
+                                                                    DropdownButton<
+                                                                        String>(
+                                                                      value:
+                                                                          selectedIncome,
+                                                                      items: income.map(
+                                                                          (dynamic
+                                                                              value) {
+                                                                        return DropdownMenuItem<
+                                                                            String>(
+                                                                          value:
+                                                                              value as String,
+                                                                          child:
+                                                                              Text(value.toString()),
+                                                                        );
+                                                                      }).toList(),
+                                                                      onChanged:
+                                                                          (newValue) {
+                                                                        setState(
+                                                                            () {
+                                                                          selectedIncome =
+                                                                              newValue!;
+                                                                        });
+                                                                        Navigator.pop(
+                                                                            context); // Close the bottom sheet on selection
+                                                                      },
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          TextField(
+                                            decoration: InputDecoration(
+                                              labelText: 'Amount',
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                amount =
+                                                    value; // Use the value to update the desired state or variable.
+                                              });
+                                            },
+                                          ),
+                                          TextField(
+                                            decoration: InputDecoration(
+                                                labelText: 'Text'),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                subject =
+                                                    value; // Use the value to update the desired state or variable.
+                                              });
+                                            },
+                                          ),
+                                          TextField(
+                                            decoration: InputDecoration(
+                                              labelText: 'Extra Notes',
+                                            ),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                extraNotes =
+                                                    value; // Use the value to update the desired state or variable.
+                                              });
+                                            },
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              try {
+                                                // Add logic to handle income data insertion to Firestore
+                                                await FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(uid)
+                                                    .set({
+                                                  'IncomeData':
+                                                      FieldValue.arrayUnion([
+                                                    {
+                                                      'amount':
+                                                          amount, // Replace with your income amount data
+                                                      'incomeType':
+                                                          selectedIncome, // Replace with selected income type
+                                                      'date': selectedDate,
+                                                      'text': subject,
+                                                      'extraNotes':
+                                                          extraNotes, // Replace with selected date
+                                                    }
+                                                  ])
+                                                }, SetOptions(merge: true));
+                                                // Success message or further handling can be added here
+                                              } catch (e) {
+                                                // Handle errors or exceptions here
+                                                print("Error: $e");
+                                              }
+                                            },
+                                            child: Text("Submit"),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Form(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: IconButton(
+                                                      icon: Icon(
+                                                          Icons.calendar_today),
+                                                      onPressed: () {
+                                                        selectedDate =
+                                                            selectDate(context)
+                                                                as DateTime;
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.topLeft,
+                                                    child: IconButton(
+                                                      icon:
+                                                          Icon(Icons.category),
+                                                      onPressed: () {
+                                                        showModalBottomSheet(
+                                                          context: context,
+                                                          builder: (BuildContext
+                                                              context) {
+                                                            return Column(
+                                                              children: [
+                                                                if (expenses
+                                                                    .isNotEmpty)
+                                                                  Column(
+                                                                    children: [
+                                                                      DropdownButton<
+                                                                          String>(
+                                                                        value:
+                                                                            selectedExpense,
+                                                                        items: expenses.map((dynamic
+                                                                            value) {
+                                                                          return DropdownMenuItem<
+                                                                              String>(
+                                                                            value:
+                                                                                value as String,
+                                                                            child:
+                                                                                Text(value.toString()),
+                                                                          );
+                                                                        }).toList(),
+                                                                        onChanged:
+                                                                            (newValue) {
+                                                                          setState(
+                                                                              () {
+                                                                            selectedExpense =
+                                                                                newValue!;
+                                                                          });
+                                                                          Navigator.pop(
+                                                                              context); // Close the bottom sheet on selection
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            TextFormField(
+                                              decoration: InputDecoration(
+                                                labelText: 'Amount',
+                                              ),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  amount =
+                                                      value; // Use the value to update the desired state or variable.
+                                                });
+                                              },
+                                              validator: (value) {
+                                                // Convert the input string to an integer for validation
+                                                int? intValue =
+                                                    int.tryParse(value ?? '');
+                                                return validateValue(intValue);
+                                              },
+                                            ),
+                                            TextField(
+                                              decoration: InputDecoration(
+                                                  labelText: 'Text'),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  subject =
+                                                      value; // Use the value to update the desired state or variable.
+                                                });
+                                              },
+                                            ),
+                                            TextField(
+                                              decoration: InputDecoration(
+                                                labelText: 'Extra Notes',
+                                              ),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  extraNotes =
+                                                      value; // Use the value to update the desired state or variable.
+                                                });
+                                              },
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                try {
+                                                  // Add logic to handle income data insertion to Firestore
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('users')
+                                                      .doc(uid)
+                                                      .set({
+                                                    'expenseData':
+                                                        FieldValue.arrayUnion([
+                                                      {
+                                                        'amount':
+                                                            amount, // Replace with your income amount data
+                                                        'expenseType':
+                                                            selectedExpense, // Replace with selected income type
+                                                        'date': selectedDate,
+                                                        'text': subject,
+                                                        'extraNotes':
+                                                            extraNotes, // Replace with selected date
+                                                      }
+                                                    ])
+                                                  }, SetOptions(merge: true));
+                                                  // Success message or further handling can be added here
+                                                } catch (e) {
+                                                  // Handle errors or exceptions here
+                                                  print("Error: $e");
+                                                }
+                                              },
+                                              child: Text("Submit"),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 8.0),
-                                  child: Text(
-                                    'Expense',
-                                    style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ],
-                              isSelected: isSelected,
-                              onPressed: (int newIndex) {
-                                setState(() {
-                                  for (int index = 0;
-                                      index < isSelected.length;
-                                      index++) {
-                                    isSelected[index] = index == newIndex;
-                                  }
-                                });
-                              },
-                              color:
-                                  Colors.grey.withOpacity(0.8), // Set the color
-                              selectedColor:
-                                  Colors.blue, // Set the color when selected
-                              borderRadius: BorderRadius.circular(
-                                  30), // Set the border radius
-                              borderWidth: 2, // Set the border width
-                              selectedBorderColor: Colors
-                                  .blue, // Set the border color when selected
-                              disabledBorderColor: Colors.grey.withOpacity(
-                                  0.5), // Set the border color when disabled
-                            )
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Image.asset('assets/icons/categories.png',
-                                width: 30, height: 30),
-                            SizedBox(width: 10),
-                            Expanded(
-                                child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Enter Amount',
-                                border: OutlineInputBorder(),
                               ),
-                              keyboardType: TextInputType
-                                  .number, // Set keyboard type to number
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter
-                                    .digitsOnly // Accept only digits
-                              ],
-                            )),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Enter text',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Image.asset('assets/icons/calendar.png',
-                                width: 30, height: 30),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ), // Spacer to push the ElevatedButton to the bottom
-                        SizedBox(
-                          width: 300,
-                          height:
-                              50, // Make the button fill the width of the container
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Add your onPressed functionality here
-                            },
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.green, // Text color
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    30.0), // Rounded corners
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 12.0), // Padding inside button
-                              child: Text(
-                                'Submit',
-                                style: TextStyle(fontSize: 16), // Text style
-                              ),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
+
+                return buildContent(); // Call the method to build the content
               },
             );
           },
