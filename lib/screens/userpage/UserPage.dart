@@ -1,9 +1,9 @@
 import 'package:base_app/Widgets/expense_total_widget.dart';
 import 'package:base_app/Widgets/expense_widget.dart';
+import 'package:base_app/screens/userpage/addtransaction.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 
 class Transaction {
   final DateTime date;
@@ -210,8 +210,9 @@ class _UserPageState extends State<UserPage>
                                   child: Text(
                                     value,
                                     style: TextStyle(
-                                      fontSize: 16.0,
-                                      color: Colors.black,
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 );
@@ -222,7 +223,7 @@ class _UserPageState extends State<UserPage>
                               ),
                               icon: Icon(
                                 Icons.arrow_drop_down,
-                                color: Colors.black,
+                                color: Colors.white,
                               ),
                               elevation: 8,
                               underline: Container(),
@@ -262,7 +263,7 @@ class _UserPageState extends State<UserPage>
                 ),
                 SizedBox(height: 5),
                 SizedBox(
-                  height: 330, // Define the desired height
+                  height: 410, // Define the desired height
                   child: SingleChildScrollView(
                     // Wrap with SingleChildScrollView
                     child: ExpenseWidget(), // Make the ExpenseWidget scrollable
@@ -290,7 +291,7 @@ class _UserPageState extends State<UserPage>
                       ),
                       child: Container(
                         height: 350, // Customize the height as needed
-                        color: Colors.blueGrey[700], // Set the desired color
+                        color: Color(0xFFF6573D3), // Set the desired color
                         child: DefaultTabController(
                           length: 2, // Number of tabs
                           child: Column(
