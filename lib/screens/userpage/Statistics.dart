@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Statistics extends StatefulWidget {
   const Statistics({super.key});
@@ -9,13 +11,61 @@ class Statistics extends StatefulWidget {
 }
 
 class _StatisticsState extends State<Statistics> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  int TravelExp = 0;
+  int FoodExp = 0;
+  int EntertainmentExp = 0;
+  int FuelExp = 0;
+  int OutingExp = 0;
+  @override
+  void initState() {
+    super.initState();
+    pageData();
+  }
+
+  Future<void> pageData() async {
+    String uid = _auth.currentUser!.uid;
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (snapshot.exists) {
+      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+      data['expenseData'].forEach((e) {
+        print(e);
+        setState(() {
+          if (e['expenseType'] == 'Food') {
+            FoodExp = FoodExp + (int.parse(e['amount']));
+          }
+          if (e['expenseType'] == 'Travel') {
+            TravelExp = TravelExp + (int.parse(e['amount']));
+          }
+          if (e['expenseType'] == 'Entertainment') {
+            EntertainmentExp = EntertainmentExp + (int.parse(e['amount']));
+          }
+          if (e['expenseType'] == 'Fuel') {
+            FuelExp = FuelExp + (int.parse(e['amount']));
+          }
+          if (e['expenseType'] == 'Outing') {
+            OutingExp = OutingExp + (int.parse(e['amount']));
+          }
+        });
+      });
+    } else {
+      print('No data found for this user.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(FoodExp);
+    print(TravelExp);
     Map<String, double> dataMap = {
-      'A': 100,
-      'B': 200,
-      'C': 300,
-      'D': 400,
+      'Travel': double.parse(TravelExp.toString()),
+      'Food': double.parse(FoodExp.toString()),
+      'Entertainment': double.parse(EntertainmentExp.toString()),
+      'Fuel': double.parse(FuelExp.toString()),
+      'Outing': double.parse(OutingExp.toString()),
     };
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),

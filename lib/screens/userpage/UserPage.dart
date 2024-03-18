@@ -1,6 +1,5 @@
 import 'package:base_app/Widgets/expense_total_widget.dart';
 import 'package:base_app/Widgets/expense_widget.dart';
-import 'package:base_app/screens/userpage/addtransaction.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -432,367 +431,367 @@ class _UserPageState extends State<UserPage>
       floatingActionButton: SizedBox(
         height: 60,
         width: 60,
-        child: FloatingActionButton(
-          onPressed: () {
-            showModalBottomSheet(
-              isScrollControlled: true,
-              context: context,
-              builder: (BuildContext context) {
-                Widget buildContent() {
-                  return SingleChildScrollView(
-                    child: Container(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                      ),
-                      child: Container(
-                        height: 350, // Customize the height as needed
-                        color: Color(0xFFF6573D3), // Set the desired color
-                        child: DefaultTabController(
-                          length: 2, // Number of tabs
-                          child: Column(
-                            children: <Widget>[
-                              TabBar(
-                                tabs: [
-                                  Tab(text: 'Income'),
-                                  Tab(text: 'Expense'),
-                                ],
-                              ),
-                              Expanded(
-                                child: TabBarView(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Align(
-                                                  alignment: Alignment.topRight,
-                                                  child: IconButton(
-                                                    icon: Icon(
-                                                        Icons.calendar_today),
-                                                    onPressed: () async {
-                                                      // Await the result of the asynchronous operation
-                                                      final dynamic result =
-                                                          await selectDate(
-                                                              context);
+        // child: FloatingActionButton(
+        //   onPressed: () {
+        //     showModalBottomSheet(
+        //       isScrollControlled: true,
+        //       context: context,
+        //       builder: (BuildContext context) {
+        //         Widget buildContent() {
+        //           return SingleChildScrollView(
+        //             child: Container(
+        //               padding: EdgeInsets.only(
+        //                 bottom: MediaQuery.of(context).viewInsets.bottom,
+        //               ),
+        //               child: Container(
+        //                 height: 350, // Customize the height as needed
+        //                 color: Color(0xFFF6573D3), // Set the desired color
+        //                 child: DefaultTabController(
+        //                   length: 2, // Number of tabs
+        //                   child: Column(
+        //                     children: <Widget>[
+        //                       TabBar(
+        //                         tabs: [
+        //                           Tab(text: 'Income'),
+        //                           Tab(text: 'Expense'),
+        //                         ],
+        //                       ),
+        //                       Expanded(
+        //                         child: TabBarView(
+        //                           children: [
+        //                             Padding(
+        //                               padding: const EdgeInsets.all(16.0),
+        //                               child: Column(
+        //                                 mainAxisAlignment:
+        //                                     MainAxisAlignment.center,
+        //                                 children: [
+        //                                   Row(
+        //                                     children: [
+        //                                       Expanded(
+        //                                         child: Align(
+        //                                           alignment: Alignment.topRight,
+        //                                           child: IconButton(
+        //                                             icon: Icon(
+        //                                                 Icons.calendar_today),
+        //                                             onPressed: () async {
+        //                                               // Await the result of the asynchronous operation
+        //                                               final dynamic result =
+        //                                                   await selectDate(
+        //                                                       context);
 
-                                                      // Check if the result is of type DateTime
-                                                      if (result is DateTime) {
-                                                        // Cast the result to DateTime and update the selectedDate
-                                                        setState(() {
-                                                          selectedDate = result;
-                                                        });
-                                                      } else {
-                                                        // Handle unexpected result types or errors
-                                                        print(
-                                                            'Unexpected result type: $result');
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: Align(
-                                                  alignment: Alignment.topLeft,
-                                                  child: IconButton(
-                                                    icon: Icon(Icons.category),
-                                                    onPressed: () {
-                                                      showModalBottomSheet(
-                                                        context: context,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return Column(
-                                                            children: [
-                                                              if (income
-                                                                  .isNotEmpty)
-                                                                Column(
-                                                                  children: [
-                                                                    DropdownButton<
-                                                                        String>(
-                                                                      value:
-                                                                          selectedIncome,
-                                                                      items: income.map(
-                                                                          (dynamic
-                                                                              value) {
-                                                                        return DropdownMenuItem<
-                                                                            String>(
-                                                                          value:
-                                                                              value as String,
-                                                                          child:
-                                                                              Text(value.toString()),
-                                                                        );
-                                                                      }).toList(),
-                                                                      onChanged:
-                                                                          (newValue) {
-                                                                        setState(
-                                                                            () {
-                                                                          selectedIncome =
-                                                                              newValue!;
-                                                                        });
-                                                                        Navigator.pop(
-                                                                            context); // Close the bottom sheet on selection
-                                                                      },
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          TextField(
-                                            decoration: InputDecoration(
-                                              labelText: 'Amount',
-                                            ),
-                                            keyboardType: TextInputType.number,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                amount =
-                                                    value; // Use the value to update the desired state or variable.
-                                              });
-                                            },
-                                          ),
-                                          TextField(
-                                            decoration: InputDecoration(
-                                                labelText: 'Text'),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                subject =
-                                                    value; // Use the value to update the desired state or variable.
-                                              });
-                                            },
-                                          ),
-                                          TextField(
-                                            decoration: InputDecoration(
-                                              labelText: 'Extra Notes',
-                                            ),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                extraNotes =
-                                                    value; // Use the value to update the desired state or variable.
-                                              });
-                                            },
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () async {
-                                              try {
-                                                // Add logic to handle income data insertion to Firestore
-                                                await FirebaseFirestore.instance
-                                                    .collection('users')
-                                                    .doc(uid)
-                                                    .set({
-                                                  'IncomeData':
-                                                      FieldValue.arrayUnion([
-                                                    {
-                                                      'amount':
-                                                          amount, // Replace with your income amount data
-                                                      'incomeType':
-                                                          selectedIncome, // Replace with selected income type
-                                                      'date': selectedDate,
-                                                      'text': subject,
-                                                      'extraNotes':
-                                                          extraNotes, // Replace with selected date
-                                                    }
-                                                  ])
-                                                }, SetOptions(merge: true));
-                                                // Success message or further handling can be added here
-                                              } catch (e) {
-                                                // Handle errors or exceptions here
-                                                print("Error: $e");
-                                              }
-                                            },
-                                            child: Text("Submit"),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Form(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Align(
-                                                    alignment:
-                                                        Alignment.topRight,
-                                                    child: IconButton(
-                                                      icon: Icon(
-                                                          Icons.calendar_today),
-                                                      onPressed: () {
-                                                        selectedDate =
-                                                            selectDate(context)
-                                                                as DateTime;
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Align(
-                                                    alignment:
-                                                        Alignment.topLeft,
-                                                    child: IconButton(
-                                                      icon:
-                                                          Icon(Icons.category),
-                                                      onPressed: () {
-                                                        showModalBottomSheet(
-                                                          context: context,
-                                                          builder: (BuildContext
-                                                              context) {
-                                                            return Column(
-                                                              children: [
-                                                                if (expenses
-                                                                    .isNotEmpty)
-                                                                  Column(
-                                                                    children: [
-                                                                      DropdownButton<
-                                                                          String>(
-                                                                        value:
-                                                                            selectedExpense,
-                                                                        items: expenses.map((dynamic
-                                                                            value) {
-                                                                          return DropdownMenuItem<
-                                                                              String>(
-                                                                            value:
-                                                                                value as String,
-                                                                            child:
-                                                                                Text(value.toString()),
-                                                                          );
-                                                                        }).toList(),
-                                                                        onChanged:
-                                                                            (newValue) {
-                                                                          setState(
-                                                                              () {
-                                                                            selectedExpense =
-                                                                                newValue!;
-                                                                          });
-                                                                          Navigator.pop(
-                                                                              context); // Close the bottom sheet on selection
-                                                                        },
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                              ],
-                                                            );
-                                                          },
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            TextFormField(
-                                              decoration: InputDecoration(
-                                                labelText: 'Amount',
-                                              ),
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  amount =
-                                                      value; // Use the value to update the desired state or variable.
-                                                });
-                                              },
-                                              validator: (value) {
-                                                // Convert the input string to an integer for validation
-                                                int? intValue =
-                                                    int.tryParse(value ?? '');
-                                                return validateValue(intValue);
-                                              },
-                                            ),
-                                            TextField(
-                                              decoration: InputDecoration(
-                                                  labelText: 'Text'),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  subject =
-                                                      value; // Use the value to update the desired state or variable.
-                                                });
-                                              },
-                                            ),
-                                            TextField(
-                                              decoration: InputDecoration(
-                                                labelText: 'Extra Notes',
-                                              ),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  extraNotes =
-                                                      value; // Use the value to update the desired state or variable.
-                                                });
-                                              },
-                                            ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () async {
-                                                try {
-                                                  // Add logic to handle income data insertion to Firestore
-                                                  await FirebaseFirestore
-                                                      .instance
-                                                      .collection('users')
-                                                      .doc(uid)
-                                                      .set({
-                                                    'expenseData':
-                                                        FieldValue.arrayUnion([
-                                                      {
-                                                        'amount':
-                                                            amount, // Replace with your income amount data
-                                                        'expenseType':
-                                                            selectedExpense, // Replace with selected income type
-                                                        'date': selectedDate,
-                                                        'text': subject,
-                                                        'extraNotes':
-                                                            extraNotes, // Replace with selected date
-                                                      }
-                                                    ])
-                                                  }, SetOptions(merge: true));
-                                                  // Success message or further handling can be added here
-                                                } catch (e) {
-                                                  // Handle errors or exceptions here
-                                                  print("Error: $e");
-                                                }
-                                              },
-                                              child: Text("Submit"),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
+        //                                               // Check if the result is of type DateTime
+        //                                               if (result is DateTime) {
+        //                                                 // Cast the result to DateTime and update the selectedDate
+        //                                                 setState(() {
+        //                                                   selectedDate = result;
+        //                                                 });
+        //                                               } else {
+        //                                                 // Handle unexpected result types or errors
+        //                                                 print(
+        //                                                     'Unexpected result type: $result');
+        //                                               }
+        //                                             },
+        //                                           ),
+        //                                         ),
+        //                                       ),
+        //                                       Expanded(
+        //                                         child: Align(
+        //                                           alignment: Alignment.topLeft,
+        //                                           child: IconButton(
+        //                                             icon: Icon(Icons.category),
+        //                                             onPressed: () {
+        //                                               showModalBottomSheet(
+        //                                                 context: context,
+        //                                                 builder: (BuildContext
+        //                                                     context) {
+        //                                                   return Column(
+        //                                                     children: [
+        //                                                       if (income
+        //                                                           .isNotEmpty)
+        //                                                         Column(
+        //                                                           children: [
+        //                                                             DropdownButton<
+        //                                                                 String>(
+        //                                                               value:
+        //                                                                   selectedIncome,
+        //                                                               items: income.map(
+        //                                                                   (dynamic
+        //                                                                       value) {
+        //                                                                 return DropdownMenuItem<
+        //                                                                     String>(
+        //                                                                   value:
+        //                                                                       value as String,
+        //                                                                   child:
+        //                                                                       Text(value.toString()),
+        //                                                                 );
+        //                                                               }).toList(),
+        //                                                               onChanged:
+        //                                                                   (newValue) {
+        //                                                                 setState(
+        //                                                                     () {
+        //                                                                   selectedIncome =
+        //                                                                       newValue!;
+        //                                                                 });
+        //                                                                 Navigator.pop(
+        //                                                                     context); // Close the bottom sheet on selection
+        //                                                               },
+        //                                                             ),
+        //                                                           ],
+        //                                                         ),
+        //                                                     ],
+        //                                                   );
+        //                                                 },
+        //                                               );
+        //                                             },
+        //                                           ),
+        //                                         ),
+        //                                       ),
+        //                                     ],
+        //                                   ),
+        //                                   TextField(
+        //                                     decoration: InputDecoration(
+        //                                       labelText: 'Amount',
+        //                                     ),
+        //                                     keyboardType: TextInputType.number,
+        //                                     onChanged: (value) {
+        //                                       setState(() {
+        //                                         amount =
+        //                                             value; // Use the value to update the desired state or variable.
+        //                                       });
+        //                                     },
+        //                                   ),
+        //                                   TextField(
+        //                                     decoration: InputDecoration(
+        //                                         labelText: 'Text'),
+        //                                     onChanged: (value) {
+        //                                       setState(() {
+        //                                         subject =
+        //                                             value; // Use the value to update the desired state or variable.
+        //                                       });
+        //                                     },
+        //                                   ),
+        //                                   TextField(
+        //                                     decoration: InputDecoration(
+        //                                       labelText: 'Extra Notes',
+        //                                     ),
+        //                                     onChanged: (value) {
+        //                                       setState(() {
+        //                                         extraNotes =
+        //                                             value; // Use the value to update the desired state or variable.
+        //                                       });
+        //                                     },
+        //                                   ),
+        //                                   SizedBox(
+        //                                     height: 10,
+        //                                   ),
+        //                                   ElevatedButton(
+        //                                     onPressed: () async {
+        //                                       try {
+        //                                         // Add logic to handle income data insertion to Firestore
+        //                                         await FirebaseFirestore.instance
+        //                                             .collection('users')
+        //                                             .doc(uid)
+        //                                             .set({
+        //                                           'IncomeData':
+        //                                               FieldValue.arrayUnion([
+        //                                             {
+        //                                               'amount':
+        //                                                   amount, // Replace with your income amount data
+        //                                               'incomeType':
+        //                                                   selectedIncome, // Replace with selected income type
+        //                                               'date': selectedDate,
+        //                                               'text': subject,
+        //                                               'extraNotes':
+        //                                                   extraNotes, // Replace with selected date
+        //                                             }
+        //                                           ])
+        //                                         }, SetOptions(merge: true));
+        //                                         // Success message or further handling can be added here
+        //                                       } catch (e) {
+        //                                         // Handle errors or exceptions here
+        //                                         print("Error: $e");
+        //                                       }
+        //                                     },
+        //                                     child: Text("Submit"),
+        //                                   ),
+        //                                 ],
+        //                               ),
+        //                             ),
+        //                             Padding(
+        //                               padding: const EdgeInsets.all(16.0),
+        //                               child: Form(
+        //                                 child: Column(
+        //                                   mainAxisAlignment:
+        //                                       MainAxisAlignment.center,
+        //                                   children: [
+        //                                     Row(
+        //                                       children: [
+        //                                         Expanded(
+        //                                           child: Align(
+        //                                             alignment:
+        //                                                 Alignment.topRight,
+        //                                             child: IconButton(
+        //                                               icon: Icon(
+        //                                                   Icons.calendar_today),
+        //                                               onPressed: () {
+        //                                                 selectedDate =
+        //                                                     selectDate(context)
+        //                                                         as DateTime;
+        //                                               },
+        //                                             ),
+        //                                           ),
+        //                                         ),
+        //                                         Expanded(
+        //                                           child: Align(
+        //                                             alignment:
+        //                                                 Alignment.topLeft,
+        //                                             child: IconButton(
+        //                                               icon:
+        //                                                   Icon(Icons.category),
+        //                                               onPressed: () {
+        //                                                 showModalBottomSheet(
+        //                                                   context: context,
+        //                                                   builder: (BuildContext
+        //                                                       context) {
+        //                                                     return Column(
+        //                                                       children: [
+        //                                                         if (expenses
+        //                                                             .isNotEmpty)
+        //                                                           Column(
+        //                                                             children: [
+        //                                                               DropdownButton<
+        //                                                                   String>(
+        //                                                                 value:
+        //                                                                     selectedExpense,
+        //                                                                 items: expenses.map((dynamic
+        //                                                                     value) {
+        //                                                                   return DropdownMenuItem<
+        //                                                                       String>(
+        //                                                                     value:
+        //                                                                         value as String,
+        //                                                                     child:
+        //                                                                         Text(value.toString()),
+        //                                                                   );
+        //                                                                 }).toList(),
+        //                                                                 onChanged:
+        //                                                                     (newValue) {
+        //                                                                   setState(
+        //                                                                       () {
+        //                                                                     selectedExpense =
+        //                                                                         newValue!;
+        //                                                                   });
+        //                                                                   Navigator.pop(
+        //                                                                       context); // Close the bottom sheet on selection
+        //                                                                 },
+        //                                                               ),
+        //                                                             ],
+        //                                                           ),
+        //                                                       ],
+        //                                                     );
+        //                                                   },
+        //                                                 );
+        //                                               },
+        //                                             ),
+        //                                           ),
+        //                                         ),
+        //                                       ],
+        //                                     ),
+        //                                     TextFormField(
+        //                                       decoration: InputDecoration(
+        //                                         labelText: 'Amount',
+        //                                       ),
+        //                                       keyboardType:
+        //                                           TextInputType.number,
+        //                                       onChanged: (value) {
+        //                                         setState(() {
+        //                                           amount =
+        //                                               value; // Use the value to update the desired state or variable.
+        //                                         });
+        //                                       },
+        //                                       validator: (value) {
+        //                                         // Convert the input string to an integer for validation
+        //                                         int? intValue =
+        //                                             int.tryParse(value ?? '');
+        //                                         return validateValue(intValue);
+        //                                       },
+        //                                     ),
+        //                                     TextField(
+        //                                       decoration: InputDecoration(
+        //                                           labelText: 'Text'),
+        //                                       onChanged: (value) {
+        //                                         setState(() {
+        //                                           subject =
+        //                                               value; // Use the value to update the desired state or variable.
+        //                                         });
+        //                                       },
+        //                                     ),
+        //                                     TextField(
+        //                                       decoration: InputDecoration(
+        //                                         labelText: 'Extra Notes',
+        //                                       ),
+        //                                       onChanged: (value) {
+        //                                         setState(() {
+        //                                           extraNotes =
+        //                                               value; // Use the value to update the desired state or variable.
+        //                                         });
+        //                                       },
+        //                                     ),
+        //                                     SizedBox(
+        //                                       height: 10,
+        //                                     ),
+        //                                     ElevatedButton(
+        //                                       onPressed: () async {
+        //                                         try {
+        //                                           // Add logic to handle income data insertion to Firestore
+        //                                           await FirebaseFirestore
+        //                                               .instance
+        //                                               .collection('users')
+        //                                               .doc(uid)
+        //                                               .set({
+        //                                             'expenseData':
+        //                                                 FieldValue.arrayUnion([
+        //                                               {
+        //                                                 'amount':
+        //                                                     amount, // Replace with your income amount data
+        //                                                 'expenseType':
+        //                                                     selectedExpense, // Replace with selected income type
+        //                                                 'date': selectedDate,
+        //                                                 'text': subject,
+        //                                                 'extraNotes':
+        //                                                     extraNotes, // Replace with selected date
+        //                                               }
+        //                                             ])
+        //                                           }, SetOptions(merge: true));
+        //                                           // Success message or further handling can be added here
+        //                                         } catch (e) {
+        //                                           // Handle errors or exceptions here
+        //                                           print("Error: $e");
+        //                                         }
+        //                                       },
+        //                                       child: Text("Submit"),
+        //                                     ),
+        //                                   ],
+        //                                 ),
+        //                               ),
+        //                             ),
+        //                           ],
+        //                         ),
+        //                       ),
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //           );
+        //         }
 
-                return buildContent(); // Call the method to build the content
-              },
-            );
-          },
-          backgroundColor: Color(0xFFF6573D3), // Set the background color
-          child: Icon(Icons.add), // Set the icon
-        ),
+        //         return buildContent(); // Call the method to build the content
+        //       },
+        //     );
+        //   },
+        //   backgroundColor: Color(0xFFF6573D3), // Set the background color
+        //   child: Icon(Icons.add), // Set the icon
+        // ),
       ),
     );
   }
