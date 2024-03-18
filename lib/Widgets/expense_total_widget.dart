@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -71,17 +73,26 @@ class _ExpenseTotalState extends State<ExpenseTotal> {
                     // Extract expenses data from the user document
                     Map<String, dynamic> userData =
                         snapshot.data!.data() as Map<String, dynamic>;
+                    int sum = 0;
                     List<dynamic> expenses = userData['expenseData'] ?? [];
-                    
-                    print(expenses);
+                    expenses.forEach((e) {
+                      print(e['date'].toDate());
+                      print("Full");
+                      if (e['date'].toDate().isAfter(firstDayOfMonth) &&
+                          e['date'].toDate().isBefore(lastDayOfMonth)) {
+                        print(e['date'].toDate());
+                        sum = sum + (int.parse(e['amount']));
+                      }
+                    });
+                    print(sum);
                     // Calculate total expense
                     int totalExpense = expenses.fold(
                         0,
                         (previousValue, expense) =>
                             previousValue + (int.parse(expense['amount'])));
-
+                    print(totalExpense);
                     return Text(
-                      '₹ $totalExpense',
+                      '₹ $sum',
                       style: TextStyle(
                         color: Color(0xFFFFBFCFE),
                         fontSize: 45,

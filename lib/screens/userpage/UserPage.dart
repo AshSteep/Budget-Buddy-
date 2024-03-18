@@ -34,9 +34,13 @@ class _UserPageState extends State<UserPage>
   String amount = ''; // New DateTime variable for selected date
   String subject = ''; // New DateTime variable for selected date
   String extraNotes = ''; // New DateTime variable for selected date
+  late int selectedMonth;
+  late int selectedYear;
   @override
   void initState() {
     super.initState();
+    selectedMonth = DateTime.now().month;
+    selectedYear = DateTime.now().year;
     _fetchExpensesFromServer(); // Fetch expenses from a server
   }
 
@@ -95,6 +99,41 @@ class _UserPageState extends State<UserPage>
   }
 
   FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String _getMonthName(int month) {
+    switch (month) {
+      case 1:
+        return 'January';
+      case 2:
+        return 'February';
+      case 3:
+        return 'March';
+      case 4:
+        return 'April';
+      case 5:
+        return 'May';
+      case 6:
+        return 'June';
+      case 7:
+        return 'July';
+      case 8:
+        return 'August';
+      case 9:
+        return 'September';
+      case 10:
+        return 'October';
+      case 11:
+        return 'November';
+      case 12:
+        return 'December';
+      default:
+        return '';
+    }
+  }
+
+  void updateExpenses() {
+    // Implement this method to update expenses based on the selected month and year
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,6 +277,43 @@ class _UserPageState extends State<UserPage>
                 SizedBox(
                   height: 0,
                 ),
+                Row(
+                  children: [
+                    DropdownButton<int>(
+                      value: selectedMonth,
+                      onChanged: (int? newValue) {
+                        setState(() {
+                          selectedMonth = newValue!;
+                          // Call a method to update expenses based on the selected month
+                          updateExpenses();
+                        });
+                      },
+                      items: List.generate(12, (index) {
+                        return DropdownMenuItem<int>(
+                          value: index + 1,
+                          child: Text(_getMonthName(index + 1)),
+                        );
+                      }),
+                    ),
+                    SizedBox(width: 10),
+                    DropdownButton<int>(
+                      value: selectedYear,
+                      onChanged: (int? newValue) {
+                        setState(() {
+                          selectedYear = newValue!;
+                          // Call a method to update expenses based on the selected year
+                          updateExpenses();
+                        });
+                      },
+                      items: List.generate(10, (index) {
+                        return DropdownMenuItem<int>(
+                          value: DateTime.now().year - index,
+                          child: Text((DateTime.now().year - index).toString()),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
                 Center(
                   child: SizedBox(
                       width: 360.0, height: 180.0, child: ExpenseTotal()),
@@ -266,7 +342,10 @@ class _UserPageState extends State<UserPage>
                   height: 410, // Define the desired height
                   child: SingleChildScrollView(
                     // Wrap with SingleChildScrollView
-                    child: ExpenseWidget(), // Make the ExpenseWidget scrollable
+                    child: ExpenseWidget(
+                      month: selectedMonth,
+                      year: selectedYear,
+                    ), // Make the ExpenseWidget scrollable
                   ),
                 ),
               ],
@@ -613,6 +692,7 @@ class _UserPageState extends State<UserPage>
                                                   // Handle errors or exceptions here
                                                   print("Error: $e");
                                                 }
+                                                
                                               },
                                               child: Text("Submit"),
                                             ),

@@ -1,7 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class ExpenseWidget extends StatelessWidget {
+class ExpenseWidget extends StatefulWidget {
+  final dynamic month;
+  final dynamic year;
+  ExpenseWidget({required this.month, required this.year});
+
+  @override
+  State<ExpenseWidget> createState() => _ExpenseWidgetState();
+}
+
+class _ExpenseWidgetState extends State<ExpenseWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
@@ -15,7 +24,8 @@ class ExpenseWidget extends StatelessWidget {
         }
 
         final expenseData = snapshot.data!.docs.first['expenseData'];
-        final groupedExpenses = _groupExpensesByDate(expenseData);
+        final groupedExpenses =
+            _groupExpensesByDate(expenseData, widget.month, widget.year);
 
         return SingleChildScrollView(
           child: Column(
@@ -23,6 +33,7 @@ class ExpenseWidget extends StatelessWidget {
             children: groupedExpenses.map((group) {
               final date = group['date'];
               final expensesForDate = group['expenses'];
+              print('This is the exp $expensesForDate');
               final totalExpense = _calculateTotalExpense(expensesForDate);
 
               return Padding(
@@ -117,20 +128,30 @@ class ExpenseWidget extends StatelessWidget {
     );
   }
 
-  List<Map<String, dynamic>> _groupExpensesByDate(List<dynamic> expenseData) {
+  List<Map<String, dynamic>> _groupExpensesByDate(
+      List<dynamic> expenseData, month, year) {
     Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
+
+    // Get the current month and year
+    
+    final currentYear = year;
+    final currentMonth = month;
 
     for (var data in expenseData) {
       final timestamp = data['date'] as Timestamp;
       final date =
           DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
-      final dateString =
-          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-      if (groupedExpenses.containsKey(dateString)) {
-        groupedExpenses[dateString]!.add(data);
-      } else {
-        groupedExpenses[dateString] = [data];
+      // Check if the expense is in the current month
+      if (date.year == currentYear && date.month == currentMonth) {
+        final dateString =
+            '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+        if (groupedExpenses.containsKey(dateString)) {
+          groupedExpenses[dateString]!.add(data);
+        } else {
+          groupedExpenses[dateString] = [data];
+        }
       }
     }
 

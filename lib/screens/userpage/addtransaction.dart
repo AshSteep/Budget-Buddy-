@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -23,12 +24,13 @@ class AddTransaction extends StatefulWidget {
 }
 
 class _AddTransactionState extends State<AddTransaction> {
-  List<String> categories = [];
-  String _selectedCategory = '';
   List<String> expenses = [];
   String selectedExpense = '';
   String amount = '';
+  DateTime? selectedDate;
   String extraNotes = '';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +38,6 @@ class _AddTransactionState extends State<AddTransaction> {
   }
 
   void _fetchExpensesFromServer() async {
-    // Simulated data fetching or initialization of the expenses list
     try {
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('categories')
@@ -61,31 +62,30 @@ class _AddTransactionState extends State<AddTransaction> {
 
   @override
   Widget build(BuildContext context) {
+    String uid = _auth.currentUser!.uid;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Color.fromARGB(255, 255, 255, 255),
-        title: Align(
-          alignment: Alignment.topLeft,
-          child: Row(
-            children: [
-              Image.asset(
-                'assets/icons/wallet.png',
-                width: 60,
-                height: 40,
+        backgroundColor: Colors.white,
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/icons/wallet.png',
+              width: 60,
+              height: 40,
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Add Transaction',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 23,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.bold,
               ),
-              SizedBox(width: 0), // Add some spacing between the icon and text
-              Text(
-                'Add Transaction',
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 30, 28, 28),
-                  fontSize: 23,
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       body: SingleChildScrollView(
@@ -93,7 +93,7 @@ class _AddTransactionState extends State<AddTransaction> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 50), // Add some space above the title
+              SizedBox(height: 50),
               Text(
                 'Add Transaction',
                 style: TextStyle(
@@ -102,9 +102,9 @@ class _AddTransactionState extends State<AddTransaction> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 20), // Add some space below the title
+              SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.only(right: 55, left: 55),
+                padding: const EdgeInsets.symmetric(horizontal: 55),
                 child: TextField(
                   decoration: InputDecoration(
                     prefixIcon: Icon(
@@ -124,70 +124,86 @@ class _AddTransactionState extends State<AddTransaction> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     setState(() {
-                      // Use the value to update the desired state or variable.
+                      amount = value;
                     });
                   },
                   style: TextStyle(
-                    fontSize: 25.0, // Adjust the font size
-                    color: Colors.black, // Set the text color
-                    fontWeight: FontWeight.bold, // Set the font weight
-                    // Add more text styling properties as needed
+                    fontSize: 25.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Add some space below the text field
+              SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.only(right: 30, left: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   children: [
-                    Container(
-                      height: 80,
-                      margin: EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF6573D3),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Row(
-                            children: [
-                              Icon(Icons.category, color: Colors.white),
-                              SizedBox(width: 10),
-                              PopupMenuButton<String>(
-                                onSelected: (value) {
-                                  setState(() {
-                                    _selectedCategory = value;
-                                  });
-                                },
-                                itemBuilder: (BuildContext context) {
-                                  // Return the categories fetched from Firebase
-                                  return categories.map((category) {
-                                    return PopupMenuItem<String>(
-                                      value: category,
-                                      child: Text(category),
+                    InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Select Category'),
+                              content: Container(
+                                width: double.maxFinite,
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    final currentItem = expenses[index];
+                                    return ListTile(
+                                      title: Text(currentItem),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedExpense = currentItem;
+                                        });
+                                        Navigator.of(context).pop();
+                                      },
                                     );
-                                  }).toList();
-                                },
-                                child: Text(
-                                  _selectedCategory.isEmpty
-                                      ? 'Select Category'
-                                      : _selectedCategory,
+                                  },
+                                  separatorBuilder:
+                                      (BuildContext context, int index) {
+                                    return SizedBox(height: 5);
+                                  },
+                                  itemCount: expenses.length,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        height: 80,
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF6573D3),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.category, color: Colors.white),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Select Category',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                     GestureDetector(
                       onTap: () {
-                        // Show the calendar when the container is tapped
                         _showCalendar(context);
                       },
                       child: Container(
@@ -223,7 +239,6 @@ class _AddTransactionState extends State<AddTransaction> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        // Show the dialog when the container is tapped
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -231,14 +246,19 @@ class _AddTransactionState extends State<AddTransaction> {
                               title: Text('Edit Notes'),
                               content: TextField(
                                 decoration: InputDecoration(
-                                    hintText: 'Enter your notes...'),
+                                  hintText: 'Enter your notes...',
+                                ),
                                 maxLines: 3,
+                                onChanged: (value) {
+                                  setState(() {
+                                    extraNotes = value;
+                                  });
+                                },
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
+                                    Navigator.of(context).pop();
                                   },
                                   child: Text('Close'),
                                 ),
@@ -286,21 +306,34 @@ class _AddTransactionState extends State<AddTransaction> {
                 height: 60,
                 width: 200,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Define actions to be performed when the button is pressed
-                    // For example, you can add code here to submit a form
-                    print('Submit Button Pressed');
+                  onPressed: () async {
+                    try {
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(uid)
+                          .set({
+                        'expenseData': FieldValue.arrayUnion([
+                          {
+                            'amount': amount.toString(),
+                            'expenseType': selectedExpense,
+                            'date': selectedDate,
+                            'text': selectedExpense,
+                            'extraNotes': extraNotes,
+                          }
+                        ])
+                      }, SetOptions(merge: true));
+                    } catch (e) {
+                      print("Error: $e");
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFF6573D3), // text color
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10), // button padding
+                    backgroundColor: Color(0xFFF6573D3),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(100), // button border radius
+                      borderRadius: BorderRadius.circular(100),
                     ),
                     textStyle: TextStyle(
-                      fontSize: 16, // text font size
+                      fontSize: 16,
                     ),
                   ),
                   child: Text('Submit'),
@@ -323,6 +356,9 @@ class _AddTransactionState extends State<AddTransaction> {
     );
     if (picked != null) {
       print('Selected date: $picked');
+      setState(() {
+        selectedDate = picked;
+      });
     }
   }
 }
