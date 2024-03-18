@@ -3,11 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // Import package for date formatting
 
-class ExpenseTotal extends StatelessWidget {
+class ExpenseTotal extends StatefulWidget {
+  @override
+  State<ExpenseTotal> createState() => _ExpenseTotalState();
+}
+
+class _ExpenseTotalState extends State<ExpenseTotal> {
   @override
   Widget build(BuildContext context) {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     String uid = _auth.currentUser!.uid;
+    DateTime now = DateTime.now();
+    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
     return Card(
       color: Color(0xFFF6573D3),
       elevation: 5.0,
@@ -43,35 +51,34 @@ class ExpenseTotal extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 15),
-                StreamBuilder<QuerySnapshot>(
+                StreamBuilder<DocumentSnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('users')
                       .doc(uid)
-                      .collection('expenseData')
                       .snapshots(),
                   builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                      AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return CircularProgressIndicator();
                     }
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     }
+                    if (!snapshot.hasData || !snapshot.data!.exists) {
+                      return Text('No data available');
+                    }
 
-                    // Filter expenses for the current month
-                    final currentMonthExpenses =
-                        snapshot.data!.docs.where((expense) {
-                      DateTime expenseDate =
-                          (expense['date'] as Timestamp).toDate();
-                      return expenseDate.year == DateTime.now().year &&
-                          expenseDate.month == DateTime.now().month;
-                    });
-
-                    // Calculate total expense for the current month
-                    int totalExpense = 0;
-                    currentMonthExpenses.forEach((expense) {
-                      totalExpense += (expense['amount'] ?? 0) as int;
-                    });
+                    // Extract expenses data from the user document
+                    Map<String, dynamic> userData =
+                        snapshot.data!.data() as Map<String, dynamic>;
+                    List<dynamic> expenses = userData['expenseData'] ?? [];
+                    
+                    print(expenses);
+                    // Calculate total expense
+                    int totalExpense = expenses.fold(
+                        0,
+                        (previousValue, expense) =>
+                            previousValue + (int.parse(expense['amount'])));
 
                     return Text(
                       '₹ $totalExpense',
