@@ -17,6 +17,7 @@ class _StatisticsState extends State<Statistics> {
   int EntertainmentExp = 0;
   int FuelExp = 0;
   int OutingExp = 0;
+  int MedicalExp = 0;
   @override
   void initState() {
     super.initState();
@@ -49,6 +50,9 @@ class _StatisticsState extends State<Statistics> {
           if (e['expenseType'] == 'Outing') {
             OutingExp = OutingExp + (int.parse(e['amount']));
           }
+          if (e['expenseType'] == 'Medical') {
+            MedicalExp = MedicalExp + (int.parse(e['amount']));
+          }
         });
       });
     } else {
@@ -58,6 +62,11 @@ class _StatisticsState extends State<Statistics> {
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    String uid = _auth.currentUser!.uid;
+    DateTime now = DateTime.now();
+    DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
     print(FoodExp);
     print(TravelExp);
     Map<String, double> dataMap = {
@@ -66,6 +75,7 @@ class _StatisticsState extends State<Statistics> {
       'Entertainment': double.parse(EntertainmentExp.toString()),
       'Fuel': double.parse(FuelExp.toString()),
       'Outing': double.parse(OutingExp.toString()),
+      'Medical': double.parse(MedicalExp.toString())
     };
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -92,49 +102,6 @@ class _StatisticsState extends State<Statistics> {
                 ),
               ),
               Spacer(), // This will push the IconButton to the right side
-              SizedBox(
-                width: 120,
-                height: 40,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: Color(0xFFF6573D3),
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: DropdownButton<String>(
-                      value: 'This Month',
-                      onChanged: (String? newValue) {},
-                      items: <String>['This Month', 'This Day', 'This Year']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value,
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.black,
-                      ),
-                      icon: Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.black,
-                      ),
-                      elevation: 8,
-                      underline: Container(),
-                      isExpanded: true,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -176,22 +143,70 @@ class _StatisticsState extends State<Statistics> {
                             Row(
                               children: [
                                 Center(
-                                  child: Text(
-                                    '₹ 2780 /',
-                                    style: TextStyle(
-                                        color: Colors
-                                            .white, // Specify the text color
-                                        fontSize: 30.0,
-                                        fontWeight: FontWeight
-                                            .bold // Specify the font size
+                                  child: StreamBuilder<DocumentSnapshot>(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(uid)
+                                        .snapshots(),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<DocumentSnapshot>
+                                            snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return CircularProgressIndicator();
+                                      }
+                                      if (snapshot.hasError) {
+                                        return Text('Error: ${snapshot.error}');
+                                      }
+                                      if (!snapshot.hasData ||
+                                          !snapshot.data!.exists) {
+                                        return Text('No data available');
+                                      }
+
+                                      // Extract expenses data from the user document
+                                      Map<String, dynamic> userData =
+                                          snapshot.data!.data()
+                                              as Map<String, dynamic>;
+                                      int sum = 0;
+                                      List<dynamic> expenses =
+                                          userData['expenseData'] ?? [];
+                                      expenses.forEach((e) {
+                                        print(e['date'].toDate());
+                                        print("Full");
+                                        if (e['date']
+                                                .toDate()
+                                                .isAfter(firstDayOfMonth) &&
+                                            e['date']
+                                                .toDate()
+                                                .isBefore(lastDayOfMonth)) {
+                                          print(e['date'].toDate());
+                                          sum = sum + (int.parse(e['amount']));
+                                        }
+                                      });
+                                      print(sum);
+                                      // Calculate total expense
+                                      int totalExpense = expenses.fold(
+                                          0,
+                                          (previousValue, expense) =>
+                                              previousValue +
+                                              (int.parse(expense['amount'])));
+                                      print(totalExpense);
+                                      return Text(
+                                        '₹ $sum',
+                                        style: TextStyle(
+                                          color: Color(0xFFFFBFCFE),
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.bold,
                                         ),
+                                      );
+                                    },
                                   ),
                                 ),
                                 SizedBox(
                                   width: 5,
                                 ),
                                 Text(
-                                  '₹ 3500 Per Month  ',
+                                  '/ ₹ 10000 Per Month  ',
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -199,11 +214,10 @@ class _StatisticsState extends State<Statistics> {
                                 ),
                               ],
                             ),
-                            SizedBox(
-                                height:
-                                    20), // Add some space between text and progress indicator
+                            SizedBox(height: 20),
+                            // Add some space between text and progress indicator
                             LinearProgressIndicator(
-                              value: 2780 / 3500, // Calculate the progress
+                              value: 2780 / 10000, // Calculate the progress
                               backgroundColor: Colors.white,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 Colors
@@ -271,7 +285,7 @@ class _StatisticsState extends State<Statistics> {
                               value,
                               style: TextStyle(
                                 fontSize: 16.0,
-                                color: Colors.black,
+                                color: Colors.white,
                               ),
                             ),
                           );
@@ -282,7 +296,7 @@ class _StatisticsState extends State<Statistics> {
                         ),
                         icon: Icon(
                           Icons.arrow_drop_down,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                         elevation: 8,
                         underline: Container(),

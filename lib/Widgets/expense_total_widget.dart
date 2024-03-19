@@ -101,6 +101,7 @@ class _ExpenseTotalState extends State<ExpenseTotal> {
                     );
                   },
                 ),
+                
                 SizedBox(height: 15),
                 Row(
                   children: [

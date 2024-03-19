@@ -30,11 +30,20 @@ class _AddTransactionState extends State<AddTransaction> {
   DateTime? selectedDate;
   String extraNotes = '';
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _controller = TextEditingController();
+  bool _isCategorySelected = false;
+  bool dateSelected = false;
 
   @override
   void initState() {
     super.initState();
     _fetchExpensesFromServer();
+  }
+
+  void dispose() {
+    // Dispose of the TextEditingController when it's no longer needed
+    _controller.dispose();
+    super.dispose();
   }
 
   void _fetchExpensesFromServer() async {
@@ -104,36 +113,47 @@ class _AddTransactionState extends State<AddTransaction> {
               ),
               SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 55),
-                child: TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.currency_rupee,
-                      size: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 55),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.currency_rupee,
+                        size: 35,
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(100.0),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 30.0),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        if (double.parse(value) > 10000) {
+                          // Show Snackbar message if amount is greater than 10000
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Amount should be less than or equal to 10000'),
+                            ),
+                          );
+                          // Reset the value to empty
+                          amount = '';
+                        } else {
+                          amount = value;
+                        }
+                      });
+                    },
+                    style: TextStyle(
+                      fontSize: 25.0,
                       color: Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100.0),
-                      borderSide: BorderSide(color: Colors.blue),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      amount = value;
-                    });
-                  },
-                  style: TextStyle(
-                    fontSize: 25.0,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+                  )),
               SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -158,6 +178,8 @@ class _AddTransactionState extends State<AddTransaction> {
                                       onTap: () {
                                         setState(() {
                                           selectedExpense = currentItem;
+                                          _isCategorySelected =
+                                              true; // Category selected
                                         });
                                         Navigator.of(context).pop();
                                       },
@@ -307,23 +329,52 @@ class _AddTransactionState extends State<AddTransaction> {
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () async {
-                    try {
-                      await FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(uid)
-                          .set({
-                        'expenseData': FieldValue.arrayUnion([
-                          {
-                            'amount': amount.toString(),
-                            'expenseType': selectedExpense,
-                            'date': selectedDate,
-                            'text': selectedExpense,
-                            'extraNotes': extraNotes,
-                          }
-                        ])
-                      }, SetOptions(merge: true));
-                    } catch (e) {
-                      print("Error: $e");
+                    if (_isCategorySelected) {
+                      // Category is selected, proceed with submission
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Submitting...'), // Show a message while submitting
+                          duration: Duration(
+                              seconds:
+                                  1), // Adjust the duration as per your requirement
+                        ),
+                      );
+                      try {
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(uid)
+                            .set({
+                          'expenseData': FieldValue.arrayUnion([
+                            {
+                              'amount': amount.toString(),
+                              'expenseType': selectedExpense,
+                              'date': selectedDate,
+                              'text': selectedExpense,
+                              'extraNotes': extraNotes,
+                            }
+                          ])
+                        }, SetOptions(merge: true));
+                        ScaffoldMessenger.of(context)
+                            .hideCurrentSnackBar(); // Hide the SnackBar after submission
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Submitted successfully'),
+                            duration: Duration(
+                                seconds:
+                                    2), // Adjust the duration as per your requirement
+                          ),
+                        );
+                      } catch (e) {
+                        print("Error: $e");
+                      }
+                    } else {
+                      // Show message or prevent submission if category is not selected
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please select a category.'),
+                        ),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
