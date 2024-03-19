@@ -312,7 +312,7 @@ class _StatisticsState extends State<Statistics> {
             padding:
                 const EdgeInsets.only(top: 10, right: 15, left: 15, bottom: 0),
             child: SizedBox(
-              height: 280,
+              height: 300,
               width: 500,
               child: Container(
                 decoration: BoxDecoration(
@@ -320,17 +320,32 @@ class _StatisticsState extends State<Statistics> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 15, bottom: 5),
+                  padding: const EdgeInsets.only(top: 10, bottom: 0),
                   child: PieChart(
                     dataMap: dataMap,
                     chartRadius:
-                        200, // Adjust the chart radius according to your requirement
-                    chartType: ChartType.ring,
+                        350, // Adjust the chart radius according to your requirement
+                    chartType: ChartType.disc,
                     ringStrokeWidth: 32,
                     legendOptions: LegendOptions(
                       showLegendsInRow: true,
                       legendPosition: LegendPosition.bottom,
                       legendShape: BoxShape.circle,
+                    ),
+                    chartValuesOptions: ChartValuesOptions(
+                      showChartValueBackground: true,
+                      chartValueBackgroundColor: Color(0xFFF6573D3),
+                      showChartValues: true,
+                      showChartValuesInPercentage:
+                          true, // Show percentage values instead of actual amounts
+                      showChartValuesOutside: true,
+                      decimalPlaces: 0,
+                      chartValueStyle: TextStyle(
+                        color: Colors.white, // Change text color
+                        fontSize: 16, // Adjust font size
+                        fontWeight: FontWeight.bold, // Adjust font weight
+                        // Adjust font style
+                      ), // Adjust decimal places for percentage values
                     ),
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class Transaction {
   final DateTime date;
@@ -133,18 +134,38 @@ class _AddTransactionState extends State<AddTransaction> {
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
-                        if (double.parse(value) > 10000) {
-                          // Show Snackbar message if amount is greater than 10000
+                        // Check if the value is a valid number with at most 5 digits and not starting with zero
+                        if (RegExp(r'^[1-9]\d{0,4}$').hasMatch(value)) {
+                          amount = value;
+                        } else {
+                          // Show Snackbar message if the value doesn't meet the criteria
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
+                              backgroundColor:
+                                  Colors.grey, // Change background color
                               content: Text(
-                                  'Amount should be less than or equal to 10000'),
+                                'Enter a valid amount below 10000',
+                                style: TextStyle(
+                                  color: Colors.white, // Change text color
+                                  fontSize: 16.0, // Change font size
+                                ),
+                              ),
+                              duration: Duration(
+                                  seconds: 3), // Adjust display duration
+                              action: SnackBarAction(
+                                label: 'Close', // Customize action button text
+                                textColor: Colors
+                                    .white, // Change action button text color
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar(); // Close the SnackBar
+                                },
+                              ),
                             ),
                           );
+
                           // Reset the value to empty
                           amount = '';
-                        } else {
-                          amount = value;
                         }
                       });
                     },
@@ -210,8 +231,11 @@ class _AddTransactionState extends State<AddTransaction> {
                               children: [
                                 Icon(Icons.category, color: Colors.white),
                                 SizedBox(width: 10),
+                                // Display selected category if available, otherwise display default text
                                 Text(
-                                  'Select Category',
+                                  _isCategorySelected
+                                      ? selectedExpense
+                                      : 'Select Category',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -224,7 +248,7 @@ class _AddTransactionState extends State<AddTransaction> {
                         ),
                       ),
                     ),
-                    GestureDetector(
+                    InkWell(
                       onTap: () {
                         _showCalendar(context);
                       },
@@ -245,8 +269,12 @@ class _AddTransactionState extends State<AddTransaction> {
                                   color: Colors.white,
                                 ),
                                 SizedBox(width: 10),
+                                // Display selected date if available, otherwise display default text
                                 Text(
-                                  'Calendar',
+                                  selectedDate != null
+                                      ? DateFormat('dd-MM-yyyy')
+                                          .format(selectedDate!)
+                                      : 'Calendar',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -307,7 +335,11 @@ class _AddTransactionState extends State<AddTransaction> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  'Notes',
+                                  extraNotes.isEmpty
+                                      ? 'Notes'
+                                      : extraNotes.split(' ').length <= 50
+                                          ? extraNotes
+                                          : 'Notes (Exceeded 50 words)',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,

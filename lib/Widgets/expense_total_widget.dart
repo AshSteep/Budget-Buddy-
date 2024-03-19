@@ -1,9 +1,6 @@
-
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 
 class ExpenseTotal extends StatefulWidget {
   @override
@@ -101,7 +98,6 @@ class _ExpenseTotalState extends State<ExpenseTotal> {
                     );
                   },
                 ),
-                
                 SizedBox(height: 15),
                 Row(
                   children: [
