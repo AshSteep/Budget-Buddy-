@@ -26,7 +26,9 @@ class AddTransaction extends StatefulWidget {
 
 class _AddTransactionState extends State<AddTransaction> {
   List<String> expenses = [];
+  List<String> incomes = [];
   String selectedExpense = '';
+  String selectedIncome = '';
   String amount = '';
   DateTime? selectedDate;
   String extraNotes = '';
@@ -34,7 +36,7 @@ class _AddTransactionState extends State<AddTransaction> {
   final TextEditingController _controller = TextEditingController();
   bool _isCategorySelected = false;
   bool dateSelected = false;
-
+  bool _isTransaction = true;
   @override
   void initState() {
     super.initState();
@@ -60,6 +62,8 @@ class _AddTransactionState extends State<AddTransaction> {
         setState(() {
           expenses = List<String>.from(userData['expense'] ?? []);
           selectedExpense = expenses.isNotEmpty ? expenses[0] : '';
+          incomes = List<String>.from(userData['income_cat'] ?? []);
+          selectedIncome = incomes.isNotEmpty ? incomes[0] : '';
         });
       } else {
         // Handle document not found
@@ -98,21 +102,89 @@ class _AddTransactionState extends State<AddTransaction> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Center(
+      body: Form(
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 50),
-              Text(
-                'Add Transaction',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 30.0,
-                  fontWeight: FontWeight.bold,
+              SizedBox(height: 30),
+              Container(
+                height: 50,
+                width: 280,
+                decoration: ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                  color: Color(0xFFF6573D3),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isTransaction = true; // Switch to income side
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _isTransaction
+                                ? Color(0xFFF6573D3)
+                                : Colors.grey,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(
+                                  40), // Adjust radius as needed
+                              bottomLeft: Radius.circular(
+                                  40), // Adjust radius as needed
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Income',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isTransaction = false; // Switch to expense side
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: !_isTransaction
+                                ? Color(0xFFF6573D3)
+                                : Colors.grey,
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(
+                                  40), // Adjust radius as needed
+                              bottomRight: Radius.circular(
+                                  40), // Adjust radius as needed
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Expense',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
               Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 55),
                   child: TextField(
@@ -193,15 +265,19 @@ class _AddTransactionState extends State<AddTransaction> {
                                   shrinkWrap: true,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    final currentItem = expenses[index];
+                                    final currentItem = _isTransaction
+                                        ? incomes[index]
+                                        : expenses[index];
                                     return ListTile(
                                       title: Text(currentItem),
                                       onTap: () {
                                         setState(() {
                                           selectedExpense = currentItem;
+
                                           _isCategorySelected =
                                               true; // Category selected
                                         });
+
                                         Navigator.of(context).pop();
                                       },
                                     );
@@ -210,7 +286,9 @@ class _AddTransactionState extends State<AddTransaction> {
                                       (BuildContext context, int index) {
                                     return SizedBox(height: 5);
                                   },
-                                  itemCount: expenses.length,
+                                  itemCount: _isTransaction
+                                      ? incomes.length
+                                      : expenses.length,
                                 ),
                               ),
                             );
@@ -377,7 +455,8 @@ class _AddTransactionState extends State<AddTransaction> {
                             .collection('users')
                             .doc(uid)
                             .set({
-                          'expenseData': FieldValue.arrayUnion([
+                          _isTransaction ? 'IncomeData' : 'expenseData':
+                              FieldValue.arrayUnion([
                             {
                               'amount': amount.toString(),
                               'expenseType': selectedExpense,
