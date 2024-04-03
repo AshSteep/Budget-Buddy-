@@ -133,7 +133,7 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
     Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
 
     // Get the current month and year
-    
+
     final currentYear = year;
     final currentMonth = month;
 

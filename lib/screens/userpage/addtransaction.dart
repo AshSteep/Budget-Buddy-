@@ -37,6 +37,14 @@ class _AddTransactionState extends State<AddTransaction> {
   bool _isCategorySelected = false;
   bool dateSelected = false;
   bool _isTransaction = true;
+  bool _isValidAmount(String value) {
+    // Check if the value is a valid number with at most 5 digits and not starting with zero
+    RegExp regex = RegExp(r'^[1-9]\d{0,4}$');
+    return regex.hasMatch(value);
+  }
+
+  TextEditingController _amountController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -186,67 +194,67 @@ class _AddTransactionState extends State<AddTransaction> {
               ),
               SizedBox(height: 30),
               Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 55),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.currency_rupee,
-                        size: 35,
-                        color: Colors.black,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(100.0),
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 30.0),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      setState(() {
-                        // Check if the value is a valid number with at most 5 digits and not starting with zero
-                        if (RegExp(r'^[1-9]\d{0,4}$').hasMatch(value)) {
-                          amount = value;
-                        } else {
-                          // Show Snackbar message if the value doesn't meet the criteria
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor:
-                                  Colors.grey, // Change background color
-                              content: Text(
-                                'Enter a valid amount below 10000',
-                                style: TextStyle(
-                                  color: Colors.white, // Change text color
-                                  fontSize: 16.0, // Change font size
-                                ),
-                              ),
-                              duration: Duration(
-                                  seconds: 3), // Adjust display duration
-                              action: SnackBarAction(
-                                label: 'Close', // Customize action button text
-                                textColor: Colors
-                                    .white, // Change action button text color
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context)
-                                      .hideCurrentSnackBar(); // Close the SnackBar
-                                },
-                              ),
-                            ),
-                          );
-
-                          // Reset the value to empty
-                          amount = '';
-                        }
-                      });
-                    },
-                    style: TextStyle(
-                      fontSize: 25.0,
+                padding: const EdgeInsets.symmetric(horizontal: 55),
+                child: TextField(
+                  controller: _amountController, // Use the controller
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.currency_rupee,
+                      size: 35,
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
                     ),
-                  )),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100.0),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      if (_isValidAmount(value)) {
+                        amount = value;
+                      } else {
+                        // Clear the controller if the input is invalid
+                        _amountController.clear();
+                        amount = '';
+
+                        // Show a SnackBar indicating that the amount is invalid
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Enter a valid amount below 10000',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor:
+                                Colors.red, // Customize background color
+                            duration:
+                                Duration(seconds: 3), // Adjust display duration
+                            action: SnackBarAction(
+                              label: 'Close', // Customize action button text
+                              textColor: Colors
+                                  .white, // Change action button text color
+                              onPressed: () {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar(); // Close the SnackBar
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    });
+                  },
+
+                  style: TextStyle(
+                    fontSize: 25.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -258,7 +266,18 @@ class _AddTransactionState extends State<AddTransaction> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('Select Category'),
+                              title: Text(
+                                'Select Category',
+                                style: TextStyle(
+                                  color:
+                                      Colors.blue, // Customize title text color
+                                  fontWeight:
+                                      FontWeight.bold, // Add bold font weight
+                                  fontSize: 18, // Customize font size
+                                ),
+                              ),
+                              backgroundColor: Color(
+                                  0xFFF6573D3), // Set background color to purple
                               content: Container(
                                 width: double.maxFinite,
                                 child: ListView.separated(
@@ -269,15 +288,22 @@ class _AddTransactionState extends State<AddTransaction> {
                                         ? incomes[index]
                                         : expenses[index];
                                     return ListTile(
-                                      title: Text(currentItem),
+                                      title: Text(
+                                        currentItem,
+                                        style: TextStyle(
+                                          color: Colors
+                                              .black, // Customize item text color
+                                          fontSize: 16,
+                                          fontWeight: FontWeight
+                                              .bold, // Customize item font size
+                                        ),
+                                      ),
                                       onTap: () {
                                         setState(() {
                                           selectedExpense = currentItem;
-
                                           _isCategorySelected =
                                               true; // Category selected
                                         });
-
                                         Navigator.of(context).pop();
                                       },
                                     );
@@ -439,51 +465,63 @@ class _AddTransactionState extends State<AddTransaction> {
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (_isCategorySelected) {
-                      // Category is selected, proceed with submission
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Submitting...'), // Show a message while submitting
-                          duration: Duration(
-                              seconds:
-                                  1), // Adjust the duration as per your requirement
-                        ),
-                      );
-                      try {
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(uid)
-                            .set({
-                          _isTransaction ? 'IncomeData' : 'expenseData':
-                              FieldValue.arrayUnion([
-                            {
-                              'amount': amount.toString(),
-                              'expenseType': selectedExpense,
-                              'date': selectedDate,
-                              'text': selectedExpense,
-                              'extraNotes': extraNotes,
-                            }
-                          ])
-                        }, SetOptions(merge: true));
-                        ScaffoldMessenger.of(context)
-                            .hideCurrentSnackBar(); // Hide the SnackBar after submission
+                    if (selectedDate != null) {
+                      if (_isCategorySelected) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Submitted successfully'),
-                            duration: Duration(
-                                seconds:
-                                    2), // Adjust the duration as per your requirement
+                            content: Text(
+                              'Submitting...',
+                            ),
+                            duration: Duration(seconds: 1),
                           ),
                         );
-                      } catch (e) {
-                        print("Error: $e");
+                        try {
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(uid)
+                              .set({
+                            _isTransaction ? 'IncomeData' : 'expenseData':
+                                FieldValue.arrayUnion([
+                              {
+                                'amount': amount.toString(),
+                                'expenseType': selectedExpense,
+                                'date': selectedDate,
+                                'text': selectedExpense,
+                                'extraNotes': extraNotes,
+                              }
+                            ])
+                          }, SetOptions(merge: true));
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Submitted successfully'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+
+                          // Reset the form after successful submission
+                          setState(() {
+                            _amountController.clear();
+                            amount = '';
+                            selectedDate = null;
+                            selectedExpense = '';
+                            extraNotes = '';
+                            _isCategorySelected = false;
+                          });
+                        } catch (e) {
+                          print("Error: $e");
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please select a category.'),
+                          ),
+                        );
                       }
                     } else {
-                      // Show message or prevent submission if category is not selected
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Please select a category.'),
+                          content: Text('Please select a date.'),
                         ),
                       );
                     }

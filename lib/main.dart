@@ -1,3 +1,4 @@
+import 'package:base_app/auth/loginPage.dart';
 import 'package:base_app/auth/splashscreen.dart';
 import 'package:base_app/components/bottomnavbar.dart';
 import 'package:base_app/screens/userpage/UserPage.dart';
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: SplashScreen(), // Show SplashScreen first
       routes: {
+        '/login': (context) => LoginPage(),
         '/userPage': (context) => UserPage(),
         '/bottomNav': (context) => BottomNavBar(),
         '/addtransaction': (context) => AddTransaction()

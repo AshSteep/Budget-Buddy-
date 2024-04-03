@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'forgotpasspage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -89,6 +90,14 @@ class _LoginPageState extends State<LoginPage> {
 
         await FirebaseAuth.instance.signInWithCredential(credential);
         String userUID = _auth.currentUser!.uid;
+
+        // Get the user's email
+        String userEmail = _auth.currentUser!.email ?? "";
+
+        // Save the email to shared preferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email', userEmail);
+
         Navigator.of(context)
             .pushReplacementNamed('/bottomNav', arguments: userUID);
       } else {
