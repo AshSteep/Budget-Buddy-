@@ -1,5 +1,6 @@
-import 'package:base_app/Widgets/expense_total_widget.dart';
+import 'package:base_app/Widgets/balance_widget.dart';
 import 'package:base_app/Widgets/expense_widget.dart';
+import 'package:base_app/Widgets/income_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -441,31 +442,47 @@ class _UserPageState extends State<UserPage>
                 SizedBox(
                   height: 15,
                 ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30.0, vertical: 0),
-                    child: Text(
-                      'Expense List',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
                 SizedBox(height: 5),
                 SizedBox(
                   height: 410, // Define the desired height
                   child: SingleChildScrollView(
-                    // Wrap with SingleChildScrollView
-                    child: ExpenseWidget(
-                      month: selectedMonth,
-                      year: selectedYear,
-                    ), // Make the ExpenseWidget scrollable
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        // First ExpenseWidget
+                        Container(
+                          width: MediaQuery.of(context)
+                              .size
+                              .width, // Adjust the width as needed
+                          child: ListView(
+                            scrollDirection: Axis.vertical,
+                            children: [
+                              ExpenseWidget(
+                                month: selectedMonth,
+                                year: selectedYear,
+                              ),
+                              // Add more widgets if needed
+                            ],
+                          ),
+                        ),
+                        // Second ExpenseWidget
+                        Container(
+                          width: MediaQuery.of(context)
+                              .size
+                              .width, // Adjust the width as needed
+                          child: ListView(
+                            scrollDirection: Axis.vertical,
+                            children: [
+                              IncomeWidget(
+                                month: selectedMonth,
+                                year: selectedYear,
+                              ),
+                              // Add more widgets if needed
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

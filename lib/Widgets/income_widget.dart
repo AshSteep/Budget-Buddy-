@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class ExpenseWidget extends StatefulWidget {
+class IncomeWidget extends StatefulWidget {
   final dynamic month;
   final dynamic year;
-  ExpenseWidget({required this.month, required this.year});
+  IncomeWidget({required this.month, required this.year});
 
   @override
-  State<ExpenseWidget> createState() => _ExpenseWidgetState();
+  State<IncomeWidget> createState() => _IncomeWidgetState();
 }
 
-class _ExpenseWidgetState extends State<ExpenseWidget> {
+class _IncomeWidgetState extends State<IncomeWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
@@ -23,17 +23,19 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        final expenseData = snapshot.data!.docs.first['expenseData'];
-        final groupedExpenses =
-            _groupExpensesByDate(expenseData, widget.month, widget.year);
+        final IncomeData = snapshot.data!.docs.first['IncomeData'];
+        final groupedIncomes =
+            _groupIncomesByDate(IncomeData, widget.month, widget.year);
+        print('groupedIncomes: $groupedIncomes');
 
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: groupedExpenses.map((group) {
+            children: groupedIncomes.map((group) {
               final date = group['date'];
-              final expensesForDate = group['expenses'];
-              final totalExpense = _calculateTotalExpense(expensesForDate);
+              final IncomesForDate = group['Incomes'];
+              print('This is the exp $IncomesForDate');
+              final totalIncome = _calculateTotalIncome(IncomesForDate);
 
               return Padding(
                 padding: const EdgeInsets.only(
@@ -64,7 +66,7 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
                           SizedBox(width: 120),
                           Expanded(
                             child: Text(
-                              'Total: ₹ $totalExpense',
+                              'Total: - ₹ $totalIncome',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
@@ -77,9 +79,9 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
                       Divider(color: Colors.blueGrey),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: expensesForDate.map<Widget>((expense) {
-                          final amount = _parseAmount(expense['amount']);
-                          final text = expense['text'];
+                        children: IncomesForDate.map<Widget>((Income) {
+                          final amount = _parseAmount(Income['amount']);
+                          final text = Income['text'];
                           return Padding(
                             padding: const EdgeInsets.only(top: 8, bottom: 8),
                             child: Row(
@@ -104,11 +106,11 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
                                   ],
                                 ),
                                 Text(
-                                  '₹ $amount',
+                                  '- ₹ $amount',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.red,
+                                    color: Colors.green,
                                   ),
                                 ),
                               ],
@@ -127,17 +129,18 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
     );
   }
 
-  List<Map<String, dynamic>> _groupExpensesByDate(
-      List<dynamic> expenseData, month, year) {
-    Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
+  List<Map<String, dynamic>> _groupIncomesByDate(
+      List<dynamic> IncomeData, dynamic month, dynamic year) {
+    Map<String, List<Map<String, dynamic>>> groupedIncomes = {};
 
     // Get the current month and year
 
     final currentYear = year;
     final currentMonth = month;
 
-    for (var data in expenseData) {
-      final timestamp = data['date'] as Timestamp;
+    for (var data in IncomeData) {
+      final timestamp = data['date'] as Timestamp?;
+      if (timestamp == null) continue; // Skip if 'date' is null
       final date =
           DateTime.fromMillisecondsSinceEpoch(timestamp.seconds * 1000);
 
@@ -146,33 +149,33 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
         final dateString =
             '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-        if (groupedExpenses.containsKey(dateString)) {
-          groupedExpenses[dateString]!.add(data);
+        if (groupedIncomes.containsKey(dateString)) {
+          groupedIncomes[dateString]!.add(data);
         } else {
-          groupedExpenses[dateString] = [data];
+          groupedIncomes[dateString] = [data];
         }
       }
     }
 
     List<Map<String, dynamic>> result = [];
-    List<String> sortedKeys = groupedExpenses.keys.toList()
+    List<String> sortedKeys = groupedIncomes.keys.toList()
       ..sort((a, b) => DateTime.parse(b).compareTo(DateTime.parse(a)));
 
     for (var key in sortedKeys) {
       final dateParts = key.split('-').map(int.parse).toList();
       final date = DateTime(dateParts[0], dateParts[1], dateParts[2]);
-      result.add({'date': date, 'expenses': groupedExpenses[key]});
+      result.add({'date': date, 'Incomes': groupedIncomes[key]});
     }
 
     return result;
   }
 
-  int _calculateTotalExpense(List<Map<String, dynamic>> expenses) {
-    int totalExpense = 0;
-    for (var expense in expenses) {
-      totalExpense += _parseAmount(expense['amount']);
+  int _calculateTotalIncome(List<dynamic> Income) {
+    int totalIncome = 0;
+    for (var income in Income) {
+      totalIncome += _parseAmount(income['amount']);
     }
-    return totalExpense;
+    return totalIncome;
   }
 
   String _formatDate(DateTime date) {

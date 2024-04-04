@@ -354,7 +354,7 @@ class _AddTransactionState extends State<AddTransaction> {
                     ),
                     InkWell(
                       onTap: () {
-                        _showCalendar(context);
+                        _showCalender(context);
                       },
                       child: Container(
                         height: 80,
@@ -484,7 +484,7 @@ class _AddTransactionState extends State<AddTransaction> {
                                 FieldValue.arrayUnion([
                               {
                                 'amount': amount.toString(),
-                                'expenseType': selectedExpense,
+                                'category': selectedExpense,
                                 'date': selectedDate,
                                 'text': selectedExpense,
                                 'extraNotes': extraNotes,
@@ -547,15 +547,15 @@ class _AddTransactionState extends State<AddTransaction> {
     );
   }
 
-  Future<void> _showCalendar(BuildContext context) async {
+  Future<void> _showCalender(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      firstDate: DateTime(1900), // Update this to the earliest selectable date
+      lastDate: DateTime.now(), // Update this to the latest selectable date
+      // You can add other parameters as needed, such as locale, builder, etc.
     );
-    if (picked != null) {
-      print('Selected date: $picked');
+    if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
       });
