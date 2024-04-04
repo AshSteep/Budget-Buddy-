@@ -383,55 +383,6 @@ class _UserPageState extends State<UserPage>
                           ),
                         ],
                       ),
-
-                      // SizedBox(
-                      //   width: 120,
-                      //   height: 40,
-                      //   child: Container(
-                      //     decoration: BoxDecoration(
-                      //       shape: BoxShape.rectangle,
-                      //       color: Color(0xFFF6573D3),
-                      //       border: Border.all(color: Colors.grey),
-                      //       borderRadius: BorderRadius.circular(8.0),
-                      //     ),
-                      //     child: Padding(
-                      //       padding:
-                      //           const EdgeInsets.symmetric(horizontal: 12.0),
-                      //       child: DropdownButton<String>(
-                      //         value: 'This Month',
-                      //         onChanged: (String? newValue) {},
-                      //         items: <String>[
-                      //           'This Month',
-                      //           'This Day',
-                      //           'This Year'
-                      //         ].map<DropdownMenuItem<String>>((String value) {
-                      //           return DropdownMenuItem<String>(
-                      //             value: value,
-                      //             child: Text(
-                      //               value,
-                      //               style: TextStyle(
-                      //                 fontSize: 15.0,
-                      //                 fontWeight: FontWeight.bold,
-                      //                 color: Colors.white,
-                      //               ),
-                      //             ),
-                      //           );
-                      //         }).toList(),
-                      //         style: TextStyle(
-                      //           fontSize: 16.0,
-                      //           color: Colors.black,
-                      //         ),
-                      //         icon: Icon(
-                      //           Icons.arrow_drop_down,
-                      //           color: Colors.white,
-                      //         ),
-                      //         elevation: 8,
-                      //         underline: Container(),
-                      //         isExpanded: true,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -439,52 +390,71 @@ class _UserPageState extends State<UserPage>
                   child: SizedBox(
                       width: 360.0, height: 180.0, child: ExpenseTotal()),
                 ),
-                SizedBox(
-                  height: 15,
-                ),
-                SizedBox(height: 5),
-                SizedBox(
-                  height: 410, // Define the desired height
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
+                Expanded(
+                  child: DefaultTabController(
+                    length: 2, // Number of tabs
+                    child: Column(
                       children: [
-                        // First ExpenseWidget
-                        Container(
-                          width: MediaQuery.of(context)
-                              .size
-                              .width, // Adjust the width as needed
-                          child: ListView(
-                            scrollDirection: Axis.vertical,
-                            children: [
-                              ExpenseWidget(
-                                month: selectedMonth,
-                                year: selectedYear,
+                        TabBar(
+                          indicatorColor: Color(
+                              0xFFF6573D3), // Background color for the selected tab indicator
+                          labelColor: Color(
+                              0xFFF6573D3), // Text color for the selected tab label
+                          unselectedLabelColor:
+                              Colors.black, // Text color for unselected tabs
+                          tabs: [
+                            Tab(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons
+                                      .attach_money), // Icon for income tab
+                                  SizedBox(
+                                      width: 5), // Spacer between icon and text
+                                  Text('Income'), // Text for income tab
+                                ],
                               ),
-                              // Add more widgets if needed
-                            ],
-                          ),
+                            ),
+                            Tab(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.money_off), // Icon for expense tab
+                                  SizedBox(
+                                      width: 5), // Spacer between icon and text
+                                  Text('Expense'), // Text for expense tab
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        // Second ExpenseWidget
-                        Container(
-                          width: MediaQuery.of(context)
-                              .size
-                              .width, // Adjust the width as needed
-                          child: ListView(
-                            scrollDirection: Axis.vertical,
+                        // TabBarView to display different content based on selected tab
+                        Expanded(
+                          child: TabBarView(
                             children: [
-                              IncomeWidget(
-                                month: selectedMonth,
-                                year: selectedYear,
+                              // Content for the 'Income' tab
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: IncomeWidget(
+                                  month: selectedMonth,
+                                  year: selectedYear,
+                                ),
                               ),
-                              // Add more widgets if needed
+                              // Content for the 'Expense' tab
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                child: ExpenseWidget(
+                                  month: selectedMonth,
+                                  year: selectedYear,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
