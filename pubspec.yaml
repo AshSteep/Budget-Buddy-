@@ -103,6 +103,9 @@ flutter:
     - assets/icons/cinema.png
     - assets/icons/calendar.png
     - assets/icons/categories.png
+    - assets/icons/expense.png
+    - assets/icons/income.png
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

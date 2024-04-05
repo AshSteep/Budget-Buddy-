@@ -87,10 +87,10 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(
-                                      Icons.category,
-                                      size: 18,
-                                      color: Colors.black,
+                                    Image.asset(
+                                      'assets/icons/expense.png',
+                                      width: 20,
+                                      height: 20,
                                     ),
                                     SizedBox(width: 5),
                                     Text(

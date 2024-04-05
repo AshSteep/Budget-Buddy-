@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:base_app/auth/loginPage.dart';
+import 'package:base_app/components/bottomnavbar.dart';
 import 'package:base_app/screens/userpage/UserPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
       print('loggin info $logginned');
       if (logginned != '') {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => UserPage()),
+          MaterialPageRoute(builder: (context) => BottomNavBar()),
         );
       } else {
         Navigator.of(context).pushReplacement(
