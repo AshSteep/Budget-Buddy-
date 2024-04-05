@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Statistics extends StatefulWidget {
   const Statistics({super.key});
@@ -18,9 +19,13 @@ class _StatisticsState extends State<Statistics> {
   int FuelExp = 0;
   int OutingExp = 0;
   int MedicalExp = 0;
+  int sum = 0;
+  TextEditingController _textEditingController = TextEditingController();
+  late double _limit;
   @override
   void initState() {
     super.initState();
+    _loadLimit();
     pageData();
   }
 
@@ -58,6 +63,20 @@ class _StatisticsState extends State<Statistics> {
     } else {
       print('No data found for this user.');
     }
+  }
+
+  void _loadLimit() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _limit = prefs.getDouble('limit') ?? 0.0;
+      _textEditingController = TextEditingController(text: _limit.toString());
+    });
+  }
+
+  // Save the limit value to shared preferences
+  void _saveLimit(double limit) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble('limit', limit);
   }
 
   @override
@@ -131,13 +150,55 @@ class _StatisticsState extends State<Statistics> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: 5),
-                            Text(
-                              'Statistics',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Statistics',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Set Limit'),
+                                          content: TextField(
+                                            controller: _textEditingController,
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                                labelText: 'Enter Limit'),
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: Text('Set'),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _limit = double.tryParse(
+                                                          _textEditingController
+                                                              .text) ??
+                                                      0.0;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Image.asset(
+                                    'assets/icons/Limiter.png',
+                                    height: 30,
+                                    width: 30,
+                                  ),
+                                ),
+                              ],
                             ),
                             SizedBox(height: 15),
                             Row(
@@ -206,7 +267,7 @@ class _StatisticsState extends State<Statistics> {
                                   width: 5,
                                 ),
                                 Text(
-                                  '/ ₹ 10000 Per Month  ',
+                                  '/ ₹ $_limit Per Month  ',
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -214,10 +275,10 @@ class _StatisticsState extends State<Statistics> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 20),
+                            SizedBox(height: 10),
                             // Add some space between text and progress indicator
                             LinearProgressIndicator(
-                              value: 2780 / 10000, // Calculate the progress
+                              value: 1200 / 1000, // Calculate the progress
                               backgroundColor: Colors.white,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 Colors
@@ -262,49 +323,49 @@ class _StatisticsState extends State<Statistics> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  width: 120,
-                  height: 40,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Color(0xFFF6573D3),
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: DropdownButton<String>(
-                        value: 'This Week',
-                        onChanged: (String? newValue) {},
-                        items: <String>['This Month', 'This Week', 'This Day']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              value,
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.white,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.black,
-                        ),
-                        icon: Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.white,
-                        ),
-                        elevation: 8,
-                        underline: Container(),
-                        isExpanded: true,
-                      ),
-                    ),
-                  ),
-                ),
+                //   SizedBox(
+                //     width: 120,
+                //     height: 40,
+                //     child: Container(
+                //       decoration: BoxDecoration(
+                //         shape: BoxShape.rectangle,
+                //         color: Color(0xFFF6573D3),
+                //         border: Border.all(color: Colors.grey),
+                //         borderRadius: BorderRadius.circular(8.0),
+                //       ),
+                //       child: Padding(
+                //         padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                //         child: DropdownButton<String>(
+                //           value: 'This Week',
+                //           onChanged: (String? newValue) {},
+                //           items: <String>['This Month', 'This Week', 'This Day']
+                //               .map<DropdownMenuItem<String>>((String value) {
+                //             return DropdownMenuItem<String>(
+                //               value: value,
+                //               child: Text(
+                //                 value,
+                //                 style: TextStyle(
+                //                   fontSize: 16.0,
+                //                   color: Colors.white,
+                //                 ),
+                //               ),
+                //             );
+                //           }).toList(),
+                //           style: TextStyle(
+                //             fontSize: 16.0,
+                //             color: Colors.black,
+                //           ),
+                //           icon: Icon(
+                //             Icons.arrow_drop_down,
+                //             color: Colors.white,
+                //           ),
+                //           elevation: 8,
+                //           underline: Container(),
+                //           isExpanded: true,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
               ],
             ),
           ),

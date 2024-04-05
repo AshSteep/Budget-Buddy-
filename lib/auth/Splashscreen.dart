@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:base_app/auth/loginPage.dart';
 import 'package:base_app/components/bottomnavbar.dart';
-import 'package:base_app/screens/userpage/UserPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

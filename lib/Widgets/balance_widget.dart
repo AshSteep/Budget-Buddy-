@@ -35,7 +35,7 @@ class _ExpenseTotalState extends State<ExpenseTotal> {
         Text(
           '₹ ${totalIncome - totalExpense}',
           style: TextStyle(
-              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+              color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 5),
         Padding(
@@ -113,7 +113,7 @@ class _ExpenseTotalState extends State<ExpenseTotal> {
                               '₹ $sum',
                               style: TextStyle(
                                 color: Color(0xFFFFBFCFE),
-                                fontSize: 30,
+                                fontSize: 25,
                                 fontWeight: FontWeight.bold,
                               ),
                             );
@@ -196,7 +196,7 @@ class _ExpenseTotalState extends State<ExpenseTotal> {
                               '₹ $sum',
                               style: TextStyle(
                                 color: Color(0xFFFFBFCFE),
-                                fontSize: 30,
+                                fontSize: 25,
                                 fontWeight: FontWeight.bold,
                               ),
                             );
