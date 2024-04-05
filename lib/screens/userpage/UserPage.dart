@@ -4,6 +4,7 @@ import 'package:base_app/Widgets/income_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Transaction {
   final DateTime date;
@@ -194,6 +195,9 @@ class _UserPageState extends State<UserPage>
                                 Navigator.of(context).pop();
                                 // Perform sign out
                                 await FirebaseAuth.instance.signOut();
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setString('email', '');
                                 // Navigate to login page
                                 Navigator.pushReplacementNamed(
                                     context, '/login');

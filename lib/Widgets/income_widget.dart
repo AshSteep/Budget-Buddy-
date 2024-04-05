@@ -66,7 +66,7 @@ class _IncomeWidgetState extends State<IncomeWidget> {
                           SizedBox(width: 120),
                           Expanded(
                             child: Text(
-                              'Total: - ₹ $totalIncome',
+                              'Total:  ₹ $totalIncome',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,
@@ -106,7 +106,7 @@ class _IncomeWidgetState extends State<IncomeWidget> {
                                   ],
                                 ),
                                 Text(
-                                  '- ₹ $amount',
+                                  ' ₹ $amount',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,

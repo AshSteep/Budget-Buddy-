@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:base_app/auth/loginPage.dart';
+import 'package:base_app/screens/userpage/UserPage.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -12,11 +14,20 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     // Add a delay to simulate a splash screen
-    Timer(Duration(seconds: 3), () {
+    Timer(Duration(seconds: 3), () async {
       // Navigate to the login page after the delay
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? logginned = await prefs.getString('email');
+      print('loggin info $logginned');
+      if (logginned != '') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => UserPage()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
     });
   }
 

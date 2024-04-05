@@ -8,6 +8,8 @@ class ExpenseTotal extends StatefulWidget {
 }
 
 class _ExpenseTotalState extends State<ExpenseTotal> {
+  int totalExp = 0;
+  int totalIncome = 0;
   @override
   Widget build(BuildContext context) {
     final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -23,114 +25,146 @@ class _ExpenseTotalState extends State<ExpenseTotal> {
       ),
       child: Stack(
         children: [
-          Positioned(
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/icons/money.png'),
-                  alignment: Alignment.topRight,
-                ),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Expense Total',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Text(
+                    'Expense Total',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                SizedBox(height: 15),
-                StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(uid)
-                      .snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData || !snapshot.data!.exists) {
-                      return Text('No data available');
-                    }
-
-                    // Extract expenses data from the user document
-                    Map<String, dynamic> userData =
-                        snapshot.data!.data() as Map<String, dynamic>;
-                    int sum = 0;
-                    List<dynamic> expenses = userData['expenseData'] ?? [];
-                    expenses.forEach((e) {
-                      print(e['date'].toDate());
-                      print("Full");
-                      if (e['date'].toDate().isAfter(firstDayOfMonth) &&
-                          e['date'].toDate().isBefore(lastDayOfMonth)) {
-                        print(e['date'].toDate());
-                        sum = sum + (int.parse(e['amount']));
+                SizedBox(height: 5),
+                Center(
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
                       }
-                    });
-                    print(sum);
-                    // Calculate total expense
-                    int totalExpense = expenses.fold(
-                        0,
-                        (previousValue, expense) =>
-                            previousValue + (int.parse(expense['amount'])));
-                    print(totalExpense);
-                    return Text(
-                      '₹ $sum',
-                      style: TextStyle(
-                        color: Color(0xFFFFBFCFE),
-                        fontSize: 45,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Text('No data available');
+                      }
+
+                      // Extract expenses data from the user document
+                      Map<String, dynamic> userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      int sum = 0;
+                      List<dynamic> expenses = userData['expenseData'] ?? [];
+                      expenses.forEach((e) {
+                        print(e['date'].toDate());
+                        print("Full");
+                        if (e['date'].toDate().isAfter(firstDayOfMonth) &&
+                            e['date'].toDate().isBefore(lastDayOfMonth)) {
+                          print(e['date'].toDate());
+                          sum = sum + (int.parse(e['amount']));
+                          totalExp = sum;
+                        }
+                      });
+                      print(sum);
+                      // Calculate total expense
+
+                      return Text(
+                        '₹ $sum',
+                        style: TextStyle(
+                          color: Color(0xFFFFBFCFE),
+                          fontSize: 35,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-                SizedBox(height: 15),
+                Center(
+                  child: Text(
+                    'Income Total',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5),
+                SizedBox(height: 5),
+                Center(
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Text('No data available');
+                      }
+
+                      // Extract expenses data from the user document
+                      Map<String, dynamic> userData =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      int sum = 0;
+                      List<dynamic> Incomes = userData['IncomeData'] ?? [];
+                      Incomes.forEach((e) {
+                        print(e['date'].toDate());
+                        print("Full");
+                        if (e['date'].toDate().isAfter(firstDayOfMonth) &&
+                            e['date'].toDate().isBefore(lastDayOfMonth)) {
+                          print(e['date'].toDate());
+                          sum = sum + (int.parse(e['amount']));
+                          totalIncome = sum;
+                        }
+                      });
+                      print(sum);
+
+                      return Text(
+                        '₹ $sum',
+                        style: TextStyle(
+                          color: Color(0xFFFFBFCFE),
+                          fontSize: 35,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 Row(
                   children: [
-                    Container(
-                      width: 60.0,
-                      height: 30.0,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFDB6565),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      padding: EdgeInsets.all(4.0),
-                      child: Center(
-                        child: Text(
-                          '+ ₹ 240 ',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17.0,
-                          ),
+                    Center(
+                      child: Text(
+                        'Balance ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 5,
-                    ),
                     Text(
-                      'Than last month ',
+                      '${totalIncome - totalExp}',
                       style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white70),
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),
