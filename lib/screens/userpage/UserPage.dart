@@ -136,6 +136,133 @@ class _UserPageState extends State<UserPage>
     // Implement this method to update expenses based on the selected month and year
   }
 
+  void _showDropDownDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Choose Options"),
+          content: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF6573D3), // Red background color for the box
+                  borderRadius: BorderRadius.circular(
+                      15), // You can adjust the border radius as needed
+                ),
+                child: DropdownButton<int>(
+                  value: selectedMonth,
+                  onChanged: (int? newValue) {
+                    setState(() {
+                      selectedMonth = newValue!;
+                      // Call a method to update expenses based on the selected month
+                      updateExpenses();
+                    });
+                  },
+                  items: List.generate(12, (index) {
+                    return DropdownMenuItem<int>(
+                      value: index + 1,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 1, bottom: 1, left: 10, right: 0),
+                        child: Text(_getMonthName(index + 1)),
+                      ),
+                    );
+                  }),
+                  style: TextStyle(
+                    // Apply text style to the selected item
+                    fontSize: 15, fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    // You can add more styling properties as needed
+                  ),
+                  icon: Icon(
+                    Icons.arrow_drop_down, // You can change the icon as needed
+                    color: Colors.white,
+                  ),
+                  elevation: 4, // Change the elevation of the dropdown menu
+                  dropdownColor: Color(
+                      0xFFF6573D3), // Change the background color of the dropdown menu
+                  underline: Container(
+                    // You can remove the underline by providing an empty Container
+                    height: 0,
+                    color: Colors.transparent,
+                  ),
+                  // You can add more properties to further customize the dropdown button
+                ),
+              ),
+              SizedBox(width: 3),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFF6573D3), // Red background color for the box
+                  borderRadius: BorderRadius.circular(
+                      15), // You can adjust the border radius as needed
+                ),
+                child: DropdownButton<int>(
+                  value: selectedYear,
+                  onChanged: (int? newValue) {
+                    setState(() {
+                      selectedYear = newValue!;
+                      // Call a method to update expenses based on the selected year
+                      updateExpenses();
+                    });
+                  },
+                  items: List.generate(10, (index) {
+                    return DropdownMenuItem<int>(
+                      value: DateTime.now().year - index,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 12.0), // Adjust padding here
+                        child: Text(
+                          (DateTime.now().year - index).toString(),
+                          style: TextStyle(
+                            // Apply text style to the selected item
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            // You can add more styling properties as needed
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  style: TextStyle(
+                    // Apply text style to the selected item
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    // You can add more styling properties as needed
+                  ),
+                  icon: Icon(
+                    Icons.arrow_drop_down, // You can change the icon as needed
+                    color: Colors.white,
+                  ),
+                  elevation: 4, // Change the elevation of the dropdown menu
+                  dropdownColor: Color(
+                      0xFFF6573D3), // Change the background color of the dropdown menu
+                  underline: Container(
+                    // You can remove the underline by providing an empty Container
+                    height: 0,
+                    color: Colors.transparent,
+                  ),
+                  // You can add more properties to further customize the dropdown button
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final uid = _auth.currentUser?.uid;
@@ -272,120 +399,15 @@ class _UserPageState extends State<UserPage>
                           ],
                         ),
                       ),
-                      Row(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Color(
-                                  0xFFF6573D3), // Red background color for the box
-                              borderRadius: BorderRadius.circular(
-                                  15), // You can adjust the border radius as needed
-                            ),
-                            child: DropdownButton<int>(
-                              value: selectedMonth,
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  selectedMonth = newValue!;
-                                  // Call a method to update expenses based on the selected month
-                                  updateExpenses();
-                                });
-                              },
-                              items: List.generate(12, (index) {
-                                return DropdownMenuItem<int>(
-                                  value: index + 1,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 1, bottom: 1, left: 10, right: 0),
-                                    child: Text(_getMonthName(index + 1)),
-                                  ),
-                                );
-                              }),
-                              style: TextStyle(
-                                // Apply text style to the selected item
-                                fontSize: 15, fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                // You can add more styling properties as needed
-                              ),
-                              icon: Icon(
-                                Icons
-                                    .arrow_drop_down, // You can change the icon as needed
-                                color: Colors.white,
-                              ),
-                              elevation:
-                                  4, // Change the elevation of the dropdown menu
-                              dropdownColor: Color(
-                                  0xFFF6573D3), // Change the background color of the dropdown menu
-                              underline: Container(
-                                // You can remove the underline by providing an empty Container
-                                height: 0,
-                                color: Colors.transparent,
-                              ),
-                              // You can add more properties to further customize the dropdown button
-                            ),
-                          ),
-                          SizedBox(width: 3),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Color(
-                                  0xFFF6573D3), // Red background color for the box
-                              borderRadius: BorderRadius.circular(
-                                  15), // You can adjust the border radius as needed
-                            ),
-                            child: DropdownButton<int>(
-                              value: selectedYear,
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  selectedYear = newValue!;
-                                  // Call a method to update expenses based on the selected year
-                                  updateExpenses();
-                                });
-                              },
-                              items: List.generate(10, (index) {
-                                return DropdownMenuItem<int>(
-                                  value: DateTime.now().year - index,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                        horizontal:
-                                            12.0), // Adjust padding here
-                                    child: Text(
-                                      (DateTime.now().year - index).toString(),
-                                      style: TextStyle(
-                                        // Apply text style to the selected item
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        // You can add more styling properties as needed
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
-                              style: TextStyle(
-                                // Apply text style to the selected item
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                // You can add more styling properties as needed
-                              ),
-                              icon: Icon(
-                                Icons
-                                    .arrow_drop_down, // You can change the icon as needed
-                                color: Colors.white,
-                              ),
-                              elevation:
-                                  4, // Change the elevation of the dropdown menu
-                              dropdownColor: Color(
-                                  0xFFF6573D3), // Change the background color of the dropdown menu
-                              underline: Container(
-                                // You can remove the underline by providing an empty Container
-                                height: 0,
-                                color: Colors.transparent,
-                              ),
-                              // You can add more properties to further customize the dropdown button
-                            ),
-                          ),
-                        ],
+                      IconButton(
+                        onPressed: () {
+                          _showDropDownDialog(context);
+                        },
+                        icon: Icon(
+                          Icons.date_range_outlined,
+                          color: Color(0xFFF6573D3),
+                          size: 35,
+                        ),
                       ),
                     ],
                   ),

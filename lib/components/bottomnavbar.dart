@@ -50,6 +50,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           Icon(Icons.bar_chart_rounded, color: Colors.white),
         ],
         onTap: (int index) {
+          
           setState(() {
             _currentIndex = index;
           });

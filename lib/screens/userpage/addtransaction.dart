@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Transaction {
   final DateTime date;
@@ -396,27 +397,44 @@ class _AddTransactionState extends State<AddTransaction> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Edit Notes'),
-                              content: TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Enter your notes...',
-                                ),
-                                maxLines: 3,
-                                onChanged: (value) {
-                                  setState(() {
-                                    extraNotes = value;
-                                  });
-                                },
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('Close'),
-                                ),
-                              ],
+                            return StatefulBuilder(
+                              builder:
+                                  (BuildContext context, StateSetter setState) {
+                                return AlertDialog(
+                                  title: Text('Edit Notes'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      TextField(
+                                        decoration: InputDecoration(
+                                          hintText: 'Enter your notes...',
+                                        ),
+                                        maxLines: 3,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            extraNotes = value;
+                                          });
+                                        },
+                                      ),
+                                      SizedBox(height: 20),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _pickImageFromGallery();
+                                        },
+                                        child: Text('Add Image'),
+                                      ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Close'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
                         );
@@ -559,6 +577,16 @@ class _AddTransactionState extends State<AddTransaction> {
       setState(() {
         selectedDate = picked;
       });
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+    // Do something with the picked image
+    if (pickedImage != null) {
+      // You can save the picked image to a variable or perform any other action
+      print('Image picked: ${pickedImage.path}');
     }
   }
 }

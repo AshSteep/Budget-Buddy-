@@ -88,7 +88,7 @@ class _ExpenseWidgetState extends State<ExpenseWidget> {
                                 Row(
                                   children: [
                                     Image.asset(
-                                      'assets/icons/expense.png',
+                                      'assets/icons/up-arrow.png',
                                       width: 20,
                                       height: 20,
                                     ),

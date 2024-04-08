@@ -89,7 +89,7 @@ class _IncomeWidgetState extends State<IncomeWidget> {
                               children: [
                                 Row(
                                   children: [
-                                    Image.asset('assets/icons/income.png',
+                                    Image.asset('assets/icons/down-arrow.png',
                                         width: 20, height: 20),
                                     SizedBox(width: 5),
                                     Text(
