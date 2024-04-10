@@ -51,13 +51,17 @@ dependencies:
   pie_chart: ^5.4.0
   shared_preferences: ^2.2.2
   image_picker: ^1.0.7
+  provider: ^6.0.2
+  web3dart: ^2.3.5
+  http: ^1.1.0
+  web_socket_channel: ^2.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.7
-  google_fonts: ^6.1.0
+  google_fonts: ^4.0.4
     
 flutter_native_splash:
   color: "#ffffff"
@@ -109,6 +113,7 @@ flutter:
     - assets/icons/Limiter.png
     - assets/icons/down-arrow.png
     - assets/icons/up-arrow.png
+    - build/contracts/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

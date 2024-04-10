@@ -1,3 +1,4 @@
+import 'package:base_app/blockchain/home_screen.dart';
 import 'package:base_app/screens/userpage/Statistics.dart';
 import 'package:base_app/screens/userpage/UserPage.dart';
 import 'package:base_app/screens/userpage/addtransaction.dart';
@@ -31,6 +32,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           UserPage(),
           AddTransaction(),
           Statistics(),
+          HomeScreen(),
         ],
         onPageChanged: (int index) {
           setState(() {
@@ -48,9 +50,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
           Icon(Icons.home, color: Colors.white),
           Icon(Icons.add, color: Colors.white),
           Icon(Icons.bar_chart_rounded, color: Colors.white),
+          Icon(Icons.security, color: Colors.white),
         ],
         onTap: (int index) {
-          
           setState(() {
             _currentIndex = index;
           });
