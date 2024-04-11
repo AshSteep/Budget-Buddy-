@@ -1,6 +1,7 @@
 import 'package:base_app/Widgets/balance_widget.dart';
 import 'package:base_app/Widgets/expense_widget.dart';
 import 'package:base_app/Widgets/income_widget.dart';
+import 'package:base_app/screens/userpage/qrscanner.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -400,13 +401,32 @@ class _UserPageState extends State<UserPage>
                         ),
                       ),
                       IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.payment,
+                            color: Colors.black,
+                            size: 30,
+                          )),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: ((context) => QRScanner())));
+                          },
+                          icon: Icon(
+                            Icons.qr_code,
+                            color: Colors.black,
+                            size: 30,
+                          )),
+                      IconButton(
                         onPressed: () {
                           _showDropDownDialog(context);
                         },
                         icon: Icon(
                           Icons.date_range_outlined,
-                          color: Color(0xFFF6573D3),
-                          size: 35,
+                          color: Colors.black,
+                          size: 30,
                         ),
                       ),
                     ],
